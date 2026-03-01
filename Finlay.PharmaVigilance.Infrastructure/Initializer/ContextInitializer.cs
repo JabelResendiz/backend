@@ -24,13 +24,19 @@ public static class DatabaseInitializer
 
         try
         {
-            // Automatically applies pending migrations to the database.
-            await context.Database.MigrateAsync();
+            // First, ensure the database exists
+            Console.WriteLine("Ensuring database exists...");
+            await context.Database.EnsureCreatedAsync();
+            Console.WriteLine("✓ Database ensured.");
 
+            // Then apply pending migrations
+            Console.WriteLine("Applying migrations...");
+            await context.Database.MigrateAsync();
+            Console.WriteLine("✓ Migrations applied successfully.");
         }
         catch (Exception ex)
         {
-            //logger.LogError(ex, "Error al inicializar la base de datos");
+            Console.WriteLine($"✗ Database initialization error: {ex.Message}");
             throw;
         }
     }
