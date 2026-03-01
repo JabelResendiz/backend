@@ -39,23 +39,30 @@ public class RoleInitializer : IHostedService
 
     public async Task StartAsync(CancellationToken cancellationToken)
     {
-
-        using (var scope = _serviceProvider.CreateScope())
+        try
         {
-            //get RoleManager<IdentityRole> service from the dependency container
-            var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
-
-            foreach (var role in UserRoleHelper.AllRoles())
+            using (var scope = _serviceProvider.CreateScope())
             {
-                if (!await roleManager.RoleExistsAsync(role))
+                //get RoleManager<IdentityRole> service from the dependency container
+                var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+
+                foreach (var role in UserRoleHelper.AllRoles())
                 {
-                    var result = await roleManager.CreateAsync(new Role{Name = role});
-                    if (!result.Succeeded)
+                    if (!await roleManager.RoleExistsAsync(role))
                     {
-                        throw new Exception($"Error create the role: {role}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                        var result = await roleManager.CreateAsync(new Role{Name = role});
+                        if (!result.Succeeded)
+                        {
+                            Console.WriteLine($"Error creating role {role}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                        }
                     }
                 }
             }
+        }
+        catch (Exception ex)
+        {
+            // Log the error but don't crash the application
+            Console.WriteLine($"RoleInitializer error: {ex.Message}");
         }
     }
 

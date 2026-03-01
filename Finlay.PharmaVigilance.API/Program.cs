@@ -39,6 +39,19 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+else
+{
+    // In production, also apply migrations
+    try
+    {
+        await DatabaseInitializer.InitializeAsync(app.Services);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine($"Migration error: {ex.Message}");
+        // Continue even if migration fails
+    }
+}
 
 app.UseCors();
 //app.UseCors("LocalhostPolicy");
