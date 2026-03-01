@@ -29,8 +29,8 @@ public static class DependencyInjection
 
     {
 
-        // Database Configuration
-        var connectionString = configuration.GetConnectionString("AppDbConnectionString");
+        // Database Configuration - Build connection string from environment variables or appsettings
+        var connectionString = GetConnectionString(configuration);
         var db = services.AddDbContext<FinlayDbContext>(options => options.UseMySql(
                                                         connectionString, ServerVersion.AutoDetect(connectionString)));
 
@@ -67,6 +67,35 @@ public static class DependencyInjection
 
     }
 
+    /// <summary>
+    /// Builds database connection string from environment variables (Railway) or appsettings.json
+    /// Railway provides: MYSQLHOST, MYSQLPORT, MYSQLDATABASE, MYSQLUSER, MYSQLPASSWORD
+    /// </summary>
+    private static string GetConnectionString(ConfigurationManager configuration)
+    {
+        // Check if Railway environment variables exist
+        var host = Environment.GetEnvironmentVariable("MYSQLHOST");
+        var port = Environment.GetEnvironmentVariable("MYSQLPORT") ?? "3306";
+        var database = Environment.GetEnvironmentVariable("MYSQLDATABASE");
+        var user = Environment.GetEnvironmentVariable("MYSQLUSER");
+        var password = Environment.GetEnvironmentVariable("MYSQLPASSWORD");
+
+        // If Railway variables are available, use them
+        if (!string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(database) 
+            && !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(password))
+        {
+            return $"Server={host};Port={port};Database={database};User={user};Password={password};SslMode=Required;";
+        }
+
+        // Otherwise, use connection string from appsettings.json
+        var connectionString = configuration.GetConnectionString("AppDbConnectionString");
+        if (string.IsNullOrEmpty(connectionString))
+        {
+            throw new InvalidOperationException("Database connection string not found in appsettings.json or environment variables.");
+        }
+
+        return connectionString;
+    }
 
     /// <summary>
     /// Configures JWT authentication services for the application.
@@ -78,7 +107,22 @@ public static class DependencyInjection
                                               ConfigurationManager configuration)
     {
         var jwtSettings = new JwtSettings();
-        configuration.Bind(JwtSettings.SECTION_NAME, jwtSettings);
+        
+        // Try to get JWT Secret from environment variable first (Railway)
+        var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
+        if (!string.IsNullOrEmpty(jwtSecret))
+        {
+            jwtSettings.Secret = jwtSecret;
+            // Bind other settings from configuration
+            configuration.Bind(JwtSettings.SECTION_NAME, jwtSettings);
+            // Override Secret with environment variable
+            jwtSettings.Secret = jwtSecret;
+        }
+        else
+        {
+            // Fall back to appsettings
+            configuration.Bind(JwtSettings.SECTION_NAME, jwtSettings);
+        }
 
         services.AddSingleton(jwtSettings); // Registro directo para dependencias que lo necesiten como instancia
 

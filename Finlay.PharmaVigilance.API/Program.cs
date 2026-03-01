@@ -9,10 +9,16 @@ using Finlay.PharmaVigilance.Api.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Add environment variables configuration
+builder.Configuration.AddEnvironmentVariables();
+
+// Determine port: use PORT env variable if available (for Railway), otherwise use 5137
+var port = Environment.GetEnvironmentVariable("PORT") ?? "5137";
+
 //configuration so that API listens on all network interfaces
 builder.WebHost.ConfigureKestrel(options =>
 {
-    options.Listen(System.Net.IPAddress.Any, 5137);  // Escucha en todas las interfaces en el puerto 5217
+    options.Listen(System.Net.IPAddress.Any, int.Parse(port));
 });
 
 var services = builder.Services;
