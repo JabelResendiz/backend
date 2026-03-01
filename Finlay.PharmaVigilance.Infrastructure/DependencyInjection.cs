@@ -106,23 +106,21 @@ public static class DependencyInjection
     public static IServiceCollection AddAuth(this IServiceCollection services,
                                               ConfigurationManager configuration)
     {
-        var jwtSettings = new JwtSettings();
+        // Bind settings from configuration first
+        var configSettings = new JwtSettings();
+        configuration.Bind(JwtSettings.SECTION_NAME, configSettings);
         
-        // Try to get JWT Secret from environment variable first (Railway)
-        var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET");
-        if (!string.IsNullOrEmpty(jwtSecret))
+        // Get JWT Secret from environment variable (Railway), otherwise use config value
+        var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? configSettings.Secret;
+        
+        // Create JwtSettings with the right values
+        var jwtSettings = new JwtSettings
         {
-            jwtSettings.Secret = jwtSecret;
-            // Bind other settings from configuration
-            configuration.Bind(JwtSettings.SECTION_NAME, jwtSettings);
-            // Override Secret with environment variable
-            jwtSettings.Secret = jwtSecret;
-        }
-        else
-        {
-            // Fall back to appsettings
-            configuration.Bind(JwtSettings.SECTION_NAME, jwtSettings);
-        }
+            Secret = jwtSecret,
+            Issuer = configSettings.Issuer,
+            ExpiryMinutes = configSettings.ExpiryMinutes,
+            Audience = configSettings.Audience
+        };
 
         services.AddSingleton(jwtSettings); // Registro directo para dependencias que lo necesiten como instancia
 
