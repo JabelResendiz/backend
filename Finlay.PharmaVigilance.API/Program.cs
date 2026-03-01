@@ -36,43 +36,52 @@ var app = builder.Build();
 // Initialize database and roles BEFORE starting the application
 try
 {
-    Console.WriteLine("Starting database initialization...");
+    Console.WriteLine("===== Starting database initialization =====");
     
     // Apply migrations
     await DatabaseInitializer.InitializeAsync(app.Services);
-    Console.WriteLine("Database migrations completed successfully.");
+    Console.WriteLine("✓ Database migrations completed successfully.");
     
     // Initialize roles after migrations are done
     using (var scope = app.Services.CreateScope())
     {
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+        Console.WriteLine("Creating roles...");
         
         foreach (var role in UserRoleHelper.AllRoles())
         {
-            if (!await roleManager.RoleExistsAsync(role))
+            try
             {
-                var result = await roleManager.CreateAsync(new Role { Name = role });
-                if (result.Succeeded)
+                if (!await roleManager.RoleExistsAsync(role))
                 {
-                    Console.WriteLine($"Role '{role}' created successfully.");
+                    var result = await roleManager.CreateAsync(new Role { Name = role });
+                    if (result.Succeeded)
+                    {
+                        Console.WriteLine($"✓ Role '{role}' created successfully.");
+                    }
+                    else
+                    {
+                        Console.WriteLine($"✗ Error creating role '{role}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    }
                 }
                 else
                 {
-                    Console.WriteLine($"Error creating role '{role}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                    Console.WriteLine($"✓ Role '{role}' already exists.");
                 }
             }
-            else
+            catch (Exception roleEx)
             {
-                Console.WriteLine($"Role '{role}' already exists.");
+                Console.WriteLine($"✗ Exception while processing role '{role}': {roleEx.Message}");
             }
         }
     }
-    Console.WriteLine("Role initialization completed.");
+    Console.WriteLine("===== Role initialization completed =====");
 }
 catch (Exception ex)
 {
-    Console.WriteLine($"Error during initialization: {ex.Message}");
+    Console.WriteLine($"✗✗✗ FATAL ERROR during initialization: {ex.Message}");
     Console.WriteLine($"Stack trace: {ex.StackTrace}");
+    // Don't exit - allow the app to start anyway
 }
 
 
