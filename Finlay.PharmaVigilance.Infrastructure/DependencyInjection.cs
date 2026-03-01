@@ -31,8 +31,21 @@ public static class DependencyInjection
 
         // Database Configuration - Build connection string from environment variables or appsettings
         var connectionString = GetConnectionString(configuration);
-        var db = services.AddDbContext<FinlayDbContext>(options => options.UseMySql(
-                                                        connectionString, ServerVersion.AutoDetect(connectionString)));
+        
+        var db = services.AddDbContext<FinlayDbContext>(options => 
+        {
+            try
+            {
+                options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+            }
+            catch (Exception ex)
+            {
+                // Log connection string issues for debugging
+                Console.WriteLine($"Database connection error: {ex.Message}");
+                Console.WriteLine($"Connection string attempted: {connectionString}");
+                throw;
+            }
+        });
 
         // Add HttpContextAccessor for accessing the current HTTP context
         services.AddHttpContextAccessor();
@@ -73,7 +86,16 @@ public static class DependencyInjection
     /// </summary>
     private static string GetConnectionString(ConfigurationManager configuration)
     {
-        // Check if Railway environment variables exist
+        // First, try MYSQL_URL (Railway provides this directly)
+        var mysqlUrl = Environment.GetEnvironmentVariable("MYSQL_URL");
+        if (!string.IsNullOrEmpty(mysqlUrl))
+        {
+            // MYSQL_URL format: mysql://user:password@host:port/database
+            // We need to convert it to Pomelo MySql format
+            return ConvertMysqlUrlToConnectionString(mysqlUrl);
+        }
+
+        // Otherwise, check individual Railway environment variables
         var host = Environment.GetEnvironmentVariable("MYSQLHOST");
         var port = Environment.GetEnvironmentVariable("MYSQLPORT") ?? "3306";
         var database = Environment.GetEnvironmentVariable("MYSQLDATABASE");
@@ -95,6 +117,30 @@ public static class DependencyInjection
         }
 
         return connectionString;
+    }
+
+    /// <summary>
+    /// Converts MYSQL_URL (format: mysql://user:password@host:port/database) to Pomelo connection string format
+    /// </summary>
+    private static string ConvertMysqlUrlToConnectionString(string mysqlUrl)
+    {
+        try
+        {
+            // Parse mysql://user:password@host:port/database
+            var uri = new Uri(mysqlUrl);
+            var host = uri.Host;
+            var port = uri.Port > 0 ? uri.Port.ToString() : "3306";
+            var database = uri.AbsolutePath.TrimStart('/');
+            var user = uri.UserInfo.Split(':')[0];
+            var password = uri.UserInfo.Contains(':') ? uri.UserInfo.Split(':')[1] : "";
+
+            // Use SslMode=Required for Railway's secure connection
+            return $"Server={host};Port={port};Database={database};User={user};Password={password};SslMode=Required;";
+        }
+        catch (Exception ex)
+        {
+            throw new InvalidOperationException($"Failed to parse MYSQL_URL: {mysqlUrl}", ex);
+        }
     }
 
     /// <summary>
