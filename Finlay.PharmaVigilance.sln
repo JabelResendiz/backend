@@ -1,0 +1,40 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.31903.59
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Finlay.PharmaVigilance.API", "Finlay.PharmaVigilance.API\Finlay.PharmaVigilance.API.csproj", "{BE88A0BC-7BE3-4484-9BA2-1BDE3F177F8F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Finlay.PharmaVigilance.Application", "Finlay.PharmaVigilance.Application\Finlay.PharmaVigilance.Application.csproj", "{58CC7AB7-1901-4FCC-A8DF-E04C161A60F4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Finlay.PharmaVigilance.Domain", "Finlay.PharmaVigilance.Domain\Finlay.PharmaVigilance.Domain.csproj", "{1AD1BB34-4BE6-400A-8E6E-79E71DBA9ABB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Finlay.PharmaVigilance.Infrastructure", "Finlay.PharmaVigilance.Infrastructure\Finlay.PharmaVigilance.Infrastructure.csproj", "{9EC2B7B0-AD0B-44EE-869D-3AEC05478F1F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BE88A0BC-7BE3-4484-9BA2-1BDE3F177F8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BE88A0BC-7BE3-4484-9BA2-1BDE3F177F8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BE88A0BC-7BE3-4484-9BA2-1BDE3F177F8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BE88A0BC-7BE3-4484-9BA2-1BDE3F177F8F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{58CC7AB7-1901-4FCC-A8DF-E04C161A60F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{58CC7AB7-1901-4FCC-A8DF-E04C161A60F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{58CC7AB7-1901-4FCC-A8DF-E04C161A60F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{58CC7AB7-1901-4FCC-A8DF-E04C161A60F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1AD1BB34-4BE6-400A-8E6E-79E71DBA9ABB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1AD1BB34-4BE6-400A-8E6E-79E71DBA9ABB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1AD1BB34-4BE6-400A-8E6E-79E71DBA9ABB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1AD1BB34-4BE6-400A-8E6E-79E71DBA9ABB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EC2B7B0-AD0B-44EE-869D-3AEC05478F1F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EC2B7B0-AD0B-44EE-869D-3AEC05478F1F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EC2B7B0-AD0B-44EE-869D-3AEC05478F1F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EC2B7B0-AD0B-44EE-869D-3AEC05478F1F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

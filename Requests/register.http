@@ -1,0 +1,12 @@
+@host = http://localhost:5137
+
+POST {{host}}/api/Authentication/register
+Content-Type:  application/json
+
+{
+  "name": "Jabel",
+  "userName": "JabelRA",
+  "email": "jabel@example.com",
+  "password": "Password_123!",
+  "userRole": "Supervisor"
+}
