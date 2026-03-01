@@ -71,8 +71,8 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IIdentityManager,IdentityManager>();
  
-        //Register a service of type IHostedService in the dependency container
-        services.AddHostedService<RoleInitializer>();
+        // DISABLED: Roles are now initialized in Program.cs after migrations
+        // services.AddHostedService<RoleInitializer>();
 
 
 

@@ -1,10 +1,11 @@
-
-
 using Finlay.PharmaVigilance.Infrastructure.Initializer;
 using Finlay.PharmaVigilance.Api;
 using Finlay.PharmaVigilance.Application;
 using Finlay.PharmaVigilance.Infrastructure;
 using Finlay.PharmaVigilance.Api.Middleware;
+using Microsoft.AspNetCore.Identity;
+using Finlay.PharmaVigilance.Domain.Entities;
+using Finlay.PharmaVigilance.Domain.Enum;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -32,25 +33,54 @@ services.AddInfrastructure(builder.Configuration);
 var app = builder.Build();
 
 
+// Initialize database and roles BEFORE starting the application
+try
+{
+    Console.WriteLine("Starting database initialization...");
+    
+    // Apply migrations
+    await DatabaseInitializer.InitializeAsync(app.Services);
+    Console.WriteLine("Database migrations completed successfully.");
+    
+    // Initialize roles after migrations are done
+    using (var scope = app.Services.CreateScope())
+    {
+        var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
+        
+        foreach (var role in UserRoleHelper.AllRoles())
+        {
+            if (!await roleManager.RoleExistsAsync(role))
+            {
+                var result = await roleManager.CreateAsync(new Role { Name = role });
+                if (result.Succeeded)
+                {
+                    Console.WriteLine($"Role '{role}' created successfully.");
+                }
+                else
+                {
+                    Console.WriteLine($"Error creating role '{role}': {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                }
+            }
+            else
+            {
+                Console.WriteLine($"Role '{role}' already exists.");
+            }
+        }
+    }
+    Console.WriteLine("Role initialization completed.");
+}
+catch (Exception ex)
+{
+    Console.WriteLine($"Error during initialization: {ex.Message}");
+    Console.WriteLine($"Stack trace: {ex.StackTrace}");
+}
+
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    await DatabaseInitializer.InitializeAsync(app.Services);
     app.UseSwagger();
     app.UseSwaggerUI();
-}
-else
-{
-    // In production, also apply migrations
-    try
-    {
-        await DatabaseInitializer.InitializeAsync(app.Services);
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine($"Migration error: {ex.Message}");
-        // Continue even if migration fails
-    }
 }
 
 app.UseCors();
