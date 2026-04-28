@@ -14,14 +14,14 @@ public interface IUnitOfWork : IDisposable
     /// Gets the repository for user-related operations.
     /// </summary>
     IUserRepository UserRepository { get; }
-    
+
     //IDepartmentRepository DepartmentRepository {get;}
     /// <summary>
     /// Gets a generic repository for managing entities of the specified type.
     /// </summary>
     /// <typeparam name="T">The type of the entity, which must inherit from <see cref="GenericEntity"/>.</typeparam>
     /// <returns>An instance of <see cref="IGenericRepository{T}"/>.</returns>
-    IGenericRepository<T> GetRepository<T>() where T : GenericEntity;
+    IGenericRepository<T> GetRepository<T>() where T : BasicEntity;
 
     /// <summary>
     /// Saves all changes made in the current transaction to the database.

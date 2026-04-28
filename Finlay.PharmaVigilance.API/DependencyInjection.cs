@@ -1,4 +1,8 @@
 
+using Finlay.PharmaVigilance.Api.Common;
+using Finlay.PharmaVigilance.Application.IServices.Common;
+using System.Text.Json.Serialization;
+
 namespace Finlay.PharmaVigilance.Api;
 
 
@@ -13,7 +17,13 @@ public static class DependencyInjection
     public static IServiceCollection AddPresentation(this IServiceCollection services)
     {
         // Add controllers to handle API requests
-        services.AddControllers();
+        services.AddControllers()
+            .AddJsonOptions(options =>
+            {
+                options.JsonSerializerOptions.Converters.Add(
+                    new JsonStringEnumConverter()
+                );
+            });
 
         // Add Swagger for API documentation
         services.AddEndpointsApiExplorer();
@@ -29,6 +39,8 @@ public static class DependencyInjection
                        .AllowAnyMethod(); // allows any HTTP method (GET,POST,PUT,DELETE)
             });
         });
+
+        services.AddScoped<IUserContextService, UserContextService>();
 
         return services;
     }

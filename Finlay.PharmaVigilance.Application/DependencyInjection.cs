@@ -1,7 +1,10 @@
+using Finlay.PharmaVigilance.Application.DTO;
+using Finlay.PharmaVigilance.Application.DTO.Authentication;
 using Finlay.PharmaVigilance.Application.IServices;
 using Finlay.PharmaVigilance.Application.IServices.Authentication;
 using Finlay.PharmaVigilance.Application.Services;
 using Finlay.PharmaVigilance.Application.Services.Authentication;
+using Finlay.PharmaVigilance.Application.Validators;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,13 +23,44 @@ public static class DependencyInjection
         // Registers AutoMapper to enable mapping between DTOs and domain models.
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
+        // Email Service
+        services.AddScoped<IEmailAppService, EmailAppService>();
+
+        // Catalog Service
+        services.AddScoped<ICatalogCommandService, CatalogCommandService>();
+        services.AddScoped<IVaccineQueryService, VaccineQueryService>();
+        services.AddScoped<ISymptomQueryService, SymptomQueryService>();
 
         // Registers services related to Entities
+        services.AddScoped<IIdentityService, IdentityService>();
+        services.AddScoped<IMedicalReviewerService, MedicalReviewerService>();
+        services.AddScoped<ISectionResponsibleService, SectionResponsibleService>();
 
-        services.AddScoped<IIdentityService,IdentityService>();
-        services.AddScoped<IEmployeeQueryServices,EmployeeQueryServices>();
-        services.AddScoped<IEmployeeCommandServices,EmployeeCommandServices>();
-        
+        // User Services
+        services.AddScoped<IUserQueryServices, UserQueryService>();
+        services.AddScoped<IUserCommandServices, UserCommandService>();
+
+        // reporter
+        services.AddScoped<IReportCommandService, ReportCommandService>();
+        services.AddScoped<IReportQueryService, ReportQueryService>();
+
+        // Report Validators - Chain of Responsibility pattern for comprehensive validation
+        services.AddScoped<IReportValidator<ReportDto>, ReportDateValidator>();
+        services.AddScoped<IReportValidator<PublicAefiReportDto>, ReporterValidator>();
+        services.AddScoped<IReportValidator<ReportDto>, VaccinatedSubjectValidator>();
+        services.AddScoped<IReportValidator<ReportDto>, VaccinationValidator>();
+        services.AddScoped<IReportValidator<ReportDto>, AdverseEventValidator>();
+        services.AddScoped<IReportValidator<RegisterMedicalReviewerDto>, MedicalReviewerValidator>();
+
+        // Notification Number Generator
+        services.AddScoped<INotificationNumberGenerator, NotificationNumberGenerator>();
+
+        // Medical review
+        services.AddScoped<IMedicalReviewCommandService, MedicalReviewCommandService>();
+        services.AddScoped<IMedicalReviewQueryService, MedicalReviewQueryService>();
+
+        services.AddScoped<IMedicalReviewAssignmentCommandService, MedicalReviewAssignmentCommandService>();
+
         return services;
 
 

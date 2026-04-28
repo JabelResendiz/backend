@@ -14,17 +14,18 @@ public class UnitOfWork : IUnitOfWork
     private Dictionary<Type, object> _repositories;
     public IUserRepository UserRepository { get; }
 
-    public UnitOfWork(FinlayDbContext context, IUserRepository userRepository)
+    public UnitOfWork(FinlayDbContext context,
+                     IUserRepository userRepository)
     {
         _context = context ?? throw new ArgumentNullException(nameof(context));
 
         _repositories = new Dictionary<Type, object>();
 
-        UserRepository = userRepository;
+        UserRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
     }
 
-    public IGenericRepository<T> GetRepository<T>() where T : GenericEntity
+    public IGenericRepository<T> GetRepository<T>() where T : BasicEntity
     {
         var type = typeof(T);
 

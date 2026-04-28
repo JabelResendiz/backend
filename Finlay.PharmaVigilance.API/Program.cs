@@ -6,7 +6,7 @@ using Finlay.PharmaVigilance.Api.Middleware;
 using Microsoft.AspNetCore.Identity;
 using Finlay.PharmaVigilance.Domain.Entities;
 using Finlay.PharmaVigilance.Domain.Enum;
-
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -30,6 +30,14 @@ services.AddAplication(builder.Configuration);
 services.AddInfrastructure(builder.Configuration);
 
 
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console()
+    .WriteTo.File("logs/app-.log", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
+
+
 var app = builder.Build();
 
 
@@ -37,17 +45,17 @@ var app = builder.Build();
 try
 {
     Console.WriteLine("===== Starting database initialization =====");
-    
+
     // Apply migrations
     await DatabaseInitializer.InitializeAsync(app.Services);
     Console.WriteLine("✓ Database migrations completed successfully.");
-    
+
     // Initialize roles after migrations are done
     using (var scope = app.Services.CreateScope())
     {
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<Role>>();
         Console.WriteLine("Creating roles...");
-        
+
         foreach (var role in UserRoleHelper.AllRoles())
         {
             try
@@ -94,7 +102,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors();
 //app.UseCors("LocalhostPolicy");
-        
+
 app.UseMiddleware<ErrorHandlingMiddleware>();
 app.UseHttpsRedirection();
 app.UseAuthentication();

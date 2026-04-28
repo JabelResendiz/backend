@@ -1,10 +1,10 @@
-namespace Finlay.PharmaVigilance.Domain.Enum;
+// namespace Finlay.PharmaVigilance.Domain.Enum;
 
 
-public enum Gender
-{
-   Male,
-   Female,
-   Other,
-   Unknown
-}
+// public enum Gender
+// {
+//    Male,
+//    Female,
+//    Other,
+//    Unknown
+// }

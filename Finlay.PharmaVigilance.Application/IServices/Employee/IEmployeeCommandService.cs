@@ -1,9 +1,9 @@
 
-using Finlay.PharmaVigilance.Application.DTO;
+// using Finlay.PharmaVigilance.Application.DTO;
 
-namespace Finlay.PharmaVigilance.Application.IServices;
+// namespace Finlay.PharmaVigilance.Application.IServices;
 
-public interface IEmployeeCommandServices : IGenericCommandService<EmployeeDto>
-{
+// public interface IEmployeeCommandServices : IGenericCommandService<EmployeeDto>
+// {
 
-}
+// }

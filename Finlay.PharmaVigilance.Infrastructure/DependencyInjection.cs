@@ -1,3 +1,329 @@
+// using Microsoft.Extensions.Configuration;
+// using Microsoft.Extensions.DependencyInjection;
+// using Microsoft.EntityFrameworkCore;
+// using Finlay.PharmaVigilance.Application.IRepository;
+// using Finlay.PharmaVigilance.Infrastructure.Repository;
+// using Microsoft.AspNetCore.Identity;
+// using Finlay.PharmaVigilance.Domain.Entities;
+// using Finlay.PharmaVigilance.Application.Common.Authentication;
+// using Finlay.PharmaVigilance.Infrastructure.Authentication;
+// using Microsoft.Extensions.Options;
+// using Finlay.PharmaVigilance.Application.Authentication;
+// using Finlay.PharmaVigilance.Infrastructure.Initializer;
+// using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
+// using Finlay.PharmaVigilance.Infrastructure.UnitOfWorkPattern;
+// using Microsoft.AspNetCore.Authentication.JwtBearer;
+// using Microsoft.IdentityModel.Tokens;
+
+
+// namespace Finlay.PharmaVigilance.Infrastructure;
+
+// public static class DependencyInjection
+// {
+//     /// <summary>
+//     /// Adds application-specific services to the dependency injection container 
+//     /// </summary>
+//     /// <param name="services">The IServiceCollection to add services to.</param>
+//     /// <returns>The modified IServiceCollection.</returns>
+//     public static IServiceCollection AddInfrastructure(this IServiceCollection services, ConfigurationManager configuration)
+
+//     {
+
+//         // Database Configuration - Build connection string from environment variables or appsettings
+//         var connectionString = GetConnectionString(configuration);
+
+//         var db = services.AddDbContext<FinlayDbContext>(options => 
+//         {
+//             try
+//             {
+//                 options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+//             }
+//             catch (Exception ex)
+//             {
+//                 // Log connection string issues for debugging
+//                 Console.WriteLine($"Database connection error: {ex.Message}");
+//                 Console.WriteLine($"Connection string attempted: {connectionString}");
+//                 throw;
+//             }
+//         });
+
+//         // Add HttpContextAccessor for accessing the current HTTP context
+//         services.AddHttpContextAccessor();
+
+
+//         // Authentication and Authorization
+//         services.AddAuth(configuration);
+
+//         //Identity configuration
+//         services.AddIdentity<User,Role>(options=>
+//                 {
+//                     options.User.RequireUniqueEmail = true;
+
+//                     options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+"; 
+//                 })
+//                .AddEntityFrameworkStores<FinlayDbContext>() // Configures EF for Identity
+//                .AddDefaultTokenProviders(); // Adds default token providers for things like password reset
+
+
+//         // Add custom repositories and services       
+//         services.AddScoped<IUnitOfWork, UnitOfWork>();
+//         //services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+//         services.AddScoped<IUserRepository, UserRepository>();
+//         services.AddScoped<IIdentityManager,IdentityManager>();
+
+//         // DISABLED: Roles are now initialized in Program.cs after migrations
+//         // services.AddHostedService<RoleInitializer>();
+
+
+
+//         return services;
+
+//     }
+
+//     /// <summary>
+//     /// Builds database connection string from environment variables (Railway) or appsettings.json
+//     /// Railway provides: MYSQLHOST, MYSQLPORT, MYSQLDATABASE, MYSQLUSER, MYSQLPASSWORD
+//     /// </summary>
+//     private static string GetConnectionString(ConfigurationManager configuration)
+//     {
+//         // First, try MYSQL_URL (Railway provides this directly)
+//         var mysqlUrl = Environment.GetEnvironmentVariable("MYSQL_URL");
+//         if (!string.IsNullOrEmpty(mysqlUrl))
+//         {
+//             // MYSQL_URL format: mysql://user:password@host:port/database
+//             // We need to convert it to Pomelo MySql format
+//             return ConvertMysqlUrlToConnectionString(mysqlUrl);
+//         }
+
+//         // Otherwise, check individual Railway environment variables
+//         var host = Environment.GetEnvironmentVariable("MYSQLHOST");
+//         var port = Environment.GetEnvironmentVariable("MYSQLPORT") ?? "3306";
+//         var database = Environment.GetEnvironmentVariable("MYSQLDATABASE");
+//         var user = Environment.GetEnvironmentVariable("MYSQLUSER");
+//         var password = Environment.GetEnvironmentVariable("MYSQLPASSWORD");
+
+//         // If Railway variables are available, use them
+//         if (!string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(database) 
+//             && !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(password))
+//         {
+//             return $"Server={host};Port={port};Database={database};User={user};Password={password};SslMode=Required;";
+//         }
+
+//         // Otherwise, use connection string from appsettings.json
+//         var connectionString = configuration.GetConnectionString("AppDbConnectionString");
+//         if (string.IsNullOrEmpty(connectionString))
+//         {
+//             throw new InvalidOperationException("Database connection string not found in appsettings.json or environment variables.");
+//         }
+
+//         return connectionString;
+//     }
+
+//     /// <summary>
+//     /// Converts MYSQL_URL (format: mysql://user:password@host:port/database) to Pomelo connection string format
+//     /// </summary>
+//     private static string ConvertMysqlUrlToConnectionString(string mysqlUrl)
+//     {
+//         try
+//         {
+//             // Parse mysql://user:password@host:port/database
+//             var uri = new Uri(mysqlUrl);
+//             var host = uri.Host;
+//             var port = uri.Port > 0 ? uri.Port.ToString() : "3306";
+//             var database = uri.AbsolutePath.TrimStart('/');
+//             var user = uri.UserInfo.Split(':')[0];
+//             var password = uri.UserInfo.Contains(':') ? uri.UserInfo.Split(':')[1] : "";
+
+//             // Use SslMode=Required for Railway's secure connection
+//             return $"Server={host};Port={port};Database={database};User={user};Password={password};SslMode=Required;";
+//         }
+//         catch (Exception ex)
+//         {
+//             throw new InvalidOperationException($"Failed to parse MYSQL_URL: {mysqlUrl}", ex);
+//         }
+//     }
+
+//     /// <summary>
+//     /// Configures JWT authentication services for the application.
+//     /// </summary>
+//     /// <param name="services">The IServiceCollection to add services to.</param>
+//     /// <param name="configuration">The configuration object for accessing application settings.</param>
+//     /// <returns>The updated IServiceCollection.</returns>
+//     public static IServiceCollection AddAuth(this IServiceCollection services,
+//                                               ConfigurationManager configuration)
+//     {
+//         // Bind settings from configuration first
+//         var configSettings = new JwtSettings();
+//         configuration.Bind(JwtSettings.SECTION_NAME, configSettings);
+
+//         // Get JWT Secret from environment variable (Railway), otherwise use config value
+//         var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? configSettings.Secret;
+
+//         // Create JwtSettings with the right values
+//         var jwtSettings = new JwtSettings
+//         {
+//             Secret = jwtSecret,
+//             Issuer = configSettings.Issuer,
+//             ExpiryMinutes = configSettings.ExpiryMinutes,
+//             Audience = configSettings.Audience
+//         };
+
+//         services.AddSingleton(jwtSettings); // Registro directo para dependencias que lo necesiten como instancia
+
+//         services.AddSingleton(Options.Create(jwtSettings));
+
+//         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
+
+//         // Configuración de autenticación JWT
+//         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+//                 .AddJwtBearer(options =>
+//                 {
+//                     options.TokenValidationParameters = new TokenValidationParameters
+//                     {
+//                         ValidateIssuer = true,
+//                         ValidateAudience = true,
+//                         ValidateLifetime = true,
+//                         ValidateIssuerSigningKey = true,
+//                         ValidIssuer = jwtSettings.Issuer,
+//                         ValidAudience = jwtSettings.Audience,
+//                         IssuerSigningKey = new SymmetricSecurityKey(
+//                             System.Text.Encoding.UTF8.GetBytes(jwtSettings.Secret))
+//                     };
+//                 });
+
+//         return services;
+//     }
+
+// }
+
+
+// //scoped : se crea una nueva instacnia por solicitud HTTP.Se
+// //utiliza para servicios que necesitan tener estados dentro de una
+// // solicitud, como el accede a la BD
+
+// //singleton: viven durante toda la vida de la app
+// // servicios que no tienen estado o que son costosos de crear, como configuracion o cache
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +340,14 @@ using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
 using Finlay.PharmaVigilance.Infrastructure.UnitOfWorkPattern;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
+using Microsoft.AspNetCore.Http;
+using System.Text.Json;
+using Finlay.PharmaVigilance.Application.Repository;
+using Finlay.PharmaVigilance.Application.IServices;
+// using Finlay.PharmaVigilance.Infrastructure.Email;
+// using Finlay.PharmaVigilance.Infrastructure.Messaging;
+// using Finlay.PharmaVigilance.Application.Interfaces;
+// using Finlay.PharmaVigilance.Infrastructure.Consumers;
 
 
 namespace Finlay.PharmaVigilance.Infrastructure;
@@ -29,50 +363,62 @@ public static class DependencyInjection
 
     {
 
-        // Database Configuration - Build connection string from environment variables or appsettings
-        var connectionString = GetConnectionString(configuration);
-        
-        var db = services.AddDbContext<FinlayDbContext>(options => 
-        {
-            try
-            {
-                options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
-            }
-            catch (Exception ex)
-            {
-                // Log connection string issues for debugging
-                Console.WriteLine($"Database connection error: {ex.Message}");
-                Console.WriteLine($"Connection string attempted: {connectionString}");
-                throw;
-            }
-        });
+        // Database Configuration
+        var connectionString = configuration.GetConnectionString("AppDbConnectionString");
+        var db = services.AddDbContext<FinlayDbContext>(options => options.UseMySql(
+                                                        connectionString, ServerVersion.AutoDetect(connectionString)));
 
         // Add HttpContextAccessor for accessing the current HTTP context
         services.AddHttpContextAccessor();
 
+        // services.Configure<RabbitMqSettings>(
+        //     configuration.GetSection("RabbitMQ")
+        // );
 
-        // Authentication and Authorization
-        services.AddAuth(configuration);
 
         //Identity configuration
-        services.AddIdentity<User,Role>(options=>
+        services.AddIdentity<User, Role>(options =>
                 {
                     options.User.RequireUniqueEmail = true;
 
-                    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+"; 
+                    options.User.AllowedUserNameCharacters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789-._@+";
                 })
                .AddEntityFrameworkStores<FinlayDbContext>() // Configures EF for Identity
                .AddDefaultTokenProviders(); // Adds default token providers for things like password reset
+
+        // Authentication and Authorization
+        services.AddAuth(configuration);
 
 
         // Add custom repositories and services       
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         //services.AddScoped<IEmployeeRepository, EmployeeRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddScoped<IIdentityManager,IdentityManager>();
- 
-        // DISABLED: Roles are now initialized in Program.cs after migrations
-        // services.AddHostedService<RoleInitializer>();
+        // services.AddSingleton<IEmailService, SmtpEmailService>();
+
+
+        // services.AddHostedService<MedicalReviewerConsumer>();
+        // services.AddHostedService<EmailToReporterConsumer>();
+        // services.AddHostedService<EmailToSectionResponsibleConsumer>();
+        // services.AddScoped<IEventBus, RabbitMqEventBus>();
+
+
+
+        services.AddScoped<IIdentityManager, IdentityManager>();
+        services.AddScoped<IAdverseEventSymptomRepository, AdverseEventSymptomRepository>();
+        services.AddScoped<IAdverseEventRepository, AdverseEventRepository>();
+        services.AddScoped<IVaccinatedSubjectRepository, VaccinatedSubjectRepository>();
+        services.AddScoped<IReporterRepository, ReporterRepository>();
+        services.AddScoped<IReportRepository, ReportRepository>();
+        services.AddScoped<ISymptomRepository, SymptomRepository>();
+        services.AddScoped<IVaccinationRepository, VaccinationRepository>();
+        services.AddScoped<IVaccineRepository, VaccineRepository>();
+        services.AddScoped<ISectionResponsibleRepository, SectionResponsibleRepository>();
+        services.AddScoped<IMedicalReviewerRepository, MedicalReviewerRepository>();
+        services.AddScoped<IMedicalReviewRepository, MedicalReviewRepository>();
+
+        //Register a service of type IHostedService in the dependency container
+        services.AddHostedService<RoleInitializer>();
 
 
 
@@ -80,68 +426,6 @@ public static class DependencyInjection
 
     }
 
-    /// <summary>
-    /// Builds database connection string from environment variables (Railway) or appsettings.json
-    /// Railway provides: MYSQLHOST, MYSQLPORT, MYSQLDATABASE, MYSQLUSER, MYSQLPASSWORD
-    /// </summary>
-    private static string GetConnectionString(ConfigurationManager configuration)
-    {
-        // First, try MYSQL_URL (Railway provides this directly)
-        var mysqlUrl = Environment.GetEnvironmentVariable("MYSQL_URL");
-        if (!string.IsNullOrEmpty(mysqlUrl))
-        {
-            // MYSQL_URL format: mysql://user:password@host:port/database
-            // We need to convert it to Pomelo MySql format
-            return ConvertMysqlUrlToConnectionString(mysqlUrl);
-        }
-
-        // Otherwise, check individual Railway environment variables
-        var host = Environment.GetEnvironmentVariable("MYSQLHOST");
-        var port = Environment.GetEnvironmentVariable("MYSQLPORT") ?? "3306";
-        var database = Environment.GetEnvironmentVariable("MYSQLDATABASE");
-        var user = Environment.GetEnvironmentVariable("MYSQLUSER");
-        var password = Environment.GetEnvironmentVariable("MYSQLPASSWORD");
-
-        // If Railway variables are available, use them
-        if (!string.IsNullOrEmpty(host) && !string.IsNullOrEmpty(database) 
-            && !string.IsNullOrEmpty(user) && !string.IsNullOrEmpty(password))
-        {
-            return $"Server={host};Port={port};Database={database};User={user};Password={password};SslMode=Required;";
-        }
-
-        // Otherwise, use connection string from appsettings.json
-        var connectionString = configuration.GetConnectionString("AppDbConnectionString");
-        if (string.IsNullOrEmpty(connectionString))
-        {
-            throw new InvalidOperationException("Database connection string not found in appsettings.json or environment variables.");
-        }
-
-        return connectionString;
-    }
-
-    /// <summary>
-    /// Converts MYSQL_URL (format: mysql://user:password@host:port/database) to Pomelo connection string format
-    /// </summary>
-    private static string ConvertMysqlUrlToConnectionString(string mysqlUrl)
-    {
-        try
-        {
-            // Parse mysql://user:password@host:port/database
-            var uri = new Uri(mysqlUrl);
-            var host = uri.Host;
-            var port = uri.Port > 0 ? uri.Port.ToString() : "3306";
-            var database = uri.AbsolutePath.TrimStart('/');
-            var user = uri.UserInfo.Split(':')[0];
-            var password = uri.UserInfo.Contains(':') ? uri.UserInfo.Split(':')[1] : "";
-
-            // Use SslMode=Required for Railway's secure connection
-            return $"Server={host};Port={port};Database={database};User={user};Password={password};SslMode=Required;";
-        }
-        catch (Exception ex)
-        {
-            throw new InvalidOperationException($"Failed to parse MYSQL_URL: {mysqlUrl}", ex);
-        }
-    }
 
     /// <summary>
     /// Configures JWT authentication services for the application.
@@ -152,21 +436,8 @@ public static class DependencyInjection
     public static IServiceCollection AddAuth(this IServiceCollection services,
                                               ConfigurationManager configuration)
     {
-        // Bind settings from configuration first
-        var configSettings = new JwtSettings();
-        configuration.Bind(JwtSettings.SECTION_NAME, configSettings);
-        
-        // Get JWT Secret from environment variable (Railway), otherwise use config value
-        var jwtSecret = Environment.GetEnvironmentVariable("JWT_SECRET") ?? configSettings.Secret;
-        
-        // Create JwtSettings with the right values
-        var jwtSettings = new JwtSettings
-        {
-            Secret = jwtSecret,
-            Issuer = configSettings.Issuer,
-            ExpiryMinutes = configSettings.ExpiryMinutes,
-            Audience = configSettings.Audience
-        };
+        var jwtSettings = new JwtSettings();
+        configuration.Bind(JwtSettings.SECTION_NAME, jwtSettings);
 
         services.AddSingleton(jwtSettings); // Registro directo para dependencias que lo necesiten como instancia
 
@@ -175,7 +446,11 @@ public static class DependencyInjection
         services.AddScoped<IJwtTokenGenerator, JwtTokenGenerator>();
 
         // Configuración de autenticación JWT
-        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
                 .AddJwtBearer(options =>
                 {
                     options.TokenValidationParameters = new TokenValidationParameters
@@ -188,6 +463,36 @@ public static class DependencyInjection
                         ValidAudience = jwtSettings.Audience,
                         IssuerSigningKey = new SymmetricSecurityKey(
                             System.Text.Encoding.UTF8.GetBytes(jwtSettings.Secret))
+                    };
+
+                    options.Events = new JwtBearerEvents
+                    {
+                        OnChallenge = async context =>
+                        {
+                            context.HandleResponse(); // evita el comportamiento default (302 redirect)
+                            context.Response.StatusCode = 401;
+                            context.Response.ContentType = "application/json";
+
+                            await context.Response.WriteAsync(JsonSerializer.Serialize(new
+                            {
+                                success = false,
+                                status = 401,
+                                message = "Unauthorized. A valid JWT token is required."
+                            }));
+                        },
+
+                        OnForbidden = async context =>
+                        {
+                            context.Response.StatusCode = 403;
+                            context.Response.ContentType = "application/json";
+
+                            await context.Response.WriteAsync(JsonSerializer.Serialize(new
+                            {
+                                success = false,
+                                status = 403,
+                                message = "Forbidden. You do not have permission to access this resource."
+                            }));
+                        }
                     };
                 });
 

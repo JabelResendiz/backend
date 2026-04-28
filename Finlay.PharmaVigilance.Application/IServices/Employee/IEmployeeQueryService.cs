@@ -1,15 +1,15 @@
 
-using Finlay.PharmaVigilance.Application.DTO;
-using Finlay.PharmaVigilance.Domain.Entities;
+// using Finlay.PharmaVigilance.Application.DTO;
+// using Finlay.PharmaVigilance.Domain.Entities;
 
-namespace Finlay.PharmaVigilance.Application.IServices;
+// namespace Finlay.PharmaVigilance.Application.IServices;
 
-public interface IEmployeeQueryServices : IGenericQueryService<Employee,GetEmployeeDto>
-{
-    // Task<IEnumerable<GetEmployeeDto>> ListAllByRole(UserRole role);
+// public interface IEmployeeQueryServices : IGenericQueryService<Employee,GetEmployeeDto>
+// {
+//     // Task<IEnumerable<GetEmployeeDto>> ListAllByRole(UserRole role);
 
-    Task<GetEmployeeDto> GetByUserNameAsync(string employeeUserName);
+//     Task<GetEmployeeDto> GetByUserNameAsync(string employeeUserName);
 
 
 
-}
+// }
