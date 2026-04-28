@@ -52,8 +52,6 @@ public static class DependencyInjection
         services.AddHttpContextAccessor();
 
 
-        // Authentication and Authorization
-        services.AddAuth(configuration);
 
         //Identity configuration
         services.AddIdentity<User, Role>(options =>
@@ -65,6 +63,48 @@ public static class DependencyInjection
                .AddEntityFrameworkStores<FinlayDbContext>() // Configures EF for Identity
                .AddDefaultTokenProviders(); // Adds default token providers for things like password reset
 
+        // Authentication and Authorization
+        services.AddAuth(configuration);
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        services.ConfigureApplicationCookie(options =>
+{
+    options.Events.OnRedirectToLogin = context =>
+    {
+        context.Response.StatusCode = 401;
+        return Task.CompletedTask;
+    };
+
+    options.Events.OnRedirectToAccessDenied = context =>
+    {
+        context.Response.StatusCode = 403;
+        return Task.CompletedTask;
+    };
+});
 
         // // Add custom repositories and services       
         // services.AddScoped<IUnitOfWork, UnitOfWork>();
@@ -215,6 +255,7 @@ public static class DependencyInjection
 {
     options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
     options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
 })
 .AddJwtBearer(options =>
 {
