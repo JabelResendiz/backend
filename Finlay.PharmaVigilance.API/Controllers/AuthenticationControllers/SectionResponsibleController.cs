@@ -64,11 +64,12 @@ public class SectionResponsibleController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> GetSectionResponsible(
         [FromQuery] PagedRequestDto paged,
-        [FromQuery] string? search)
+        [FromQuery] string? search,
+        [FromQuery] string? provinceName)
     {
         paged.BaseUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}";
 
-        var result = await _sectionResponsibleService.GetByFilters(paged, search);
+        var result = await _sectionResponsibleService.GetByFilters(paged, search, provinceName);
 
         return Ok(result);
 

@@ -121,7 +121,8 @@ public class SectionResponsibleService : ISectionResponsibleService
     }
 
 
-    public async Task<PagedResultDto<SectionResponsibleResponseDto>> GetByFilters(PagedRequestDto paged, string? search)
+    public async Task<PagedResultDto<SectionResponsibleResponseDto>> GetByFilters(
+        PagedRequestDto paged, string? search, string? provinceName)
     {
         if (!string.IsNullOrWhiteSpace(search))
             Console.WriteLine("Search term: " + search);
@@ -129,16 +130,20 @@ public class SectionResponsibleService : ISectionResponsibleService
             Console.WriteLine("No search term provided.");
 
         var query = _unitOfWork.GetRepository<SectionResponsible>()
-                                        .GetAllByItems(src => string.IsNullOrEmpty(search) ||
-                                                              src.User.UserName!.Contains(search));
+                                        .GetAllByItems(src => (string.IsNullOrEmpty(search) ||
+                                                              src.User.UserName!.Contains(search)) &&
+                                                             (string.IsNullOrEmpty(provinceName) ||
+                                                              src.Province.Name == provinceName));
 
         var totalCount = await query.CountAsync();
 
         var items = await _unitOfWork.GetRepository<SectionResponsible>()
                         .GetAllPagedbyItem((paged.PageNumber - 1) * paged.PageSize,
                                             paged.PageSize,
-                                            src => string.IsNullOrEmpty(search) ||
-                                                   src.User.UserName!.Contains(search),
+                                            src => (string.IsNullOrEmpty(search) ||
+                                                   src.User.UserName!.Contains(search)) &&
+                                                   (string.IsNullOrEmpty(provinceName) ||
+                                                    src.Province.Name.Contains(provinceName)),
                                             sr => sr.User)
                         .ToListAsync();
 
