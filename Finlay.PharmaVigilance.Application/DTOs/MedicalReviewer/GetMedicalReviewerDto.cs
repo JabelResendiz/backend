@@ -3,6 +3,7 @@ namespace Finlay.PharmaVigilance.Application.DTO;
 
 public class GetMedicalReviewerDto
 {
+    public required Guid Id { get; set; }
     public string FullName { get; set; } = null!;
     public string Email { get; set; } = null!;
     public int ProvinceId { get; set; }
