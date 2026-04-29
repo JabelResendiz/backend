@@ -41,11 +41,11 @@ public class AutomapperProfile : Profile
         // Catalog Dtos
         CreateMap<VaccineDto, Vaccine>();
         CreateMap<Vaccine, GetVaccineDto>();
-        //CreateMap<Vaccine, GetPrivateVaccineDto>();
+        CreateMap<Vaccine, GetPrivateVaccineDto>();
 
         CreateMap<SymptomDto, Symptom>();
         CreateMap<Symptom, GetSymptomDto>();
-        // CreateMap<Symptom, GetPrivateSymptomsDto>();
+        CreateMap<Symptom, GetPrivateSymptomsDto>();
 
 
 

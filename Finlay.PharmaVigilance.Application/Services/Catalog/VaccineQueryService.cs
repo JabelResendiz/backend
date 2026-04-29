@@ -58,7 +58,7 @@ public class VaccineQueryService : GenericQueryService<Vaccine, GetVaccineDto>,
     }
 
 
-    public async Task<PagedResultDto<GetVaccineDto>> GetByFilters(PagedRequestDto paged, string? search, bool? status)
+    public async Task<PagedResultDto<GetPrivateVaccineDto>> GetByFilters(PagedRequestDto paged, string? search, bool? status)
     {
 
         var query = _vaccineRepository.GetByFilter(search, status);
@@ -69,9 +69,9 @@ public class VaccineQueryService : GenericQueryService<Vaccine, GetVaccineDto>,
         var items = await _vaccineRepository.GetPaged(query, (paged.PageNumber - 1) * paged.PageSize, paged.PageSize)
                             .ToListAsync();
 
-        return new PagedResultDto<GetVaccineDto>
+        return new PagedResultDto<GetPrivateVaccineDto>
         {
-            Items = items?.Select(_mapper.Map<GetVaccineDto>) ?? Enumerable.Empty<GetVaccineDto>(),
+            Items = items?.Select(_mapper.Map<GetPrivateVaccineDto>) ?? Enumerable.Empty<GetPrivateVaccineDto>(),
             TotalCount = totalCount,
             PageNumber = paged.PageNumber,
             PageSize = paged.PageSize,

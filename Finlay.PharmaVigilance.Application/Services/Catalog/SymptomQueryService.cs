@@ -58,7 +58,7 @@ public class SymptomQueryService : GenericQueryService<Symptom, GetSymptomDto>,
                     .ToListAsync();
     }
 
-    public async Task<PagedResultDto<GetSymptomDto>> GetByFilters(PagedRequestDto paged, string? search, bool? status)
+    public async Task<PagedResultDto<GetPrivateSymptomsDto>> GetByFilters(PagedRequestDto paged, string? search, bool? status)
     {
 
         var query = _symptomRepository.GetByFilter(search, status);
@@ -69,9 +69,9 @@ public class SymptomQueryService : GenericQueryService<Symptom, GetSymptomDto>,
         var items = await _symptomRepository.GetPaged(query, (paged.PageNumber - 1) * paged.PageSize, paged.PageSize)
                             .ToListAsync();
 
-        return new PagedResultDto<GetSymptomDto>
+        return new PagedResultDto<GetPrivateSymptomsDto>
         {
-            Items = items?.Select(_mapper.Map<GetSymptomDto>) ?? Enumerable.Empty<GetSymptomDto>(),
+            Items = items?.Select(_mapper.Map<GetPrivateSymptomsDto>) ?? Enumerable.Empty<GetPrivateSymptomsDto>(),
             TotalCount = totalCount,
             PageNumber = paged.PageNumber,
             PageSize = paged.PageSize,

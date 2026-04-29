@@ -8,6 +8,6 @@ public interface ISymptomQueryService : IGenericQueryService<Symptom, GetSymptom
     Task<PagedResultDto<GetSymptomDto>> GetActivesSymptoms(PagedRequestDto paged);
 
     Task<IEnumerable<GetSymptomDto>> GetActiveSymptomsLookup();
-    Task<PagedResultDto<GetSymptomDto>> GetByFilters(PagedRequestDto paged, string? search, bool? status);
+    Task<PagedResultDto<GetPrivateSymptomsDto>> GetByFilters(PagedRequestDto paged, string? search, bool? status);
 
 }
