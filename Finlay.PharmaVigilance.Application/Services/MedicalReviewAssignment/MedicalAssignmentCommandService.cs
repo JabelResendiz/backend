@@ -86,6 +86,9 @@ public class MedicalReviewAssignmentCommandService : IMedicalReviewAssignmentCom
         medicalReviewAssignment.SectionResponsibleId = sectionResponsible.Id;
         medicalReviewAssignment.Status = ReviewAssignmentStatus.Pending;
 
+
+        report.Status = ReportStatus.UnderReview;
+
         await _unitOfWork.GetRepository<MedicalReviewAssignment>().CreateAsync(medicalReviewAssignment);
         await _unitOfWork.CompleteAsync();
 

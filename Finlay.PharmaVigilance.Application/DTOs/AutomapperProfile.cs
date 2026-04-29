@@ -112,9 +112,9 @@ public class AutomapperProfile : Profile
         CreateMap<PublicAefiReportDto, AefiReport>();
         CreateMap<MedicalReportDto, AefiReport>();
 
-
-        CreateMap<AefiReport, ReportSummaryDto>();
-        CreateMap<AefiReport, ReportDetailDto>();
+        CreateMap<AefiReport, ReportSectionResponsibleDto>();
+        CreateMap<AefiReport, ReportMedicalReviewerDto>();
+        CreateMap<AefiReport, ReportUserDto>();
 
 
         // medicalAssignment - Medical Reviews Dtos
@@ -123,24 +123,9 @@ public class AutomapperProfile : Profile
         CreateMap<MedicalReviewAssignmentDTO,
                  MedicalReviewAssignment>();
 
-        CreateMap<MedicalReviewAssignment, ReportDetailDto>();
 
-        // ResponseDto
-
-        // CreateMap<VaccinatedSubject, VaccinatedSubjectResponseDto>();
-        // CreateMap<Reporter, ReporterResponseDto>();
-        // CreateMap<Vaccination, VaccinationResponseDto>()
-        //     .ForMember(dest => dest.VaccineName, opt => opt.MapFrom(src => src.Vaccine.Name));
-
-        // CreateMap<AdverseEvent, AdverseEventDetailDto>();
-
-
-        // ReportResponseSimpleDto
-
-        // CreateMap<AdverseEvent, AdverseEventSummaryDto>();
-        // CreateMap<Vaccination, VaccinationSummaryDto>()
-        //         .ForMember(dest => dest.VaccineName, opt => opt.MapFrom(src => src.Vaccine.Name));
-        // CreateMap<AdverseEvent, AdverseEventSummaryDto>();
+        CreateMap<MedicalReviewAssignment, ReportUserDto>();
+        CreateMap<MedicalReviewAssignment, ReportMedicalReviewerDto>();
 
     }
 }

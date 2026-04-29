@@ -5,11 +5,11 @@ namespace Finlay.PharmaVigilance.Application.IServices;
 
 public interface IReportQueryService : IGenericQueryService<AefiReport, PublicAefiReportDto>
 {
-    Task<ReportSummaryDto> GetReportByNotificationNumber(string notificationNumber);
+    Task<ReportUserDto> GetReportByNotificationNumber(string notificationNumber);
 
-    Task<PagedResultDto<ReportDetailDto>> GetReportAssigment(PagedRequestDto paged);
+    Task<PagedResultDto<ReportMedicalReviewerDto>> GetReportAssigment(PagedRequestDto paged);
 
-    Task<PagedResultDto<ReportSummaryDto>> GetReportsBySectionResponsible(PagedRequestDto pagedRequestDto);
+    Task<PagedResultDto<ReportSectionResponsibleDto>> GetReportsBySectionResponsible(PagedRequestDto pagedRequestDto);
 
 
 

@@ -35,17 +35,17 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
 
 
 
-    public async Task<ReportSummaryDto> GetReportByNotificationNumber(string notificationNumber)
+    public async Task<ReportUserDto> GetReportByNotificationNumber(string notificationNumber)
     {
 
         return await _unitOfWork.GetRepository<AefiReport>()
                         .GetAllByItems(ar => ar.NotificationNumber == notificationNumber)
-                        .ProjectTo<ReportSummaryDto>(_mapper.ConfigurationProvider)
+                        .ProjectTo<ReportUserDto>(_mapper.ConfigurationProvider)
                         .FirstOrDefaultAsync() ?? throw new ArgumentNullException("Report not found");
     }
 
 
-    public async Task<PagedResultDto<ReportDetailDto>> GetReportAssigment(PagedRequestDto paged)
+    public async Task<PagedResultDto<ReportMedicalReviewerDto>> GetReportAssigment(PagedRequestDto paged)
     {
         var userId = _userContextService.GetUserId();
 
@@ -70,11 +70,11 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
 
         var items = await _unitOfWork.GetRepository<AefiReport>()
                         .GetPaged(query, (paged.PageNumber - 1) * paged.PageSize, paged.PageSize)
-                        .ProjectTo<ReportDetailDto>(_mapper.ConfigurationProvider)
+                        .ProjectTo<ReportMedicalReviewerDto>(_mapper.ConfigurationProvider)
                         .ToListAsync();
 
 
-        return new PagedResultDto<ReportDetailDto>
+        return new PagedResultDto<ReportMedicalReviewerDto>
         {
             Items = items,
             TotalCount = totalItems,
@@ -92,7 +92,7 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
 
     }
 
-    public async Task<PagedResultDto<ReportSummaryDto>> GetReportsBySectionResponsible(PagedRequestDto paged)
+    public async Task<PagedResultDto<ReportSectionResponsibleDto>> GetReportsBySectionResponsible(PagedRequestDto paged)
     {
         var userId = _userContextService.GetUserId();
 
@@ -117,10 +117,10 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
 
         var items = await _unitOfWork.GetRepository<AefiReport>()
                         .GetPaged(reportsQuery, (paged.PageNumber - 1) * paged.PageSize, paged.PageSize)
-                        .ProjectTo<ReportSummaryDto>(_mapper.ConfigurationProvider)
+                        .ProjectTo<ReportSectionResponsibleDto>(_mapper.ConfigurationProvider)
                         .ToListAsync();
 
-        return new PagedResultDto<ReportSummaryDto>
+        return new PagedResultDto<ReportSectionResponsibleDto>
         {
             Items = items,
             TotalCount = totalItems,
