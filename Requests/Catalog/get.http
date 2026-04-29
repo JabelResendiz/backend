@@ -1,0 +1,31 @@
+@host = http://localhost:5137
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZ2l2ZW5fbmFtZSI6IkNhcmxvcyIsImp0aSI6ImE3OTRiY2I3LTljOTAtNDRkNS1iYWU2LWI5OGJiN2IzZDlhMCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzc2OTE0MjI1LCJpc3MiOiJGaW5sYXlfUGhhcm1hVmlnaWxhbmNlIiwiYXVkIjoiRmlubGF5X1BoYXJtYVZpZ2lsYW5jZSJ9.OUbX5aAQ9B-TlJnNQHyctQ0URaWzlpSMlMn3rGzjdVk
+
+GET {{host}}/api/GetCatalog/vaccine?pageNumber=1&pageSize=10&search=&status=true
+Content-Type:  application/json
+Authorization: Bearer {{token}}
+
+
+
+
+####
+
+
+GET http://localhost:5137/api/GetCatalog/symptom?pageNumber=1&pageSize=10
+Content-Type:  application/json
+Authorization: Bearer {{token}}
+
+
+
+### 
+POST {{host}}/api/Catalog/activate/symptom/1
+Content-Type:  application/json
+Authorization: Bearer {{token}}
+
+
+
+####
+
+
+GET http://localhost:5137/api/GetCatalog/vaccines/actives
+Content-Type:  application/json

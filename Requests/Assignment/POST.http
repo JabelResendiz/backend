@@ -1,0 +1,13 @@
+@host = http://localhost:5137
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZ2l2ZW5fbmFtZSI6Ikp1bGlvIiwianRpIjoiNTcwNWQ3NDEtMjE5ZC00MWUyLWJjZGUtMTlhMTViMWY4MTdjIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiU2VjdGlvblJlc3BvbnNpYmxlIiwiZXhwIjoxNzc2OTE1NjkwLCJpc3MiOiJGaW5sYXlfUGhhcm1hVmlnaWxhbmNlIiwiYXVkIjoiRmlubGF5X1BoYXJtYVZpZ2lsYW5jZSJ9.1OZW8j-XtDm5ds-LJmnJkK2Ok_mtIMUPi64ftwcUXdU
+
+POST {{host}}/api/MedicalReviewAssignment/create
+Content-Type:  application/json
+Authorization: Bearer {{token}}
+
+{
+  "medicalReviewerId": "08dea0e0-7784-4f2e-817a-010136b26537",
+  "aefiReportId": "08dea0e0-f7d5-471d-80ca-84b8b0ae0b4f",
+  "assignedAt": "2026-04-05T22:10:30.680Z"
+}
+

@@ -1,11 +1,11 @@
-// namespace Finlay.PharmaVigilance.Domain.Enum;
+namespace Finlay.PharmaVigilance.Domain.Enum;
 
 
-// public enum SeverityLevel
-// {
-//    Mild,
-//    Moderate,
-//    Severe
-// }
+public enum SeverityLevel
+{
+   Mild,
+   Moderate,
+   Severe
+}
 
 

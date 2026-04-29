@@ -1,0 +1,14 @@
+@host = http://localhost:5137
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMCIsImdpdmVuX25hbWUiOiJDYXJsb3MiLCJqdGkiOiIzYjY0ZDg4Mi0zMzM2LTQ5ZDQtYTVmYi1kMGMwMWZjMTljOWMiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJBZG1pbiIsImV4cCI6MTc3NjQ3NzEyNiwiaXNzIjoiRmlubGF5X1BoYXJtYVZpZ2lsYW5jZSIsImF1ZCI6IkZpbmxheV9QaGFybWFWaWdpbGFuY2UifQ.dO1YJPIQX0qY1fQfG5GHwdqqtbVp514Na37FLkN6TOg
+
+
+####
+GET {{host}}/api/SectionResponsible/searchbymunicipality
+Content-Type:  application/json
+Authorization: Bearer {{token}}
+
+{
+    "PageNumber": "1",
+    "PageSize":"3",
+    "municipalityId":"1"
+}

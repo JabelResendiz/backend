@@ -1,0 +1,17 @@
+@host = https://backend-production-3a9c6.up.railway.app
+
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZ2l2ZW5fbmFtZSI6IkNhcmxvcyIsImp0aSI6ImNlNmM3MjkzLTBlZmMtNGMwYS04YTMzLWYwODJiYjA4MjA3NSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzc3NDEwODU3LCJpc3MiOiJGaW5sYXlfUGhhcm1hVmlnaWxhbmNlIiwiYXVkIjoiRmlubGF5X1BoYXJtYVZpZ2lsYW5jZSJ9.2PS8-o-1ZIRoQgPiR-qAT9_Kc_l062SrLuRqGMRmWQU
+
+GET {{host}}/api/SectionResponsible/GetAll?pageNumber=1&pageSize=10&search=
+Content-Type:  application/json
+Authorization: Bearer {{token}}
+
+
+
+
+#####
+
+
+GET http://backend-production-3a9c6.up.railway.app/api/SectionResponsible/GetAll?pageNumber=2&pageSize=10
+Content-Type:  application/json
+Authorization: Bearer {{token}}

@@ -1,0 +1,9 @@
+@host = http://localhost:5137
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZ2l2ZW5fbmFtZSI6Ikp1bGlvIiwianRpIjoiZGQ0YjU5OWItYjliZi00YzAzLWFhNzYtZjgyMDVmZmE3ZmQzIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiU2VjdGlvblJlc3BvbnNpYmxlIiwiZXhwIjoxNzc2OTU5MDI4LCJpc3MiOiJGaW5sYXlfUGhhcm1hVmlnaWxhbmNlIiwiYXVkIjoiRmlubGF5X1BoYXJtYVZpZ2lsYW5jZSJ9.vdXoBpWs-7dfXxfZFxlUwMqT0Yo-KLiQcFGjMaSwRh0
+
+GET {{host}}/api/MedicalReviewer/by-current-user-municipality?pageNumber=1&pageSize=3
+Content-Type:  application/json
+Authorization: Bearer {{token}}
+
+
+

@@ -1,0 +1,7 @@
+@host = http://localhost:5137
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMyIsImdpdmVuX25hbWUiOiJKYWJlbCIsImp0aSI6IjQwMTRiYTA4LWQ5YTEtNDcyMC04MmM5LTdjOWJkYzk3Y2VmOCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6Ik1lZGljYWxSZXZpZXdlciIsImV4cCI6MTc3NjI5Mzg5MSwiaXNzIjoiRmlubGF5X1BoYXJtYVZpZ2lsYW5jZSIsImF1ZCI6IkZpbmxheV9QaGFybWFWaWdpbGFuY2UifQ.SwedoTp04eetuHmxp5kaHae3l8-JdipCUDTNBMdHjqw
+
+GET {{host}}/api/Report/get-report-assigment
+Content-Type:  application/json
+Authorization: Bearer {{token}}
+

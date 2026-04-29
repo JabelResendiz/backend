@@ -1,0 +1,15 @@
+@host = http://localhost:5137
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZ2l2ZW5fbmFtZSI6IkNhcmxvcyIsImp0aSI6ImRiNDEzMDNlLTBmZTItNDE5NC04MWExLTJiOWZkMmVhMDVmZCIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IkFkbWluIiwiZXhwIjoxNzc3MzI0NTkwLCJpc3MiOiJGaW5sYXlfUGhhcm1hVmlnaWxhbmNlIiwiYXVkIjoiRmlubGF5X1BoYXJtYVZpZ2lsYW5jZSJ9.oj-KPe60IGiEh4DU0uYMZqiRQLdRdOc6u9lpjDtdS1o
+
+POST {{host}}/api/Catalog/register/symptom
+Content-Type:  application/json
+Authorization: Bearer {{token}}
+
+{
+  "name": "Dolor en la cabeza12",
+  "standardCode": "12121223",
+  "codingSystem": "12312312",
+  "category": "General",
+  "isActive": true,
+  "description": "Elevación de la temperatura corporal por encima de lo normal, comúnmente asociada a infecciones o inflamaciones."
+}

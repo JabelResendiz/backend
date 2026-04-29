@@ -1,0 +1,35 @@
+@host = https://backend-production-3a9c6.up.railway.app
+
+
+# Admin
+POST {{host}}/api/Authentication/login
+Content-Type:  application/json
+
+{
+  "email": "carlos@example.com",
+  "password": "Password_123!"
+}
+
+
+####
+# SectionResponsible
+POST {{host}}/api/Authentication/login
+Content-Type:  application/json
+
+{
+  "email": "12aidenpearces@gmail.com",
+  "password": "Password_123!"
+}
+
+###
+
+POST {{host}}/api/Authentication/login
+Content-Type:  application/json
+
+{
+  "email": "jabel@example.com",
+  "password": "Password_123!"
+}
+
+
+

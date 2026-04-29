@@ -1,101 +1,97 @@
-// using System.Linq.Expressions;
-// using AutoMapper;
-// using Finlay.PharmaVigilance.Application.IServices;
-// using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
-// using Finlay.PharmaVigilance.Domain.Entities;
-// using Microsoft.EntityFrameworkCore;
+using System.Linq.Expressions;
+using AutoMapper;
+using Finlay.PharmaVigilance.Application.DTO;
+using Finlay.PharmaVigilance.Application.IServices;
+using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
+using Finlay.PharmaVigilance.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 
-// namespace Finlay.PharmaVigilance.Application.Services;
-
-
-// public class GenericQueryServices<TEntity,TDto> : IGenericQueryService<TEntity,TDto>  where TEntity:  GenericEntity
-// {
-//     protected readonly IMapper _mapper;
-//     protected readonly IUnitOfWork _unitOfWork;
-//     public GenericQueryServices(IUnitOfWork unitOfWork, IMapper mapper)
-//     {
-//         _mapper = mapper;
-//         _unitOfWork = unitOfWork;
-//     }
-
-//     public virtual Expression<Func<TEntity,object>> [] GetIncludes()
-//     {
-//         return Array.Empty<Expression<Func<TEntity, object>>>();
-//     }
-
-//     public async Task<IEnumerable<TDto>> ListAsync()
-//     {
-//         var includes = GetIncludes();
-//         var dtoQuery =  _unitOfWork.GetRepository<TEntity>().GetAll();
-
-//         if (includes != null)
-//         {
-//             foreach (var exp in includes) // Loop through each filter expression.
-//             {
-//                 dtoQuery = dtoQuery.Include(exp); // Apply the filter expression to the query.
-//             }
-//         }
-
-//         var dtoList = await dtoQuery.ToListAsync();
-
-//         return dtoList.Select(_mapper.Map<TDto>);
-//     }
+namespace Finlay.PharmaVigilance.Application.Services;
 
 
-//     public async Task<TDto> GetByIdAsync(int dto)
-//     {
-//         var includes = GetIncludes();
+public class GenericQueryService<TEntity, TDto> : IGenericQueryService<TEntity, TDto> where TEntity : BasicEntity
+{
+    protected readonly IMapper _mapper;
+    protected readonly IUnitOfWork _unitOfWork;
+    public GenericQueryService(IUnitOfWork unitOfWork, IMapper mapper)
+    {
+        _mapper = mapper;
+        _unitOfWork = unitOfWork;
+    }
 
-//         var result = await _unitOfWork.GetRepository<TEntity>()
-//                                       .GetByIdAsync(dto,default,includes);
+    public virtual Expression<Func<TEntity, object>>[] GetIncludes()
+    {
+        return Array.Empty<Expression<Func<TEntity, object>>>();
+    }
 
-//         return _mapper.Map<TDto>(result);
+    public async Task<IEnumerable<TDto>> ListAsync()
+    {
+        var includes = GetIncludes();
+        var dtoQuery = _unitOfWork.GetRepository<TEntity>().GetAll();
 
-//     }
+        if (includes != null)
+        {
+            foreach (var exp in includes) // Loop through each filter expression.
+            {
+                dtoQuery = dtoQuery.Include(exp); // Apply the filter expression to the query.
+            }
+        }
 
+        var dtoList = await dtoQuery.ToListAsync();
 
-//     // public async Task<PagedResultDto<TDto>> GetPagedResultByQueryAsync(PagedRequestDto paged, IQueryable<TEntity> query)
-//     // {
-//     //     var includes = GetIncludes();
-
-//     //     if (includes != null)
-//     //     {
-//     //         foreach (var exp in includes) // Loop through each filter expression.
-//     //         {
-//     //             query = query.Include(exp); // Apply the filter expression to the query.
-//     //         }
-//     //     }
-
-//     //     var totalCount = await query.CountAsync();
-
-//     //     var items = await query // Apply pagination to the query.
-//     //                     .Skip((paged.PageNumber - 1) * paged.PageSize) // Skip the appropriate number of items based on the current page
-//     //                     .Take(paged.PageSize) // Take only the number of items specified by the page size.
-//     //                     .ToListAsync(); // Convert the result to a list asynchronously.
+        return dtoList.Select(_mapper.Map<TDto>);
+    }
 
 
-//     //     return new PagedResultDto<TDto>
-//     //     {
-//     //         Items = items?.Select(_mapper.Map<TDto>) ?? Enumerable.Empty<TDto>(),
-//     //         TotalCount = totalCount,
-//     //         PageNumber = paged.PageNumber,
-//     //         PageSize = paged.PageSize,
-//     //         NextPageUrl = paged.PageNumber * paged.PageSize < totalCount
-//     //                     ? $"{paged.BaseUrl}?pageNumber={paged.PageNumber + 1}&pageSize={paged.PageSize}"
-//     //                     : null,
-//     //         PreviousPageUrl = paged.PageNumber > 1
-//     //                     ? $"{paged.BaseUrl}?pageNumber={paged.PageNumber - 1}&pageSize={paged.PageSize}"
-//     //                     : null
+    public async Task<TDto> GetByIdAsync<TId>(TId dto)
+    {
+        var includes = GetIncludes();
 
-//     //     };
-//     // }
+        var result = await _unitOfWork.GetRepository<TEntity>()
+                                      .GetByIdAsync(dto, default, includes);
 
-//     // public async Task<PagedResultDto<TDto>> GetAllPagedResultAsync (PagedRequestDto paged)
-//     // {
-//     //     IQueryable<TEntity> query = _unitOfWork.GetRepository<TEntity>()
-//     //                                             .GetAll();
+        return _mapper.Map<TDto>(result);
 
-//     //     return await GetPagedResultByQueryAsync(paged,query);
-//     // }
+    }
 
-// }
+
+    public async Task<PagedResultDto<TDto>> GetAllPagedResultAsync(PagedRequestDto paged)
+    {
+        var query = _unitOfWork.GetRepository<TEntity>()
+                        .GetAll();
+
+        var includes = GetIncludes();
+
+        if (includes != null)
+        {
+            foreach (var exp in includes) // Loop through each filter expression.
+            {
+                query = query.Include(exp); // Apply the filter expression to the query.
+            }
+        }
+
+        var totalCount = await query.CountAsync();
+
+
+        var items = await _unitOfWork.GetRepository<TEntity>()
+                        .GetAllPaged((paged.PageNumber - 1) * paged.PageSize, paged.PageSize)
+                        .ToListAsync();
+
+
+        return new PagedResultDto<TDto>
+        {
+            Items = items?.Select(_mapper.Map<TDto>) ?? Enumerable.Empty<TDto>(),
+            TotalCount = totalCount,
+            PageNumber = paged.PageNumber,
+            PageSize = paged.PageSize,
+            NextPageUrl = paged.PageNumber * paged.PageSize < totalCount
+                        ? $"{paged.BaseUrl}?pageNumber={paged.PageNumber + 1}&pageSize={paged.PageSize}"
+                        : null,
+            PreviousPageUrl = paged.PageNumber > 1
+                        ? $"{paged.BaseUrl}?pageNumber={paged.PageNumber - 1}&pageSize={paged.PageSize}"
+                        : null
+
+        };
+    }
+
+}

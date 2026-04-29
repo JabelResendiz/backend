@@ -1,72 +1,69 @@
+using Finlay.PharmaVigilance.Application.IRepository;
+using Finlay.PharmaVigilance.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
+namespace Finlay.PharmaVigilance.Infrastructure.Repository;
 
-// using Finlay.PharmaVigilance.Application.IRepository;
-// using Finlay.PharmaVigilance.Domain.Entities;
-// using Microsoft.AspNetCore.Identity;
-// using Microsoft.EntityFrameworkCore;
+public class UserRepository : IUserRepository
+{
+    private readonly UserManager<User> _userManager;
 
-// namespace Finlay.PharmaVigilance.Infrastructure.Repository;
+    public UserRepository(UserManager<User> userManager)
+    {
+        // UserManager is injected to interact with ASP.NET Identity users
+        _userManager = userManager;
+    }
 
+    public async Task<User> GetByIdAsync(int elementId, CancellationToken cancellationToken = default)
+    {
+        // Query Identity's Users DbSet to find a user by Id
+        var user = await _userManager.Users
+                        .FirstOrDefaultAsync(u => u.Id == elementId);
 
-// public class UserRepository : IUserRepository
-// {
-//     private readonly UserManager<User> _userManager;
+        // If no user is found, throw an exception
+        if (user is null)
+            throw new Exception($"Error searching user: {elementId}");
 
+        return user;
+    }
 
-//     public UserRepository(UserManager<User> userManager)
-//     {
-//         _userManager = userManager;
-//     }
+    public IQueryable<User> GetAll()
+    {
+        // Expose IQueryable to allow further filtering at service level
+        return _userManager.Users;
+    }
 
-//     public async Task<User> GetByIdAsync(int elementId, CancellationToken cancellationToken = default)
-//     {
-//         var user = await _userManager.Users.
-//                         FirstOrDefaultAsync(u => u.Id == elementId);
-//         if (user is null)
-//             throw new Exception($"Error searching user: {elementId}");
+    public async Task DeleteByIdAsync(int elementId, CancellationToken cancellationToken = default)
+    {
+        // Search the user before attempting deletion
+        var user = await _userManager.Users
+                        .FirstOrDefaultAsync(u => u.Id == elementId);
 
-//         return user;
+        if (user is null)
+            throw new Exception($"Error deleting user: {elementId}");
 
-//     }
-//     public async Task DeleteByIdAsync(int elementId, CancellationToken cancellationToken = default)
-//     {
-//         var user = await _userManager.Users.
-//                         FirstOrDefaultAsync(u => u.Id == elementId);
+        // Use Identity's DeleteAsync to properly remove the user
+        await _userManager.DeleteAsync(user);
+    }
 
-//         if (user is null)
-//             throw new Exception($"Error deleting user: {elementId}");
+    public async Task UpdateByIdAsync(int elementId, string email, CancellationToken cancellationToken = default)
+    {
+        // Reuse GetByIdAsync to ensure user exists
+        User user = await GetByIdAsync(elementId, cancellationToken);
 
-//         await _userManager.DeleteAsync(user);
+        // Update email only if it's provided and different from the current one
+        if (!string.IsNullOrEmpty(email) && email != user.Email)
+        {
+            user.Email = email;
 
-//     }
+            // Use Identity's UpdateAsync to persist changes
+            var result = await _userManager.UpdateAsync(user);
 
-//     public async Task UpdateByIdAsync(int elementId, string email, CancellationToken cancellationToken = default)
-//     {
-//         User user = await GetByIdAsync(elementId, cancellationToken);
-
-
-//         //update email
-//         if (!string.IsNullOrEmpty(email) && email != user.Email)
-//         {
-//             user.Email = email;
-
-//             var result = await _userManager.UpdateAsync(user);
-
-//             if (!result.Succeeded)
-//                 throw new Exception("Error updating user email: " + string.Join(", ", result.Errors.Select(e => e.Description)));
-//         }
-
-//         //update password
-//         // if (!string.IsNullOrEmpty(password))
-//         // {
-//         //     var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-//         //     var result = await _userManager.ResetPasswordAsync(user, token, password);
-
-//         //     if (!result.Succeeded)
-//         //         throw new Exception("Error updating user password: " + string.Join(", ", result.Errors.Select(e => e.Description)));
-//         // }
-
-
-//     }
-
-// }
+            // If update fails, throw detailed Identity errors
+            if (!result.Succeeded)
+                throw new Exception("Error updating user email: " +
+                    string.Join(", ", result.Errors.Select(e => e.Description)));
+        }
+    }
+}

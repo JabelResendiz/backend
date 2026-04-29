@@ -1,0 +1,5 @@
+@host = http://localhost:5137
+#@token =eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZ2l2ZW5fbmFtZSI6IkphYmVsUkEiLCJqdGkiOiI5NjQyNjFiNC0yNmY0LTRkYjctYmYzYi0yNGNmZjhjODY5ZjgiLCJodHRwOi8vc2NoZW1hcy5taWNyb3NvZnQuY29tL3dzLzIwMDgvMDYvaWRlbnRpdHkvY2xhaW1zL3JvbGUiOiJTdXBlcnZpc29yIiwiZXhwIjoxNzcyNjA5Nzg3LCJpc3MiOiJGaW5sYXlfUGhhcm1hVmlnaWxhbmNlIiwiYXVkIjoiRmlubGF5X1BoYXJtYVZpZ2lsYW5jZSJ9.E9PsUv0wQVz3Pj4IzfHWoedIQMnShtxqu9aI2P42v6E
+GET {{host}}/api/User/search/Jabel
+Content-Type:  application/json
+# Authorization: Bearer {{token}}

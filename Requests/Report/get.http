@@ -1,0 +1,16 @@
+@host = https://backend-production-3a9c6.up.railway.app
+
+
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIyIiwiZ2l2ZW5fbmFtZSI6Ikp1bGlvIiwianRpIjoiZWIzNmQ0ODItNWZmZi00MGJmLTg3ODUtNGY3OGFmOTMwOGNlIiwiaHR0cDovL3NjaGVtYXMubWljcm9zb2Z0LmNvbS93cy8yMDA4LzA2L2lkZW50aXR5L2NsYWltcy9yb2xlIjoiU2VjdGlvblJlc3BvbnNpYmxlIiwiZXhwIjoxNzc2OTIxNDY2LCJpc3MiOiJGaW5sYXlfUGhhcm1hVmlnaWxhbmNlIiwiYXVkIjoiRmlubGF5X1BoYXJtYVZpZ2lsYW5jZSJ9.i0z6Q3zARMmBIhCx_QLNwMaAzaZQXKYz5spCzGYZssU
+
+GET {{host}}/api/Report/assigned?pageNumber=1&pageSize=10
+Content-Type:  application/json
+Authorization: Bearer {{token}}
+
+
+
+####
+
+
+GET {{host}}/api/Report/get-report?notificationNumber=AEFI-20260428-NWDQN527
+Content-Type: application/json

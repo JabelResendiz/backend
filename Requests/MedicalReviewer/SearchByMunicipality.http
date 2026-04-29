@@ -1,0 +1,7 @@
+@host = http://localhost:5137
+
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxIiwiZ2l2ZW5fbmFtZSI6InBlZHJvMSIsImp0aSI6IjgyMWY4YmIyLTJiM2UtNDI1NC1hMTljLTVmNDMzYzRkMGVlZSIsImh0dHA6Ly9zY2hlbWFzLm1pY3Jvc29mdC5jb20vd3MvMjAwOC8wNi9pZGVudGl0eS9jbGFpbXMvcm9sZSI6IlNlY3Rpb25SZXNwb25zaWJsZSIsImV4cCI6MTc3NDIwMTc5NywiaXNzIjoiRmlubGF5X1BoYXJtYVZpZ2lsYW5jZSIsImF1ZCI6IkZpbmxheV9QaGFybWFWaWdpbGFuY2UifQ.Nyn43VbQhay6IiIov7lFYUs95WMbLHSQSB3dwr6-ToA
+
+GET {{host}}/api/MedicalReviewer/2
+Content-Type:  application/json
+Authorization: Bearer {{token}}
