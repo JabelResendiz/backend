@@ -15,7 +15,7 @@ public class MedicalReviewAssignmentCommandService : IMedicalReviewAssignmentCom
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IUserContextService _userContextService;
-    private readonly IEmailAppService _emailAppService;
+    //private readonly IEmailAppService _emailAppService;
 
     public MedicalReviewAssignmentCommandService(
         IUnitOfWork unitOfWork,
@@ -26,7 +26,7 @@ public class MedicalReviewAssignmentCommandService : IMedicalReviewAssignmentCom
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork)); ;
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper)); ;
         _userContextService = userContextService ?? throw new ArgumentNullException(nameof(userContextService));
-        _emailAppService = emailAppService ?? throw new ArgumentNullException(nameof(emailAppService));
+        // _emailAppService = emailAppService ?? throw new ArgumentNullException(nameof(emailAppService));
     }
 
     public async Task<MedicalReviewAssignmentDTO> CreateAsync(MedicalReviewAssignmentDTO dto)

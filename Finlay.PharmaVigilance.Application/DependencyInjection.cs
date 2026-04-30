@@ -24,7 +24,7 @@ public static class DependencyInjection
         services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
         // Email Service
-        services.AddScoped<IEmailAppService, EmailAppService>();
+        //services.AddScoped<IEmailAppService, EmailAppService>();
 
         // Catalog Service
         services.AddScoped<ICatalogCommandService, CatalogCommandService>();
