@@ -36,10 +36,10 @@ public class ReporterDto
     [EmailValidation]
     public string Email { get; set; } = string.Empty;
 
-    [StringLength(30, MinimumLength = 1, ErrorMessage = "Email must be between 1 and 50 characters.")]
+    [StringLength(30)]
     public string? ProfessionalLicense { get; set; }
 
-    [StringLength(100, MinimumLength = 1, ErrorMessage = "Email must be between 1 and 50 characters.")]
+    [StringLength(100)]
     public string? Institution { get; set; }
 
 }
