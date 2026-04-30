@@ -99,7 +99,7 @@ public class MedicalReviewAssignmentCommandService : IMedicalReviewAssignmentCom
         await _unitOfWork.GetRepository<MedicalReviewAssignment>().CreateAsync(medicalReviewAssignment);
         await _unitOfWork.CompleteAsync();
 
-        await _emailAppService.SendEmailToMedicalReviewerAsync(medicalReviewer);
+        //await _emailAppService.SendEmailToMedicalReviewerAsync(medicalReviewer);
 
         return dto;
     }
