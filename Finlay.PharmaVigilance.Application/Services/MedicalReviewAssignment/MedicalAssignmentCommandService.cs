@@ -20,8 +20,8 @@ public class MedicalReviewAssignmentCommandService : IMedicalReviewAssignmentCom
     public MedicalReviewAssignmentCommandService(
         IUnitOfWork unitOfWork,
         IMapper mapper,
-        IUserContextService userContextService,
-        IEmailAppService emailAppService)
+        IUserContextService userContextService
+       )
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork)); ;
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper)); ;
