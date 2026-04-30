@@ -16,3 +16,8 @@ public class AdverseEventDetailDto
     public required PatientStatus CurrentStatus { get; set; }
     public required IEnumerable<GetSymptomDto> Symptoms { get; set; }
 }
+
+public class AdverseEventDetailMedicalReviewerDto : AdverseEventDetailDto
+{
+    public required Guid Id { get; set; }
+}

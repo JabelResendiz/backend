@@ -48,6 +48,13 @@ public class MedicalReviewAssignmentCommandService : IMedicalReviewAssignmentCom
         if (report == null)
             throw new KeyNotFoundException("Aefi Report not found.");
 
+        var existReport = await _unitOfWork.GetRepository<MedicalReviewAssignment>()
+                                .FirstOrDefaultAsync(mra => mra.AefiReportId == dto.AefiReportId
+                                && mra.Status != ReviewAssignmentStatus.Expired);
+
+        if (existReport != null)
+            throw new InvalidOperationException("This report is already assigned to a medical reviewer.");
+
         var medicalReviewer = await _unitOfWork.GetRepository<MedicalReviewer>()
                                     .GetByIdAsync(dto.MedicalReviewerId);
         if (medicalReviewer == null)
@@ -117,18 +124,23 @@ public class MedicalReviewAssignmentCommandService : IMedicalReviewAssignmentCom
             throw new InvalidOperationException($"An error occurred while updating the report: {ex.Message}", ex);
         }
     }
-    public async Task DeleteAsync<TId>(TId medicalReviewId)
+    public async Task DeleteAsync<TId>(TId assignmentId)
     {
         try
         {
-            if (medicalReviewId == null)
-                throw new ArgumentException("Medical Review ID must be different than null.", nameof(medicalReviewId));
+            if (assignmentId == null)
+                throw new ArgumentException("Medical Review Assignment ID must be different than null.", nameof(assignmentId));
 
-            var report = await _unitOfWork.GetRepository<MedicalReview>().GetByIdAsync(medicalReviewId);
-            if (report == null)
-                throw new KeyNotFoundException($"Medical Review with ID {medicalReviewId} does not exist.");
+            var assignment = await _unitOfWork.GetRepository<MedicalReviewAssignment>().GetByIdAsync(assignmentId);
 
-            await _unitOfWork.GetRepository<MedicalReview>().DeleteByIdAsync(medicalReviewId);
+            if (assignment == null)
+                throw new KeyNotFoundException($"Medical Review Assignment with ID {assignmentId} does not exist.");
+
+            var report = await _unitOfWork.GetRepository<AefiReport>().GetByIdAsync(assignment.AefiReportId);
+
+            report.Status = ReportStatus.Submitted;
+
+            await _unitOfWork.GetRepository<MedicalReviewAssignment>().DeleteByIdAsync(assignmentId);
             await _unitOfWork.CompleteAsync();
         }
         catch (ArgumentException ex)

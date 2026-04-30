@@ -6,8 +6,8 @@ namespace Finlay.PharmaVigilance.Application.DTO;
 
 public class MedicalReviewDto
 {
-    [Required(ErrorMessage = "Medical Review Assignment Id is required")]
-    public Guid MedicalReviewAssignmentId { get; set; }
+    [Required(ErrorMessage = "Report Id is required")]
+    public Guid ReportId { get; set; }
 
     [Required(ErrorMessage = "Clinical Significance is required")]
     public ClinicalSignificance? ClinicalSignificance { get; set; }

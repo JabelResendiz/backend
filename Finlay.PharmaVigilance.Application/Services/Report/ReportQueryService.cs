@@ -38,10 +38,36 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
     public async Task<ReportUserDto> GetReportByNotificationNumber(string notificationNumber)
     {
 
-        return await _unitOfWork.GetRepository<AefiReport>()
+        var report = await _unitOfWork.GetRepository<AefiReport>()
                         .GetAllByItems(ar => ar.NotificationNumber == notificationNumber)
                         .ProjectTo<ReportUserDto>(_mapper.ConfigurationProvider)
                         .FirstOrDefaultAsync() ?? throw new ArgumentNullException("Report not found");
+
+
+        var existingReport = await _unitOfWork.GetRepository<AefiReport>()
+                        .FirstOrDefaultAsync(ar => ar.NotificationNumber == notificationNumber)
+                        ?? throw new ArgumentNullException("Report not found");
+
+        var existingAssignment = await _unitOfWork.GetRepository<MedicalReviewAssignment>()
+                                        .FirstOrDefaultAsync(mra => mra.AefiReportId == existingReport.Id);
+
+        if (existingAssignment != null)
+        {
+            var existingReview = await _unitOfWork.GetRepository<MedicalReview>()
+                                        .FirstOrDefaultAsync(mr => mr.MedicalReviewAssignmentId == existingAssignment.Id);
+
+            // Console.WriteLine($"Existing Assignment: {existingAssignment.Id}, Status: {existingAssignment.Status}");
+
+            report.AssignedAt = existingAssignment.AssignedAt;
+
+            if (existingReview != null)
+                report.ReviewedAt = existingReview.ReviewedAt;
+
+
+        }
+
+        return report;
+
     }
 
 

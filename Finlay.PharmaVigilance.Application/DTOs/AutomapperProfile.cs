@@ -89,6 +89,13 @@ public class AutomapperProfile : Profile
             )
         );
 
+        CreateMap<AdverseEvent, AdverseEventDetailMedicalReviewerDto>()
+                .ForMember(dest => dest.Symptoms,
+            opt => opt.MapFrom(src =>
+                src.AdverseEventSymptoms.Select(x => x.Symptom)
+            )
+        );
+
         CreateMap<AdverseEvent, AdverseEventSummaryDto>();
 
 

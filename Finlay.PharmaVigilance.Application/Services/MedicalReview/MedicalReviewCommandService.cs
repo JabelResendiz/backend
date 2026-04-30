@@ -56,19 +56,20 @@ public class MedicalReviewCommandService : IMedicalReviewCommandService
         if (medicalReviewer == null)
             throw new UnauthorizedAccessException("User is not a medical reviewer.");
 
-        var medicalAssignment = await _unitOfWork.GetRepository<MedicalReviewAssignment>()
-                                .GetByIdAsync(dto.MedicalReviewAssignmentId);
 
-        if (medicalAssignment == null)
-            throw new KeyNotFoundException("Medical Review Assignment not found.");
+        var report = await _unitOfWork.GetRepository<AefiReport>()
+                                .FirstOrDefaultAsync(r => r.Id == dto.ReportId);
 
-        if (medicalAssignment.MedicalReviewerId != medicalReviewer.Id)
-            throw new UnauthorizedAccessException("This assignment does not belong to the current medical reviewer.");
+        if (report == null)
+            throw new KeyNotFoundException("Aefi Report not found.");
+
+        var validAssignment = await _unitOfWork.GetRepository<MedicalReviewAssignment>()
+                            .FirstOrDefaultAsync(mra => mra.AefiReportId == dto.ReportId
+                                    && mra.MedicalReviewerId == medicalReviewer.Id
+                                    && mra.Status == ReviewAssignmentStatus.Pending)
+        ?? throw new UnauthorizedAccessException("No valid medical review assignment found for this report and reviewer.");
 
         var easternNow = TimeZoneHelper.GetEasternNow();
-
-        Console.WriteLine($"============================0Current Eastern Time: {easternNow}===========================");
-        Console.WriteLine($"============================Reviewed At: {dto.ReviewedAt}=============================");
 
         if (dto.ReviewedAt > easternNow)
             throw new ArgumentException("Reviewed At date cannot be in the future. It must be less than or equal to the current date (Eastern Time UTC-5).",
@@ -79,22 +80,19 @@ public class MedicalReviewCommandService : IMedicalReviewCommandService
             .Select(x => x.AdverseEventId)
             .ToList();
 
-        var adverseEvents = await _unitOfWork.GetRepository<AdverseEvent>()
-                        .GetAllByItems(ad => ad.AefiReportId == medicalAssignment.AefiReportId
+        var adverseEventsMap = await _unitOfWork.GetRepository<AdverseEvent>()
+                        .GetAllByItems(ad => ad.AefiReportId == validAssignment.AefiReportId
                                             && adverseEventIds.Contains(ad.Id))
-                        .ToListAsync();
+                        .ToDictionaryAsync(x => x.Id);
 
-        if (adverseEvents.Count != adverseEventIds.Count)
+        if (adverseEventsMap.Count != adverseEventIds.Count)
         {
             throw new KeyNotFoundException("Some adverse events were not found or do not belong to the report.");
         }
 
-        var adverseEventMap = adverseEvents.ToDictionary(x => x.Id);
-
-
         foreach (var clinical in dto.ClinicalMedicalReviews)
         {
-            var adverseEvent = adverseEventMap[clinical.AdverseEventId];
+            var adverseEvent = adverseEventsMap[clinical.AdverseEventId];
 
             adverseEvent.LaboratoryResults = clinical.LaboratoryResults;
             adverseEvent.MedDRACode = clinical.MedDRACode;
@@ -103,8 +101,10 @@ public class MedicalReviewCommandService : IMedicalReviewCommandService
         }
 
         var medicalReview = _mapper.Map<MedicalReview>(dto);
-        medicalReview.MedicalReviewAssignment = medicalAssignment;
+        medicalReview.MedicalReviewAssignment = validAssignment;
         medicalReview.MedicalReviewAssignment.Status = ReviewAssignmentStatus.Completed;
+
+        report.Status = ReportStatus.Approved;
 
         await _unitOfWork.GetRepository<MedicalReview>().CreateAsync(medicalReview);
         await _unitOfWork.CompleteAsync();
