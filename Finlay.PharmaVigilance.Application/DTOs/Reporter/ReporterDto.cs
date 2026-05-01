@@ -14,7 +14,7 @@ public class ReporterDto
     public ReporterRelationship? ReporterRelationship { get; set; }
 
     [Required(ErrorMessage = "Identity number is required.")]
-    [StringLength(20, MinimumLength = 5, ErrorMessage = "Identity number must be between 5 and 20 characters.")]
+    [RegularExpression(@"^\d{11}$", ErrorMessage = "Identity number must be exactly 11 digits.")]
     public string IdentityNumber { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Date Of Birth is required.")]
@@ -27,19 +27,19 @@ public class ReporterDto
     public int MunicipalityId { get; set; }
 
     [Required(ErrorMessage = "Phone Number is required.")]
-    [StringLength(20, MinimumLength = 1, ErrorMessage = "Phone Number must be between 1 and 50 characters.")]
+    [StringLength(20, MinimumLength = 1, ErrorMessage = "Phone Number must be between 1 and 20 characters.")]
     public string PhoneNumber { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Email is required.")]
-    [StringLength(100, MinimumLength = 1, ErrorMessage = "Email must be between 1 and 50 characters.")]
+    [StringLength(100, MinimumLength = 1, ErrorMessage = "Email must be between 1 and 100 characters.")]
     [EmailAddress(ErrorMessage = "Invalid email format.")]
     [EmailValidation]
     public string Email { get; set; } = string.Empty;
 
-    [StringLength(30)]
+    [StringLength(30, MinimumLength = 1, ErrorMessage = "Professional License must be between 1 and 30 characters.")]
     public string? ProfessionalLicense { get; set; }
 
-    [StringLength(100)]
+    [StringLength(100, MinimumLength = 1, ErrorMessage = "Institution must be between 1 and 100 characters.")]
     public string? Institution { get; set; }
 
 }

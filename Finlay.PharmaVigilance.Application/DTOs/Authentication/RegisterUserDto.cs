@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using Finlay.PharmaVigilance.Application.Validators.Attribute;
 
 namespace Finlay.PharmaVigilance.Application.DTO.Authentication;
 
@@ -10,6 +11,7 @@ public class RegisterUserDto
 
     [Required(ErrorMessage = "Email is required")]
     [EmailAddress(ErrorMessage = "The email is not in a valid format.")]
+    [EmailValidation]
     public string Email { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Password is required")]

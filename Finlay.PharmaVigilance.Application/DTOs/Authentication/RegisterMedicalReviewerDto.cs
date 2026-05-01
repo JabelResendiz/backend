@@ -16,7 +16,7 @@ public class RegisterMedicalReviewerDto : RegisterUserDto
     public string ProfessionalLicense { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Identity number is required.")]
-    [StringLength(20, MinimumLength = 5, ErrorMessage = "Identity number must be between 5 and 20 characters.")]
+    [RegularExpression(@"^\d{11}$", ErrorMessage = "Identity number must be exactly 11 digits.")]
     public string IdentityNumber { get; set; } = null!;
 
     [Required(ErrorMessage = "Date Of Birth is required.")]
