@@ -103,61 +103,37 @@ public class CatalogCommandService : ICatalogCommandService
         }
     }
 
-    public async Task<string> DeactivateVaccine(int vaccineId)
+    public async Task<string> UpdateVaccineStatus(Guid vaccineId, bool isActive)
     {
         var vaccine = await _unitOfWork.GetRepository<Vaccine>()
-                        .GetByIdAsync(vaccineId);
+                            .GetByIdAsync(vaccineId);
 
         if (vaccine == null)
             throw new InvalidOperationException("This vaccine not exists");
 
-        vaccine.IsActive = false;
+        vaccine.IsActive = isActive;
 
         await _unitOfWork.CompleteAsync();
 
-        return "Vaccine is now inactive";
+        return isActive
+            ? "Vaccine is now active"
+            : "Vaccine is now inactive";
+
     }
-    public async Task<string> DeactivateSymptom(int symptomId)
+    public async Task<string> UpdateSymptomStatus(Guid symptomId, bool isActive)
     {
         var symptom = await _unitOfWork.GetRepository<Symptom>()
-                        .GetByIdAsync(symptomId);
+                            .GetByIdAsync(symptomId);
 
         if (symptom == null)
             throw new InvalidOperationException("This symptom not exists");
 
-        symptom.IsActive = false;
+        symptom.IsActive = isActive;
 
         await _unitOfWork.CompleteAsync();
 
-        return "Symptom is now inactive";
-    }
-
-    public async Task<string> ActivateVaccine(int vaccineId)
-    {
-        var vaccine = await _unitOfWork.GetRepository<Vaccine>()
-                                .GetByIdAsync(vaccineId);
-
-        if (vaccine == null)
-            throw new InvalidOperationException("This vaccine not exists");
-
-        vaccine.IsActive = true;
-
-        await _unitOfWork.CompleteAsync();
-
-        return "Vaccine is now active";
-    }
-    public async Task<string> ActivateSymptom(int symptomId)
-    {
-        var symptom = await _unitOfWork.GetRepository<Symptom>()
-                                .GetByIdAsync(symptomId);
-
-        if (symptom == null)
-            throw new InvalidOperationException("This symptom not exists");
-
-        symptom.IsActive = true;
-
-        await _unitOfWork.CompleteAsync();
-
-        return "Symptom is now active";
+        return isActive
+            ? "Symptom is now active"
+            : "Symptom is now inactive";
     }
 }

@@ -7,8 +7,6 @@ public interface ICatalogCommandService
 {
     Task<string> CreateVaccineAsync(VaccineDto vaccineDto);
     Task<string> CreateSymptomAsync(SymptomDto symptomDto);
-    Task<string> DeactivateVaccine(int vaccineId);
-    Task<string> DeactivateSymptom(int symptomId);
-    Task<string> ActivateVaccine(int vaccineId);
-    Task<string> ActivateSymptom(int symptomId);
+    Task<string> UpdateVaccineStatus(Guid vaccineId, bool isActive);
+    Task<string> UpdateSymptomStatus(Guid symptomId, bool isActive);
 }

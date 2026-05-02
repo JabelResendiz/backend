@@ -71,81 +71,46 @@ public class CatalogController : ControllerBase
 
     }
 
-    [HttpPost("deactivate/vaccine/{vaccineId}")]
+
+
+    [HttpPost("updateStatus/symptom")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeactivateVaccine(int vaccineId)
+    public async Task<IActionResult> UpdateSymptomStatus(
+        [FromQuery] Guid symptomId,
+        [FromQuery] bool isActive)
     {
 
-        var result = await _catalogCommandService.DeactivateVaccine(vaccineId);
+        var result = await _catalogCommandService.UpdateSymptomStatus(symptomId, isActive);
 
         return Ok(new
         {
-            message = result,
-            success = true
+            message = result
         });
 
     }
 
 
-    [HttpPost("activate/vaccine/{vaccineId}")]
+
+    [HttpPost("updateStatus/vaccine")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> ActivateVaccine(int vaccineId)
+    public async Task<IActionResult> UpdateVaccineStatus(
+        [FromQuery] Guid vaccineId,
+        [FromQuery] bool isActive)
     {
 
-        var result = await _catalogCommandService.ActivateVaccine(vaccineId);
+        var result = await _catalogCommandService.UpdateVaccineStatus(vaccineId, isActive);
 
         return Ok(new
         {
-            message = result,
-            success = true
-        });
-
-    }
-
-
-    [HttpPost("deactivate/symptom/{symptomId}")]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> DeactivateSymptom(int symptomId)
-    {
-
-        var result = await _catalogCommandService.DeactivateSymptom(symptomId);
-
-        return Ok(new
-        {
-            message = result,
-            success = true
-        });
-
-    }
-
-
-    [HttpPost("activate/symptom/{symptomId}")]
-    [Authorize(Roles = "Admin")]
-    [ProducesResponseType(StatusCodes.Status200OK)]
-    [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    [ProducesResponseType(StatusCodes.Status409Conflict)]
-    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> ActivateSymptom(int symptomId)
-    {
-
-        var result = await _catalogCommandService.ActivateSymptom(symptomId);
-
-        return Ok(new
-        {
-            message = result,
-            success = true
+            message = result
         });
 
     }
