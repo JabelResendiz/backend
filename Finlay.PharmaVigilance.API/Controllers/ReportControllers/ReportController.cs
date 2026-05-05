@@ -128,4 +128,23 @@ public class ReportController : ControllerBase
         return Ok(result);
     }
 
+
+
+
+    [HttpGet("test-smtp")]
+    public async Task<IActionResult> TestSmtp()
+    {
+        try
+        {
+            using var client = new MailKit.Net.Smtp.SmtpClient();
+
+            await client.ConnectAsync("smtp.gmail.com", 587, MailKit.Security.SecureSocketOptions.StartTls);
+
+            return Ok("Conexión SMTP OK");
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
 }
