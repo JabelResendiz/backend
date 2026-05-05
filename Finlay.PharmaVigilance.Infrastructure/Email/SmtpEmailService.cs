@@ -22,13 +22,16 @@ public class SmtpEmailService : IEmailService
     {
         try
         {
-
+            _logger.LogInformation("==================Vamos a extraer las variables=================");
 
             var host = _configuration["Email:Smtp:Host"];
             var port = int.Parse(_configuration["Email:Smtp:Port"] ?? "587");
             var user = _configuration["Email:Smtp:User"];
             var password = _configuration["Email:Smtp:Password"];
             var fromName = _configuration["Email:Smtp:FromName"];
+
+            _logger.LogInformation("==================Variables extraidas=================");
+
 
             _logger.LogInformation($"Host: {host} ; Port:{port} ; User:{user} ; Password:{password} ; FromName:{fromName}");
 
@@ -40,16 +43,22 @@ public class SmtpEmailService : IEmailService
                 throw new InvalidOperationException("SMTP configuration is incomplete.");
             }
 
+            _logger.LogInformation("Todo perfecto");
+
             var message_obj = new MimeMessage();
             message_obj.From.Add(new MailboxAddress(fromName, user));
             message_obj.To.Add(new MailboxAddress("", toEmail));
             message_obj.Subject = subject;
+
+            _logger.LogInformation("Pasamos la prueba2");
 
             var bodyBuilder = new BodyBuilder { HtmlBody = message };
             message_obj.Body = bodyBuilder.ToMessageBody();
 
             using (var client = new SmtpClient())
             {
+                _logger.LogInformation("Pasa la prueba3");
+
                 await client.ConnectAsync(host, port, SecureSocketOptions.StartTls);
                 await client.AuthenticateAsync(user, password);
                 await client.SendAsync(message_obj);
