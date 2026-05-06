@@ -1,6 +1,5 @@
 using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.IServices;
-using Finlay.PharmaVigilance.Domain.Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -13,11 +12,16 @@ public class ReportController : ControllerBase
     private readonly IReportQueryService _reportQueryService;
     private readonly IReportCommandService _reportCommandService;
 
+    private readonly ICaptchaService _captchaService;
+
+
     public ReportController(IReportQueryService reportQueryService,
-                            IReportCommandService reportCommandService)
+                            IReportCommandService reportCommandService,
+                            ICaptchaService captchaService)
     {
         _reportQueryService = reportQueryService;
         _reportCommandService = reportCommandService;
+        _captchaService = captchaService;
     }
 
     [HttpPost("createPublic")]
@@ -29,6 +33,12 @@ public class ReportController : ControllerBase
     {
         if (reportDto == null)
             throw new ArgumentNullException(nameof(reportDto), "Report data is required.");
+
+        var isValid = await _captchaService.VerifyToken(reportDto.Token);
+
+        if (!isValid)
+            return BadRequest(new { success = false });
+
 
         var result = await _reportCommandService.CreatePublicReportAsync(reportDto);
 

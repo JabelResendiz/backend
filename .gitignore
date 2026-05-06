@@ -31,3 +31,6 @@ Thumbs.db
 # EF Core Migrations
 Migrations/
 .env
+
+
+Requests/

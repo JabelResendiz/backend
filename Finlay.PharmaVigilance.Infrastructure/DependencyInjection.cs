@@ -119,7 +119,7 @@ public static class DependencyInjection
         //services.AddHostedService<EmailToSectionResponsibleConsumer>();
         // services.AddScoped<IEventBus, RabbitMqEventBus>();
 
-
+        services.AddScoped<ICaptchaService, CaptchaService>();
         services.AddScoped<IIdentityManager, IdentityManager>();
         services.AddScoped<IAdverseEventSymptomRepository, AdverseEventSymptomRepository>();
         services.AddScoped<IAdverseEventRepository, AdverseEventRepository>();

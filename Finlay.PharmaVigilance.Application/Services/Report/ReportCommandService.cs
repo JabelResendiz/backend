@@ -29,7 +29,6 @@ public class ReportCommandService : IReportCommandService
     private readonly IEnumerable<IReportValidator<ReportDto>> _validators;
     private readonly IEnumerable<IReportValidator<PublicAefiReportDto>> _publicValidators;
     private readonly IUserContextService _userContextService;
-    // private readonly IEventBus _eventBus;
     private readonly ILogger<ReportCommandService> _logger;
 
     private static readonly Expression<Func<MedicalReviewer, object>>[] includes =
@@ -65,11 +64,15 @@ public class ReportCommandService : IReportCommandService
 
         try
         {
+            _logger.LogDebug("Executing {ValidatorCount} validators", _validators.Count());
+
             // Execute all validators in sequence using Chain of Responsibility pattern
             foreach (var validator in _validators)
             {
                 await validator.ValidateAsync(reportDto);
             }
+
+            _logger.LogDebug("Executing {ValidatorCount} validators", _publicValidators.Count());
 
             foreach (var validator in _publicValidators)
             {
@@ -84,10 +87,14 @@ public class ReportCommandService : IReportCommandService
             VaccinatedSubject vaccinatedSubject;
             if (existingVaccinatedSubject != null)
             {
+                _logger.LogDebug("Existing vaccinated subject found with IdentityNumber");
+
                 vaccinatedSubject = existingVaccinatedSubject;
             }
             else
             {
+                _logger.LogDebug("Creating new vaccinated subject");
+
                 vaccinatedSubject = _mapper.Map<VaccinatedSubject>(reportDto.VaccinatedSubject);
             }
 
@@ -147,7 +154,7 @@ public class ReportCommandService : IReportCommandService
             if (sectionResponsibleUser == null)
                 throw new InvalidOperationException("Section responsible user is null.");
 
-            Console.WriteLine($"📧 Queremos enviar email a: {reporter.Email} y {sectionResponsibleUser.Email}");
+            _logger.LogDebug($"📧 Queremos enviar email a: {reporter.Email} y {sectionResponsibleUser.Email}");
 
             // await _eventBus.PublishAsync(new EmailToReporterEvent
             // {
@@ -170,6 +177,8 @@ public class ReportCommandService : IReportCommandService
         }
         catch (Exception ex)
         {
+            _logger.LogError(ex, "Error creating AEFI report");
+
             throw new InvalidOperationException(
                 $"Error to create AEFI report: {ex.Message}",
                 ex);
