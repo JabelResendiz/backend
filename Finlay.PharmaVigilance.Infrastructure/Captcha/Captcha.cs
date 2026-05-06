@@ -5,6 +5,9 @@ using System.Text.Json;
 
 namespace Finlay.PharmaVigilance.Infrastructure;
 
+/// <summary>
+/// Captcha Function
+/// </summary>
 public class CaptchaService : ICaptchaService
 {
     private readonly IConfiguration _config;
@@ -23,6 +26,18 @@ public class CaptchaService : ICaptchaService
             var secret = _config["Recaptcha:SecretKey"];
 
             var httpClient = _httpClientFactory.CreateClient();
+
+
+            //             var content = new FormUrlEncodedContent(new[]
+            // {
+            //     new KeyValuePair<string, string>("secret", secret),
+            //     new KeyValuePair<string, string>("response", token)
+            // });
+
+            //             var response = await httpClient.PostAsync(
+            //                 "https://www.google.com/recaptcha/api/siteverify",
+            //                 content
+            //             );
 
             var response = await httpClient.PostAsync(
                 $"https://www.google.com/recaptcha/api/siteverify?secret={secret}&response={token}",
