@@ -55,7 +55,7 @@ public static class DependencyInjection
         // Add HttpContextAccessor for accessing the current HTTP context
         services.AddHttpContextAccessor();
 
-
+        services.AddHttpClient();
 
         //Identity configuration
         services.AddIdentity<User, Role>(options =>
