@@ -57,7 +57,7 @@ public static class RateLimitingMiddleware
             // Autenticación: muy restrictivo (5 req/min)
             options.AddFixedWindowLimiter("Auth", config =>
             {
-                config.PermitLimit = 5;
+                config.PermitLimit = 500000;
                 config.Window = TimeSpan.FromMinutes(1);
                 config.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
                 config.QueueLimit = 0;
@@ -66,7 +66,7 @@ public static class RateLimitingMiddleware
             // Endpoints críticos de farmacovigilancia (30 req/min)
             options.AddFixedWindowLimiter("PharmaCritical", config =>
             {
-                config.PermitLimit = 30;
+                config.PermitLimit = 3000000;
                 config.Window = TimeSpan.FromMinutes(1);
                 config.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
                 config.QueueLimit = 5;
@@ -75,7 +75,7 @@ public static class RateLimitingMiddleware
             // Consultas generales: más permisivo (100 req/min)
             options.AddSlidingWindowLimiter("GeneralQuery", config =>
             {
-                config.PermitLimit = 100;
+                config.PermitLimit = 1000000;
                 config.Window = TimeSpan.FromMinutes(1);
                 config.SegmentsPerWindow = 3;
                 config.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
@@ -94,7 +94,7 @@ public static class RateLimitingMiddleware
                         partitionKey: ipAddress,
                         factory: _ => new FixedWindowRateLimiterOptions
                         {
-                            PermitLimit = 100,
+                            PermitLimit = 10000000,
                             Window = TimeSpan.FromMinutes(1),
                             QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                             QueueLimit = 0
