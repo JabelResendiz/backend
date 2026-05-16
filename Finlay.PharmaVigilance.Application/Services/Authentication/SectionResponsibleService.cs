@@ -122,18 +122,22 @@ public class SectionResponsibleService : ISectionResponsibleService
 
 
     public async Task<PagedResultDto<SectionResponsibleResponseDto>> GetByFilters(
-        PagedRequestDto paged, string? search, string? provinceName)
+        PagedRequestDto paged,
+        string? search,
+        string? provinceName,
+        int? municipalityId)
     {
-        if (!string.IsNullOrWhiteSpace(search))
-            Console.WriteLine("Search term: " + search);
-        else
-            Console.WriteLine("No search term provided.");
+
+        Console.WriteLine($"======================{municipalityId}=====================");
+
 
         var query = _unitOfWork.GetRepository<SectionResponsible>()
                                         .GetAllByItems(src => (string.IsNullOrEmpty(search) ||
                                                               src.User.UserName!.Contains(search)) &&
-                                                             (string.IsNullOrEmpty(provinceName) ||
-                                                              src.Province.Name == provinceName));
+                                                              (string.IsNullOrEmpty(provinceName) ||
+                                                              src.Province.Name.Contains(provinceName)) &&
+                                                              (!municipalityId.HasValue ||
+                                                              src.MunicipalityId == municipalityId.Value));
 
         var totalCount = await query.CountAsync();
 
@@ -143,7 +147,9 @@ public class SectionResponsibleService : ISectionResponsibleService
                                             src => (string.IsNullOrEmpty(search) ||
                                                    src.User.UserName!.Contains(search)) &&
                                                    (string.IsNullOrEmpty(provinceName) ||
-                                                    src.Province.Name.Contains(provinceName)),
+                                                   src.Province.Name.Contains(provinceName)) &&
+                                                   (!municipalityId.HasValue ||
+                                                   src.MunicipalityId == municipalityId.Value),
                                             sr => sr.User)
                         .ToListAsync();
 

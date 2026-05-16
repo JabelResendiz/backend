@@ -26,6 +26,9 @@ public class Vaccine : GuidEntity
     public string? Code { get; set; }
     public DateTime? ApprovalDate { get; set; }
     public bool IsActive { get; set; } = true;
+    // public string Manufacturer { get; set; } = null!;
+    public Guid ManufacturerId { get; set; }
+    public Manufacturer Manufacturer { get; set; } = null!;
 
     public ICollection<Vaccination> Vaccinations { get; set; } = new List<Vaccination>();
 

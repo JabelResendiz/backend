@@ -21,12 +21,12 @@ public class MedicalReviewAssignmentCommandService : IMedicalReviewAssignmentCom
         IUnitOfWork unitOfWork,
         IMapper mapper,
         IUserContextService userContextService
-       )
+    )
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork)); ;
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper)); ;
         _userContextService = userContextService ?? throw new ArgumentNullException(nameof(userContextService));
-        // _emailAppService = emailAppService ?? throw new ArgumentNullException(nameof(emailAppService));
+        //_emailAppService = emailAppService ?? throw new ArgumentNullException(nameof(emailAppService));
     }
 
     public async Task<MedicalReviewAssignmentDTO> CreateAsync(MedicalReviewAssignmentDTO dto)

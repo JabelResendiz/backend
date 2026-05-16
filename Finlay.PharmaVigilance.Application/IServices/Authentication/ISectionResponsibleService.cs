@@ -20,5 +20,8 @@ public interface ISectionResponsibleService
     Task<PagedResultDto<SectionResponsibleResponseDto>> SearchByMunicipality(PagedRequestDto paged, int municipalityId);
 
     Task<PagedResultDto<SectionResponsibleResponseDto>> GetByFilters(
-        PagedRequestDto paged, string? search, string? provinceName);
+        PagedRequestDto paged,
+        string? search,
+        string? provinceName,
+        int? municipalityId);
 }

@@ -6,7 +6,7 @@ public enum PatientStatus
     Recovered,
     Recovering,
     NotRecovered,
-    Serious,
+    Fatal,
     Unknown,
     RecoveredWithSequelae
 }

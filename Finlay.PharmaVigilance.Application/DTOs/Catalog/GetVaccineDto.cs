@@ -14,4 +14,5 @@ public class GetPrivateVaccineDto : GetVaccineDto
     public required VaccineType Type { get; set; }
     public DateTime? ApprovalDate { get; set; }
     public string? Code { get; set; }
+    public required string Manufacturer { get; set; }
 }

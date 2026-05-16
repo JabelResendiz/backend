@@ -42,63 +42,78 @@ public class AutomapperProfile : Profile
         CreateMap<VaccineDto, Vaccine>();
         CreateMap<Vaccine, GetVaccineDto>();
         CreateMap<Vaccine, GetPrivateVaccineDto>();
+        CreateMap<Vaccine, VaccineDashboardDto>();
 
         CreateMap<SymptomDto, Symptom>();
         CreateMap<Symptom, GetSymptomDto>();
         CreateMap<Symptom, GetPrivateSymptomsDto>();
 
+        // Manufacturer
+        CreateMap<ManufacturerDto, Manufacturer>();
+        CreateMap<Manufacturer, ManufacturerResponseDto>();
 
+        // Lot
 
+        CreateMap<LotDto, Lot>();
+        CreateMap<Lot, LotResponseDto>();
 
         // Vaccination-VaccinatedSubject Dtos
         CreateMap<VaccinatedSubjectDto, VaccinatedSubject>();
         CreateMap<VaccinationDto, Vaccination>();
 
         CreateMap<Vaccination, VaccinationDetailsDto>()
-            .ForMember(dest => dest.VaccineName, opt => opt.MapFrom(src => src.Vaccine.Name));
+            .ForMember(dest => dest.VaccineName, opt => opt.MapFrom(src => src.Lot.Vaccine.Name))
+            .ForMember(dest => dest.VaccinationCenterName, opt => opt.MapFrom(src => src.VaccinationCenter.Name))
+            .ForMember(dest => dest.LotNumber, opt => opt.MapFrom(src => src.Lot.LotNumber));
 
         CreateMap<Vaccination, VaccinationSummaryDto>()
-            .ForMember(dest => dest.VaccineName, opt => opt.MapFrom(src => src.Vaccine.Name));
+            .ForMember(dest => dest.VaccineName, opt => opt.MapFrom(src => src.Lot.Vaccine.Name))
+            .ForMember(dest => dest.VaccinationCenterName, opt => opt.MapFrom(src => src.VaccinationCenter.Name));
+
+        CreateMap<Vaccination, VaccinationPdfDto>()
+            .ForMember(dest => dest.VaccineName, opt => opt.MapFrom(src => src.Lot.Vaccine.Name));
+
+
+        CreateMap<VaccinationCenterDto, VaccinationCenter>();
+        CreateMap<VaccinationCenter, VaccinationCenterResponseDto>();
+
+        // VaccinatedSubject
 
         CreateMap<VaccinatedSubject, VaccinatedSubjectDetailsDto>();
         CreateMap<VaccinatedSubject, VaccinatedSubjectSummaryDto>();
 
+        CreateMap<VaccinatedSubject, VaccinatedSubjectPdfDto>();
+
+        CreateMap<VaccinatedSubject, VaccinatedSubjectAdminDto>()
+            .ForMember(dest => dest.ProvinceName, opt => opt.MapFrom(src => src.Province.Name))
+            .ForMember(dest => dest.MunicipalityName, opt => opt.MapFrom(src => src.Municipality.Name));
 
 
         // AdverseEvent
-        CreateMap<AdverseEventDto, AdverseEvent>()
-            .ForMember(dest => dest.AdverseEventSymptoms,
-                opt => opt.MapFrom(src =>
-                    src.Symptoms.Select(id => new AdverseEventSymptom
-                    {
-                        SymptomId = id
-                    })
-                )
-            );
+        CreateMap<AdverseEventDto, AdverseEvent>();
 
 
 
-        CreateMap<AdverseEventSymptom, GetSymptomDto>()
-                .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Symptom.Id))
-                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Symptom.Name));
+        // CreateMap<AdverseEventSymptom, GetSymptomDto>()
+        //         .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.Symptom.Id))
+        //         .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.Symptom.Name));
 
-        CreateMap<AdverseEvent, AdverseEventDetailDto>()
-                .ForMember(dest => dest.Symptoms,
-            opt => opt.MapFrom(src =>
-                src.AdverseEventSymptoms.Select(x => x.Symptom)
-            )
-        );
+        CreateMap<AdverseEvent, AdverseEventDetailDto>();
 
-        CreateMap<AdverseEvent, AdverseEventDetailMedicalReviewerDto>()
-                .ForMember(dest => dest.Symptoms,
-            opt => opt.MapFrom(src =>
-                src.AdverseEventSymptoms.Select(x => x.Symptom)
-            )
-        );
+        CreateMap<AdverseEvent, AdverseEventDetailMedicalReviewerDto>();
 
         CreateMap<AdverseEvent, AdverseEventSummaryDto>();
 
+        CreateMap<AdverseEvent, AdverseEventPdfDto>();
 
+
+        CreateMap<AdverseEvent, AdverseEventAdminDto>()
+            .ForMember(dest => dest.Symptom,
+            opt => opt.MapFrom(src =>
+            src.Symptom.Name));
+
+
+        //
 
 
         // Reporter
@@ -112,6 +127,9 @@ public class AutomapperProfile : Profile
         CreateMap<Reporter, ReporterDetailsDto>();
         CreateMap<Reporter, ReporterSummaryDto>();
 
+        CreateMap<Reporter, ReporterPdfDto>();
+
+        CreateMap<Reporter, ReporterAdminDto>();
 
 
 
@@ -119,20 +137,71 @@ public class AutomapperProfile : Profile
         CreateMap<PublicAefiReportDto, AefiReport>();
         CreateMap<MedicalReportDto, AefiReport>();
 
-        CreateMap<AefiReport, ReportSectionResponsibleDto>();
+        CreateMap<AefiReport, ReportSectionResponsibleDto>()
+        .ForMember(
+                dest => dest.GlobalSeverityLevel,
+                opt => opt.MapFrom(src =>
+                    src.AdverseEvents
+                        .OrderByDescending(a => a.SeverityLevel)
+                        .Select(a => a.SeverityLevel)
+                        .FirstOrDefault()
+                )
+            );
         CreateMap<AefiReport, ReportMedicalReviewerDto>();
         CreateMap<AefiReport, ReportUserDto>();
 
+        CreateMap<AefiReport, ReportPdfDto>();
+
+        CreateMap<AefiReport, ReportSummaryAdminDto>()
+            .ForMember(
+                dest => dest.GlobalSeverityLevel,
+                opt => opt.MapFrom(src =>
+                    src.AdverseEvents
+                        .OrderByDescending(a => a.SeverityLevel)
+                        .Select(a => a.SeverityLevel)
+                        .FirstOrDefault()
+                )
+            )
+            .ForMember(dest => dest.VaccinesName, opt => opt.MapFrom(src => src.Vaccinations.Select(v => v.Lot.Vaccine.Name)))
+            .ForMember(dest => dest.AdverseEventsName, opt => opt.MapFrom(src => src.AdverseEvents.Select(a => a.Symptom.Name)));
+
+
+        CreateMap<AefiReport, ReportDetailAdminDto>()
+            .ForMember(
+                dest => dest.GlobalSeverityLevel,
+                opt => opt.MapFrom(src =>
+                    src.AdverseEvents
+                        .OrderByDescending(a => a.SeverityLevel)
+                        .Select(a => a.SeverityLevel)
+                        .FirstOrDefault()
+                )
+            )
+    .ForMember(
+        dest => dest.MedicalReview,
+        opt => opt.MapFrom(src =>
+            src.MedicalReviewAssignments
+                .Where(a => a.MedicalReview != null)
+                .Select(a => a.MedicalReview)
+                .OrderByDescending(r => r!.ReviewedAt)
+                .FirstOrDefault()
+        )
+    );
 
         // medicalAssignment - Medical Reviews Dtos
 
         CreateMap<MedicalReviewDto, MedicalReview>();
+        CreateMap<MedicalReview, MedicalReviewResponseDto>();
+
         CreateMap<MedicalReviewAssignmentDTO,
                  MedicalReviewAssignment>();
 
 
         CreateMap<MedicalReviewAssignment, ReportUserDto>();
         CreateMap<MedicalReviewAssignment, ReportMedicalReviewerDto>();
+
+        CreateMap<MedicalReviewAssignment, AssignmentResponse>()
+            .ForMember(dest => dest.MedicalReviewerName, opt => opt.MapFrom(src => src.MedicalReviewer.User.UserName))
+            .ForMember(dest => dest.SectionResponsibleName, opt => opt.MapFrom(src => src.SectionResponsible.User.UserName));
 
     }
 }

@@ -3,6 +3,7 @@ using Finlay.PharmaVigilance.Application.DTO.Authentication;
 using Finlay.PharmaVigilance.Application.IServices.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Finlay.PharmaVigilance.Api.Controllers;
 
@@ -12,6 +13,7 @@ namespace Finlay.PharmaVigilance.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("GeneralQuery")]
 public class MedicalReviewerController : ControllerBase
 {
     private readonly IMedicalReviewerService _medicalReviewerService;
@@ -54,7 +56,6 @@ public class MedicalReviewerController : ControllerBase
         });
 
     }
-
 
     // [HttpGet("getbyProvince")]
     // [Authorize(Roles = "SectionResponsible")]

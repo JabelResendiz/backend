@@ -3,9 +3,8 @@ namespace Finlay.PharmaVigilance.Domain.Enum;
 
 public enum SeverityLevel
 {
-   Mild,
-   Moderate,
-   Severe
+   NonSerious = 0,  // No serio
+   Serious = 1      // Serio
 }
 
 

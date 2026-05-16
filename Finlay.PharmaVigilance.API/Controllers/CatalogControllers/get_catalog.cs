@@ -3,6 +3,7 @@ using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Finlay.PharmaVigilance.Api.Controllers.CatalogControllers;
 
@@ -12,6 +13,7 @@ namespace Finlay.PharmaVigilance.Api.Controllers.CatalogControllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("GeneralQuery")]
 public class GetCatalogController : ControllerBase
 {
     private readonly IVaccineQueryService _vaccineQueryService;
@@ -56,30 +58,6 @@ public class GetCatalogController : ControllerBase
     }
 
 
-    // [HttpGet("allsymptoms")]
-    // [Authorize(Roles = "Admin")]
-    // [ProducesResponseType(StatusCodes.Status200OK)]
-    // [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    // [ProducesResponseType(StatusCodes.Status409Conflict)]
-    // [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    // public async Task<ActionResult> GetAllSymptoms([FromQuery] PagedRequestDto paged)
-    // {
-    //     if (paged == null)
-    //         throw new ArgumentNullException(nameof(paged), "Paged cannot be null");
-
-    //     paged.BaseUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}";
-
-    //     var result = await _symptomQueryService.GetAllPagedResultAsync(paged);
-
-    //     return Ok(new
-    //     {
-    //         message = result,
-    //         success = true
-    //     });
-
-    // }
-
-
     [HttpGet("vaccine")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status200OK)]
@@ -114,6 +92,21 @@ public class GetCatalogController : ControllerBase
 
     }
 
+
+
+    [HttpGet("finlayVaccines")]
+    [Authorize(Roles = "Admin")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult> GetFinlayVaccines()
+    {
+        var result = await _vaccineQueryService.GetSelfVaccines();
+
+        return Ok(result);
+
+    }
 
 
 }

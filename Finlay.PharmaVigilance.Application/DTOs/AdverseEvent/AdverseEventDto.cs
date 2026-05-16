@@ -12,9 +12,11 @@ public class AdverseEventDto
     [Required(ErrorMessage = "Start date is required.")]
     public DateTime? StartDate { get; set; }
 
-    [Required(ErrorMessage = "Adverse Event description is required.")]
-    [StringLength(500, MinimumLength = 1)]
-    public string Description { get; set; } = string.Empty;
+    [Required(ErrorMessage = "Finish date is required.")]
+    public DateTime? FinishDate { get; set; }
+
+    [StringLength(500, MinimumLength = 0)]
+    public string? Description { get; set; }
 
     [Required(ErrorMessage = "VisitedDoctor is required.")]
     public bool VisitedDoctor { get; set; }
@@ -35,6 +37,12 @@ public class AdverseEventDto
     [Required(ErrorMessage = "Current Status is required.")]
     public PatientStatus? CurrentStatus { get; set; }
 
+    [Required(ErrorMessage = "Intensity is required.")]
+    public Intensity? Intensity { get; set; }
+
+    [Required(ErrorMessage = "Severity Level is required.")]
+    public SeverityLevel? SeverityLevel { get; set; }
+
     [StringLength(300, MinimumLength = 1, ErrorMessage = "Laboratory results must be between 1 and 300 characters.")]
     public string? LaboratoryResults { get; set; }
 
@@ -45,8 +53,7 @@ public class AdverseEventDto
     public string? RetClassification { get; set; }
 
 
-    [Required(ErrorMessage = "At least one symptom is required.")]
-    [MinLength(1, ErrorMessage = "At least one symptom must be provided.")]
-    public List<Guid> Symptoms { get; set; } = new();
+    [Required(ErrorMessage = "Symptom is required")]
+    public Guid SymptomId { get; set; }
 
 }

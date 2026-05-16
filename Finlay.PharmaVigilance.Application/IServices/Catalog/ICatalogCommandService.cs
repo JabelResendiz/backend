@@ -9,4 +9,5 @@ public interface ICatalogCommandService
     Task<string> CreateSymptomAsync(SymptomDto symptomDto);
     Task<string> UpdateVaccineStatus(Guid vaccineId, bool isActive);
     Task<string> UpdateSymptomStatus(Guid symptomId, bool isActive);
+    Task DeleteVaccine(Guid vaccineId);
 }

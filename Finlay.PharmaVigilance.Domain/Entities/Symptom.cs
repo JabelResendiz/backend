@@ -25,12 +25,12 @@ public class Symptom : GuidEntity
     public string Category { get; set; } = null!;
     public bool IsActive { get; set; }
 
-    public ICollection<AdverseEventSymptom> AdverseEventSymptoms { get; set; } = new List<AdverseEventSymptom>();
+    public ICollection<AdverseEvent> AdverseEvents { get; set; } = new List<AdverseEvent>();
 
     /// <summary>
     /// Normalizes a symptom name: converts to uppercase and removes accents
     /// </summary>
-    public static string NormalizeName(string name)
+    private static string NormalizeName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
             return name;

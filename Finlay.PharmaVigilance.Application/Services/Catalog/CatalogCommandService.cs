@@ -41,6 +41,40 @@ public class CatalogCommandService : ICatalogCommandService
         {
             var vaccine = _mapper.Map<Vaccine>(vaccineDto);
 
+            //Manufacturer manufacturer;
+
+            if (!vaccineDto.ManufacturerDto.IsNew)
+            {
+                var manufacturer = await _unitOfWork.GetRepository<Manufacturer>()
+                                    .GetByIdAsync(vaccineDto.ManufacturerDto.Id)
+                                    ?? throw new ArgumentNullException(
+                                        "This manufacturer with ID dont exist"
+                                    );
+
+                if (manufacturer.Name != vaccineDto.ManufacturerDto.Name)
+                {
+                    throw new ArgumentNullException(
+                        "This manufacturer with Name dont exist"
+                    );
+                }
+
+                vaccine.Manufacturer = manufacturer;
+                vaccine.ManufacturerId = manufacturer.Id;
+
+            }
+            else
+            {
+                // var manufacturer = new Manufacturer
+                // {
+                //     Name = vaccineDto.ManufacturerDto.Name,
+                //     Country = vaccineDto.ManufacturerDto.Country,
+                // };
+
+                var manufacturer = _mapper.Map<Manufacturer>(vaccineDto.ManufacturerDto);
+
+                vaccine.Manufacturer = manufacturer;
+            }
+
             await _unitOfWork.GetRepository<Vaccine>().CreateAsync(vaccine);
             await _unitOfWork.CompleteAsync();
 
@@ -136,4 +170,15 @@ public class CatalogCommandService : ICatalogCommandService
             ? "Symptom is now active"
             : "Symptom is now inactive";
     }
+
+    public async Task DeleteVaccine(Guid vaccineId)
+    {
+        var vaccine = await _unitOfWork.GetRepository<Vaccine>()
+                    .GetByIdAsync(vaccineId)
+                    ?? throw new ArgumentException("Vaccine dont founded");
+
+        await _unitOfWork.GetRepository<Vaccine>().DeleteByIdAsync(vaccineId);
+        await _unitOfWork.CompleteAsync();
+    }
+
 }

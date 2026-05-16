@@ -30,12 +30,50 @@ public class VaccinationValidator : IReportValidator<ReportDto>
 
         var minAdverseEventDate = reportDto.AdverseEvents.Min(ad => ad.StartDate);
 
+        var vaccinationKeys = new HashSet<(Guid VaccineId, DateTime Date)>();
+
         foreach (var vaccination in reportDto.Vaccinations)
         {
+            if (!vaccination.AdministrationDate.HasValue)
+            {
+                throw new ArgumentException(
+                    "Administration date is required",
+                    nameof(vaccination.AdministrationDate));
+            }
+
+            var key = (vaccination.VaccineId, vaccination.AdministrationDate.Value.Date);
+
+            if (!vaccinationKeys.Add(key))
+            {
+                throw new ArgumentException(
+                    $"Duplicate vaccination found: Vaccine {vaccination.VaccineId} is already registered " +
+                    $"for date {vaccination.AdministrationDate.Value:yyyy-MM-dd}. " +
+                    "The same vaccine cannot be administered multiple times on the same day.",
+                    nameof(reportDto.Vaccinations));
+            }
+
+
             // Validate vaccine exists
+            Console.WriteLine($"La vacuna es {vaccination.VaccineId}");
+
             var vaccine = await vaccineRepository.GetByIdAsync(vaccination.VaccineId)
                 ?? throw new KeyNotFoundException(
                     $"Vaccine with ID {vaccination.VaccineId} not found in the database.");
+
+            Console.WriteLine($"El lote es {vaccination.LotId}");
+
+            var lot = await _unitOfWork.GetRepository<Lot>()
+                        .GetByIdAsync(vaccination.LotId)
+                        ?? throw new KeyNotFoundException(
+                    $"Lot with ID {vaccination.LotId} not found in the database.");
+
+            if (lot.VaccineId != vaccine.Id)
+            {
+                throw new ArgumentException(
+                $"Lot {lot.Id} does not belong to vaccine {vaccine.Id}.",
+                nameof(vaccination.LotId));
+            }
+
 
             // Validate administration date is after patient's birth and before adverse event date
             if (vaccination.AdministrationDate < reportDto.VaccinatedSubject.DateOfBirth)
@@ -60,6 +98,11 @@ public class VaccinationValidator : IReportValidator<ReportDto>
                     nameof(vaccination.Site)
                 );
             }
+
+            var vaccinationCenter = await _unitOfWork.GetRepository<VaccinationCenter>()
+                                    .GetByIdAsync(vaccination.VaccinationCenterId)
+                                    ?? throw new KeyNotFoundException(
+                                        $"Vaccination Center with ID {vaccination.VaccinationCenterId} not found in the database.");
 
         }
     }

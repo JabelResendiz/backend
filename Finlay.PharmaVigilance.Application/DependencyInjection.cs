@@ -26,6 +26,10 @@ public static class DependencyInjection
         // Email Service
         //services.AddScoped<IEmailAppService, EmailAppService>();
 
+        // Captcha
+
+
+
         // Catalog Service
         services.AddScoped<ICatalogCommandService, CatalogCommandService>();
         services.AddScoped<IVaccineQueryService, VaccineQueryService>();
@@ -60,6 +64,17 @@ public static class DependencyInjection
         services.AddScoped<IMedicalReviewQueryService, MedicalReviewQueryService>();
 
         services.AddScoped<IMedicalReviewAssignmentCommandService, MedicalReviewAssignmentCommandService>();
+
+        services.AddScoped<IVaccinationCenterCommandService, VaccinationCenterCommandService>();
+        services.AddScoped<IVaccinationCenterQueryService, VaccinationCenterQueryService>();
+
+
+        services.AddScoped<ILotCommandService, LotCommandService>();
+        services.AddScoped<ILotQueryService, LotQueryService>();
+
+        services.AddScoped<IManufacturerQueryService, ManufacturerQueryService>();
+
+        services.AddScoped<IMunicipalDashboardService, MunicipalDashboardService>();
 
         return services;
 

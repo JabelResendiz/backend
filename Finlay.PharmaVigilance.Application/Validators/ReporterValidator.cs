@@ -61,8 +61,7 @@ public class ReporterValidator : IReportValidator<PublicAefiReportDto>
                 nameof(reporter.MunicipalityId));
 
         // Validate professional requirements if reporter is a health professional
-        if (reporter.ReporterRelationship == ReporterRelationship.Doctor ||
-            reporter.ReporterRelationship == ReporterRelationship.Nurse)
+        if (reporter.ReporterRelationship == ReporterRelationship.Doctor)
         {
             if (string.IsNullOrWhiteSpace(reporter.ProfessionalLicense))
                 throw new ArgumentException(

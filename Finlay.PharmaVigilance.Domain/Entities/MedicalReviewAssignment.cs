@@ -16,4 +16,7 @@ public class MedicalReviewAssignment : GuidEntity
     public MedicalReviewer MedicalReviewer { get; set; } = null!;
     public AefiReport AefiReport { get; set; } = null!;
 
+
+    public MedicalReview? MedicalReview { get; set; }
+
 }

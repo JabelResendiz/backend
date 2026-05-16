@@ -33,9 +33,9 @@ public class IdentityManager : IIdentityManager
 
     public async Task AddRoles(string userId, string role)
     {
-        
+
         var existingRole = await _roleManager.FindByNameAsync(role);
-        
+
         var user = await _userManager.FindByIdAsync(userId);
         if (user == null)
         {
@@ -60,9 +60,9 @@ public class IdentityManager : IIdentityManager
 
         var valid = await _userManager.CheckPasswordAsync(user, password);
 
-        if(!valid)
+        if (!valid)
             return null;
-            
+
         return user;
     }
 

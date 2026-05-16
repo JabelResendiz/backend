@@ -3,6 +3,7 @@ using Finlay.PharmaVigilance.Application.DTO.Authentication;
 using Finlay.PharmaVigilance.Application.IServices.Authentication;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Finlay.PharmaVigilance.Api.Controllers;
 
@@ -12,6 +13,7 @@ namespace Finlay.PharmaVigilance.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("GeneralQuery")]
 public class SectionResponsibleController : ControllerBase
 {
     private readonly ISectionResponsibleService _sectionResponsibleService;
@@ -65,11 +67,12 @@ public class SectionResponsibleController : ControllerBase
     public async Task<ActionResult> GetSectionResponsible(
         [FromQuery] PagedRequestDto paged,
         [FromQuery] string? search,
-        [FromQuery] string? provinceName)
+        [FromQuery] string? provinceName,
+        [FromQuery] int? municipalityId)
     {
         paged.BaseUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}";
 
-        var result = await _sectionResponsibleService.GetByFilters(paged, search, provinceName);
+        var result = await _sectionResponsibleService.GetByFilters(paged, search, provinceName, municipalityId);
 
         return Ok(result);
 

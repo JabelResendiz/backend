@@ -2,6 +2,7 @@ using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.IServices;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Finlay.PharmaVigilance.Api.Controllers;
 
@@ -11,6 +12,7 @@ namespace Finlay.PharmaVigilance.Api.Controllers;
 /// </summary>
 [ApiController]
 [Route("api/[controller]")]
+[EnableRateLimiting("GeneralQuery")]
 //[Authorize] // Requires authentication for all endpoints
 public class UserController : ControllerBase
 {
@@ -117,6 +119,9 @@ public class UserController : ControllerBase
     {
         try
         {
+            // if (userId != null)
+            //     return BadRequest(new { message = "User ID must be a valid positive number." });
+
             await _userCommandService.DeleteAsync(userId);
 
             return NoContent(); // 204 - Successful deletion with no content

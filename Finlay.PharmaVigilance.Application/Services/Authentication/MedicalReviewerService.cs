@@ -11,8 +11,9 @@ using Finlay.PharmaVigilance.Application.Validators;
 using Finlay.PharmaVigilance.Domain.Entities;
 using Finlay.PharmaVigilance.Domain.Enum;
 using Finlay.PharmaVigilance.Domain.Events;
-using Microsoft.EntityFrameworkCore;
 using MassTransit;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace Finlay.PharmaVigilance.Application.Services.Authentication;
 
@@ -27,10 +28,12 @@ public class MedicalReviewerService : IMedicalReviewerService
     private readonly IUserContextService _userContextService;
     private readonly IMedicalReviewerRepository _medical;
     private readonly IEnumerable<IReportValidator<RegisterMedicalReviewerDto>> _validators;
+    private readonly ILogger<MedicalReviewerService> _logger;
+
+    // private readonly IEventBus _eventBus;
 
     private readonly IPublishEndpoint _publishEndpoint;
 
-    // private readonly IEventBus _eventBus;
     /// <summary>
     /// Initializes a new instance of the MedicalReviewerService class.
     /// </summary>
@@ -40,8 +43,9 @@ public class MedicalReviewerService : IMedicalReviewerService
         IMapper mapper,
         IUserContextService userContextService,
         IMedicalReviewerRepository medical,
+        IPublishEndpoint publishEndpoint,
         IEnumerable<IReportValidator<RegisterMedicalReviewerDto>> validators,
-        IPublishEndpoint publishEndpoint)
+        ILogger<MedicalReviewerService> logger)
     {
 
         _identityManager = identityManager ?? throw new ArgumentNullException(nameof(identityManager)); ;
@@ -50,6 +54,7 @@ public class MedicalReviewerService : IMedicalReviewerService
         _userContextService = userContextService ?? throw new ArgumentNullException(nameof(userContextService)); ;
         _medical = medical ?? throw new ArgumentNullException(nameof(medical)); ;
         _validators = validators ?? throw new ArgumentNullException(nameof(validators));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         _publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
     }
 
@@ -58,14 +63,18 @@ public class MedicalReviewerService : IMedicalReviewerService
     /// </summary>
     public async Task<string> RegisterMedicalReviewerAsync(RegisterMedicalReviewerDto registerDto)
     {
+        _logger.LogInformation("Starting public AEFI report creation process");
+
         // Validate inputs
         if (registerDto == null)
             throw new ArgumentNullException(nameof(registerDto), "Registration DTO cannot be null.");
+
 
         try
         {
             foreach (var validator in _validators)
             {
+                _logger.LogDebug("Executing {ValidatorCount} validators", _validators.Count());
                 await validator.ValidateAsync(registerDto);
             }
 
@@ -79,11 +88,6 @@ public class MedicalReviewerService : IMedicalReviewerService
 
             var provinceId = sectionResponsible.ProvinceId;
             var municipalityId = sectionResponsible.MunicipalityId;
-
-            // // Validate that municipality exists and belongs to the province
-            // var municipality = await _unitOfWork.GetRepository<Municipality>().GetByIdAsync(registerDto.MunicipalityId);
-            // if (municipality == null || municipality.ProvinceId != provinceId)
-            //     throw new KeyNotFoundException($"Municipality with ID {registerDto.MunicipalityId} does not exist or does not belong to the specified province.");
 
             var user = _mapper.Map<User>(registerDto);
             user.UserRole = UserRole.MedicalReviewer.ToString();

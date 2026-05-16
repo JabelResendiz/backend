@@ -11,4 +11,8 @@ public interface IVaccineQueryService : IGenericQueryService<Vaccine, GetVaccine
 
     Task<PagedResultDto<GetPrivateVaccineDto>> GetByFilters(PagedRequestDto paged, string? search, bool? status);
 
+    Task<ICollection<VaccineDashboardDto>> GetVaccinesDashboard();
+
+    Task<IEnumerable<GetVaccineDto>> GetSelfVaccines();
+
 }

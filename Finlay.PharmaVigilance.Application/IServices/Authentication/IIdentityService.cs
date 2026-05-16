@@ -1,4 +1,5 @@
 
+using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.DTO.Authentication;
 
 namespace Finlay.PharmaVigilance.Application.IServices.Authentication;
@@ -26,10 +27,10 @@ public interface IIdentityService
     Task<UserResponseDTO> LoginUserAsync(LoginUserDto loginDto);
 
     Task<string> RegisterAdminAsync(RegisterUserDto registerAdminDto);
-    /// <summary>
-    /// Update a user with the provided update credentials
-    /// </summary>
-    /// <param name="updateDto"></param>
-    /// <returns></returns>
-    //Task UpdateUserAsync (UpdateUserDto updateDto);
+
+    Task<RefreshTokenResponseDto> RefreshTokenAsync(string refreshToken);
+
+    Task LogoutAsync(string refreshToken);
+
+
 }

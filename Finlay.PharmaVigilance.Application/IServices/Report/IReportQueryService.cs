@@ -9,8 +9,24 @@ public interface IReportQueryService : IGenericQueryService<AefiReport, PublicAe
 
     Task<PagedResultDto<ReportMedicalReviewerDto>> GetReportAssigment(PagedRequestDto paged);
 
-    Task<PagedResultDto<ReportSectionResponsibleDto>> GetReportsBySectionResponsible(PagedRequestDto pagedRequestDto);
+    Task<PagedResultDto<ReportSectionResponsibleDto>> GetReportsBySectionResponsible(
+        PagedRequestDto pagedRequestDto,
+        ReportSectionResponsibleFilter filter);
 
+    // Task<byte[]> GetReportPdfAsync(string notificationNumber);
 
+    // Task<byte[]> GetReportDetailsPdfAsync(string notificationNumber);
+
+    Task<PagedResultDto<ReportSummaryAdminDto>> GetFilter(
+        PagedRequestDto paged,
+        string? vaccineName,
+        string? provinceName,
+        string? severity,
+        string? reportStatus
+    );
+
+    Task<ReportDashboardDto> GetReportDashboard();
+
+    Task<ReportDetailAdminDto> GetReportDetailAdmin(Guid reportId);
 
 }

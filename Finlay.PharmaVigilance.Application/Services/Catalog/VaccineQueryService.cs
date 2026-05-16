@@ -1,3 +1,4 @@
+using System.Data.Common;
 using AutoMapper;
 using AutoMapper.QueryableExtensions;
 using Finlay.PharmaVigilance.Application.DTO;
@@ -84,5 +85,38 @@ public class VaccineQueryService : GenericQueryService<Vaccine, GetVaccineDto>,
 
         };
 
+    }
+
+
+    public async Task<ICollection<VaccineDashboardDto>> GetVaccinesDashboard()
+    {
+
+        var query = await _unitOfWork.GetRepository<Vaccine>()
+                            .GetAll()
+                            .ProjectTo<VaccineDashboardDto>(_mapper.ConfigurationProvider)
+                            .ToListAsync();
+
+
+        for (int i = 0; i < query.Count(); i++)
+        {
+            query[i].TotalReport = await _unitOfWork.GetRepository<Vaccination>()
+                                    .GetAllByItems(vac => vac.Lot.Vaccine.Name == query[i].Name)
+                                    .CountAsync();
+        }
+
+
+
+        return query;
+    }
+
+
+    public async Task<IEnumerable<GetVaccineDto>> GetSelfVaccines()
+    {
+        var vaccines = await _unitOfWork.GetRepository<Vaccine>()
+                        .GetAllByItems(v => v.Manufacturer.Name == "IFV")
+                        .ProjectTo<GetVaccineDto>(_mapper.ConfigurationProvider)
+                        .ToListAsync();
+
+        return vaccines;
     }
 }

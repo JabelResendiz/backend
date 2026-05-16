@@ -2,6 +2,7 @@ using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
 using Finlay.PharmaVigilance.Domain.Entities;
 using Finlay.PharmaVigilance.Domain.Enum;
+using Microsoft.Extensions.Logging;
 
 namespace Finlay.PharmaVigilance.Application.Validators;
 
@@ -11,10 +12,13 @@ namespace Finlay.PharmaVigilance.Application.Validators;
 public class AdverseEventValidator : IReportValidator<ReportDto>
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ILogger<AdverseEventValidator> _logger;
 
-    public AdverseEventValidator(IUnitOfWork unitOfWork)
+
+    public AdverseEventValidator(IUnitOfWork unitOfWork, ILogger<AdverseEventValidator> logger)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
+        _logger = logger ?? throw new ArgumentNullException(nameof(logger));
     }
 
     /// <summary>
@@ -43,10 +47,10 @@ public class AdverseEventValidator : IReportValidator<ReportDto>
         foreach (var adverseEvent in reportDto.AdverseEvents)
         {
             // Validate symptoms exist
-            if (adverseEvent.Symptoms == null || !adverseEvent.Symptoms.Any())
-                throw new ArgumentException(
-                    "Each adverse event must have at least one symptom.",
-                    nameof(adverseEvent.Symptoms));
+            // if (adverseEvent.Symptom == null || !adverseEvent.Symptoms.Any())
+            //     throw new ArgumentException(
+            //         "Each adverse event must have at least one symptom.",
+            //         nameof(adverseEvent.Symptoms));
 
             if (!EnumHelper<PatientStatus>.IsValid(adverseEvent.CurrentStatus.ToString()!))
             {
@@ -56,14 +60,28 @@ public class AdverseEventValidator : IReportValidator<ReportDto>
                             );
             }
 
-            // Validate each symptom exists in database
-            foreach (var symptomId in adverseEvent.Symptoms)
+            if (!EnumHelper<Intensity>.IsValid(adverseEvent.Intensity.ToString()!))
             {
-                var symptom = await symptomsRepository.GetByIdAsync(symptomId)
-                    ?? throw new KeyNotFoundException(
-                        $"Symptom with ID {symptomId} not found in the database.");
-
+                throw new ArgumentException(
+                                "Intensity must be valid",
+                                nameof(adverseEvent.Intensity)
+                            );
             }
+
+            if (!EnumHelper<SeverityLevel>.IsValid(adverseEvent.SeverityLevel.ToString()!))
+            {
+                throw new ArgumentException(
+                                "SeverityLevel must be valid",
+                                nameof(adverseEvent.SeverityLevel)
+                            );
+            }
+
+            // Validate symptom exist in database
+            var symptom = await symptomsRepository.GetByIdAsync(adverseEvent.SymptomId)
+                ?? throw new KeyNotFoundException(
+                    $"Symptom with ID {adverseEvent.SymptomId} not found in the database.");
+
+
 
             // Validate event start date
             if (adverseEvent.StartDate < minVaccinationDate)
@@ -73,12 +91,21 @@ public class AdverseEventValidator : IReportValidator<ReportDto>
                     $"Event start date: {adverseEvent.StartDate:yyyy-MM-dd}",
                     nameof(adverseEvent.StartDate));
 
-            if (adverseEvent.StartDate > reportDto.ReportDate)
+            if (adverseEvent.StartDate > adverseEvent.FinishDate)
                 throw new ArgumentException(
-                    $"Adverse event start date cannot be after the report date. " +
+                    $"Adverse event finish date cannot be after the start date. " +
                     $"Event start date: {adverseEvent.StartDate:yyyy-MM-dd}, " +
+                    $"Event finish date: {adverseEvent.FinishDate:yyyy-MM-dd}",
+                    nameof(adverseEvent.FinishDate));
+
+            if (adverseEvent.FinishDate > reportDto.ReportDate)
+                throw new ArgumentException(
+                    $"Adverse event finish date cannot be after the report date. " +
+                    $"Event finish date: {adverseEvent.FinishDate:yyyy-MM-dd}, " +
                     $"Report date: {reportDto.ReportDate:yyyy-MM-dd}",
-                    nameof(adverseEvent.StartDate));
+                    nameof(adverseEvent.FinishDate));
+
+
 
             // Validate death-related information
             if (adverseEvent.ResultedInDeath)

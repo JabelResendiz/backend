@@ -1,7 +1,9 @@
 
+using System.Security.Cryptography;
 using AutoMapper;
 using Finlay.PharmaVigilance.Application.Authentication;
 using Finlay.PharmaVigilance.Application.Common.Authentication;
+using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.DTO.Authentication;
 using Finlay.PharmaVigilance.Application.IServices.Authentication;
 using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
@@ -39,6 +41,16 @@ public class IdentityService : IIdentityService
         _identityManager = identityManager;
         _unitOfWork = unitOfWork;
     }
+
+    private string GenerateRefreshToken()
+    {
+        using var rng = RandomNumberGenerator.Create();
+        var randomBytes = new byte[64];
+        rng.GetBytes(randomBytes);
+
+        return Convert.ToBase64String(randomBytes);
+    }
+
     /// <summary>
     /// Authenticates a user based on the provided credentials.
     /// </summary>
@@ -58,7 +70,20 @@ public class IdentityService : IIdentityService
             throw new Exception("invalid credentials");
 
         // generate token for the authenticate user
-        var token = await _jwtTokenGenerator.GenerateToken(savedUser);
+        var accessToken = await _jwtTokenGenerator.GenerateToken(savedUser);
+
+        var refreshToken = GenerateRefreshToken();
+
+
+        await _unitOfWork.GetRepository<RefreshToken>().CreateAsync(new RefreshToken
+        {
+            Token = refreshToken,
+            ExpiresAt = DateTime.UtcNow.AddDays(7),
+            UserId = savedUser.Id,
+            User = savedUser
+        });
+
+        await _unitOfWork.CompleteAsync();
 
         // If the credentials are valid, generate a token for the authenticated user.
         return new UserResponseDTO
@@ -66,7 +91,8 @@ public class IdentityService : IIdentityService
             Id = savedUser.Id,
             UserName = savedUser.UserName!,
             UserRole = savedUser.UserRole!,
-            Token = token
+            Token = accessToken,
+            RefreshToken = refreshToken
         };
 
     }
@@ -97,6 +123,69 @@ public class IdentityService : IIdentityService
         await _unitOfWork.CompleteAsync();
 
         return "Administrator registered successfully.";
+    }
+
+
+    public async Task<RefreshTokenResponseDto> RefreshTokenAsync(string refreshToken)
+    {
+        Console.WriteLine($"============================Received refresh token: {refreshToken}==================================="); // Debug log
+
+
+        var storedToken = await _unitOfWork
+            .GetRepository<RefreshToken>()
+            .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
+
+        if (storedToken == null)
+            throw new Exception("Invalid refresh token.");
+
+        if (storedToken.Revoked)
+            throw new Exception("Refresh token revoked.");
+
+        if (storedToken.ExpiresAt < DateTime.UtcNow)
+            throw new Exception("Refresh token expired.");
+
+        // if (storedToken.User == null)
+        //     throw new Exception("========================Associated user not found for the refresh token.========================");
+
+        var user = await _unitOfWork.UserRepository.GetByIdAsync(storedToken.UserId);
+
+        var newAccessToken = await _jwtTokenGenerator.GenerateToken(user);
+
+        // ROTATE refresh token (MUY recomendado)
+        storedToken.Revoked = true;
+
+        var newRefreshToken = GenerateRefreshToken();
+
+        await _unitOfWork.GetRepository<RefreshToken>().CreateAsync(
+            new RefreshToken
+            {
+                Token = newRefreshToken,
+                UserId = user.Id,
+                ExpiresAt = DateTime.UtcNow.AddDays(7)
+            });
+
+        await _unitOfWork.CompleteAsync();
+
+        return new RefreshTokenResponseDto
+        {
+            AccessToken = newAccessToken,
+            RefreshToken = newRefreshToken
+        };
+    }
+
+
+    public async Task LogoutAsync(string refreshToken)
+    {
+        var storedToken = await _unitOfWork
+                .GetRepository<RefreshToken>()
+                .FirstOrDefaultAsync(rt => rt.Token == refreshToken);
+
+        if (storedToken != null)
+        {
+            storedToken.Revoked = true;
+
+            await _unitOfWork.CompleteAsync();
+        }
     }
 
 
