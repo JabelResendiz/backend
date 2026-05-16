@@ -703,7 +703,7 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
                    .HasMaxLength(50);
 
                        entity.HasOne(l => l.Vaccine)
-                   .WithMany()
+                   .WithMany(v => v.Lots)
                    .HasForeignKey(vc => vc.VaccineId)
                    .OnDelete(DeleteBehavior.Restrict);
 

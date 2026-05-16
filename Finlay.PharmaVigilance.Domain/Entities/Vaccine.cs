@@ -31,6 +31,7 @@ public class Vaccine : GuidEntity
     public Manufacturer Manufacturer { get; set; } = null!;
 
     public ICollection<Vaccination> Vaccinations { get; set; } = new List<Vaccination>();
+    public ICollection<Lot> Lots { get; set; } = new List<Lot>();
 
     /// <summary>
     /// Normalizes a vaccine name: converts to uppercase and removes accents

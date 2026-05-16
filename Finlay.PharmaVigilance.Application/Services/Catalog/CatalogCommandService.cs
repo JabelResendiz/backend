@@ -41,6 +41,19 @@ public class CatalogCommandService : ICatalogCommandService
         {
             var vaccine = _mapper.Map<Vaccine>(vaccineDto);
 
+
+            var existingVaccine = await _unitOfWork.GetRepository<Vaccine>()
+                                        .FirstOrDefaultAsync(v => v.NormalizedName == vaccine.NormalizedName);
+
+            if (existingVaccine != null)
+            {
+                throw new InvalidOperationException(
+                    $"A vaccine with the name '{vaccineDto.Name}' already exists. " +
+                    $"Vaccine names are case-insensitive and ignore accents. " +
+                    $"Please use a different name."
+                );
+            }
+
             //Manufacturer manufacturer;
 
             if (!vaccineDto.ManufacturerDto.IsNew)
@@ -64,16 +77,20 @@ public class CatalogCommandService : ICatalogCommandService
             }
             else
             {
-                // var manufacturer = new Manufacturer
-                // {
-                //     Name = vaccineDto.ManufacturerDto.Name,
-                //     Country = vaccineDto.ManufacturerDto.Country,
-                // };
 
                 var manufacturer = _mapper.Map<Manufacturer>(vaccineDto.ManufacturerDto);
 
                 vaccine.Manufacturer = manufacturer;
             }
+
+            var lot = new Lot
+            {
+                Vaccine = vaccine,
+                VaccineId = vaccine.Id,
+                LotNumber = "LOTE-DESCONOCIDO"
+            };
+
+            vaccine.Lots.Add(lot);
 
             await _unitOfWork.GetRepository<Vaccine>().CreateAsync(vaccine);
             await _unitOfWork.CompleteAsync();
