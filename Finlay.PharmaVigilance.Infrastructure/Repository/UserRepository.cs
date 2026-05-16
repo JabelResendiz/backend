@@ -15,7 +15,7 @@ public class UserRepository : IUserRepository
         _userManager = userManager;
     }
 
-    public async Task<User> GetByIdAsync(int elementId, CancellationToken cancellationToken = default)
+    public async Task<User> GetByIdAsync(Guid elementId, CancellationToken cancellationToken = default)
     {
         // Query Identity's Users DbSet to find a user by Id
         var user = await _userManager.Users
@@ -34,7 +34,7 @@ public class UserRepository : IUserRepository
         return _userManager.Users;
     }
 
-    public async Task DeleteByIdAsync(int elementId, CancellationToken cancellationToken = default)
+    public async Task DeleteByIdAsync(Guid elementId, CancellationToken cancellationToken = default)
     {
         // Search the user before attempting deletion
         var user = await _userManager.Users
@@ -47,7 +47,7 @@ public class UserRepository : IUserRepository
         await _userManager.DeleteAsync(user);
     }
 
-    public async Task UpdateByIdAsync(int elementId, string email, CancellationToken cancellationToken = default)
+    public async Task UpdateByIdAsync(Guid elementId, string email, CancellationToken cancellationToken = default)
     {
         // Reuse GetByIdAsync to ensure user exists
         User user = await GetByIdAsync(elementId, cancellationToken);

@@ -33,7 +33,7 @@ public class UserCommandService : IUserCommandServices
     /// <exception cref="KeyNotFoundException">
     /// Thrown when the user does not exist.
     /// </exception>
-    public async Task DeleteAsync(int userId, CancellationToken cancellationToken = default)
+    public async Task DeleteAsync(Guid userId, CancellationToken cancellationToken = default)
     {
         // Ensure the user exists before attempting deletion
         var userRepository = _unitOfWork.UserRepository;

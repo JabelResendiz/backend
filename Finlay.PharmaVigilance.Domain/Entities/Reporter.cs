@@ -20,7 +20,7 @@ public class Reporter : GuidEntity
     public string? ProfessionalLicense { get; set; }
     public string? Institution { get; set; }
 
-    public int? UserId { get; set; }
+    public Guid? UserId { get; set; }
     public User? User { get; set; } = null!;
 
     public ICollection<AefiReport> AefiReports { get; set; } = new List<AefiReport>();

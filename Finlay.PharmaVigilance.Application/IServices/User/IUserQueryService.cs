@@ -25,7 +25,7 @@ public interface IUserQueryServices
     /// <returns>
     /// A <see cref="GetUserDto"/> if the user exists; otherwise, null.
     /// </returns>
-    Task<GetUserDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
+    Task<GetUserDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
 
     /// <summary>
     /// Retrieves a user by their username.

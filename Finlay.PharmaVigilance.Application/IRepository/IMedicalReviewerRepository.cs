@@ -12,7 +12,7 @@ public interface IMedicalReviewerRepository : IGenericRepository<MedicalReviewer
     /// </summary>
     /// <param name="userId">The User ID to search for.</param>
     /// <returns>The MedicalReviewer entity if found; otherwise, null.</returns>
-    Task<MedicalReviewer?> GetByUserIdAsync(int userId);
+    Task<MedicalReviewer?> GetByUserIdAsync(Guid userId);
 
     /// <summary>
     /// Retrieves all MedicalReviewers for a specific province.
@@ -33,5 +33,5 @@ public interface IMedicalReviewerRepository : IGenericRepository<MedicalReviewer
     /// </summary>
     /// <param name="userId">The User ID to check.</param>
     /// <returns>True if a MedicalReviewer exists for this User ID; otherwise, false.</returns>
-    Task<bool> ExistsByUserIdAsync(int userId);
+    Task<bool> ExistsByUserIdAsync(Guid userId);
 }

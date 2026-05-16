@@ -13,7 +13,7 @@ public class MedicalReviewer : GuidEntity
    public string IdentityNumber { get; set; } = null!;
    public DateTime DateOfBirth { get; set; }
    // FK
-   public int UserId { get; set; }
+   public Guid UserId { get; set; }
    public User User { get; set; } = null!;
    public string ProfessionalLicense { get; set; } = null!;
    public string? Specialty { get; set; }

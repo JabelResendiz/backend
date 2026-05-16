@@ -40,7 +40,7 @@ public class UserQueryService : IUserQueryServices
     /// <returns>
     /// A <see cref="GetUserDto"/> if found; otherwise, null.
     /// </returns>
-    public async Task<GetUserDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    public async Task<GetUserDto?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
         var userRepository = _unitOfWork.UserRepository;
         var user = await userRepository.GetByIdAsync(id, cancellationToken);

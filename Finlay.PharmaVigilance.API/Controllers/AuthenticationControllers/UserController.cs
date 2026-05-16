@@ -51,12 +51,12 @@ public class UserController : ControllerBase
     /// <response code="401">Unauthorized.</response>
     /// <response code="403">Forbidden - you do not have permission to access this user.</response>
     /// <response code="404">User not found.</response>
-    [HttpGet("{userId:int}")]
+    [HttpGet("{userId:Guid}")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<GetUserDto>> GetUserById(int userId)
+    public async Task<ActionResult<GetUserDto>> GetUserById(Guid userId)
     {
         var user = await _userQueryService.GetByIdAsync(userId);
 
@@ -106,20 +106,17 @@ public class UserController : ControllerBase
     /// <response code="401">Unauthorized.</response>
     /// <response code="403">Forbidden - requires administrator role.</response>
     /// <response code="404">User not found.</response>
-    [HttpDelete("{userId:int}")]
+    [HttpDelete("{userId:Guid}")]
     [Authorize(Roles = "Admin")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status401Unauthorized)]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> DeleteUser(int userId)
+    public async Task<IActionResult> DeleteUser(Guid userId)
     {
         try
         {
-            if (userId <= 0)
-                return BadRequest(new { message = "User ID must be a valid positive number." });
-
             await _userCommandService.DeleteAsync(userId);
 
             return NoContent(); // 204 - Successful deletion with no content

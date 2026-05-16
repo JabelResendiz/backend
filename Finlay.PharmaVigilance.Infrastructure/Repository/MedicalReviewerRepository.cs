@@ -22,7 +22,7 @@ public class MedicalReviewerRepository : GenericRepository<MedicalReviewer>, IMe
     /// <summary>
     /// Retrieves a MedicalReviewer by their associated User ID.
     /// </summary>
-    public async Task<MedicalReviewer?> GetByUserIdAsync(int userId)
+    public async Task<MedicalReviewer?> GetByUserIdAsync(Guid userId)
     {
         return await _entity
             .Include(mr => mr.User)
@@ -56,7 +56,7 @@ public class MedicalReviewerRepository : GenericRepository<MedicalReviewer>, IMe
     /// <summary>
     /// Checks if a MedicalReviewer already exists for a given User ID.
     /// </summary>
-    public async Task<bool> ExistsByUserIdAsync(int userId)
+    public async Task<bool> ExistsByUserIdAsync(Guid userId)
     {
         return await _entity
             .AnyAsync(mr => mr.UserId == userId);

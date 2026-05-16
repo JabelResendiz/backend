@@ -27,7 +27,7 @@ public class UserContextService : IUserContextService
     /// <exception cref="UnauthorizedAccessException">
     /// Thrown when no user is authenticated or the user ID claim is not found in the token.
     /// </exception>
-    public int GetUserId()
+    public Guid GetUserId()
     {
         var user = _httpContextAccessor.HttpContext?.User;
 
@@ -39,6 +39,6 @@ public class UserContextService : IUserContextService
         if (userId == null)
             throw new UnauthorizedAccessException("User ID not found in token.");
 
-        return int.Parse(userId);
+        return Guid.Parse(userId);
     }
 }

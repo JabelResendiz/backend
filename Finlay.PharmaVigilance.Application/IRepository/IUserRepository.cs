@@ -7,8 +7,8 @@ namespace Finlay.PharmaVigilance.Application.IRepository;
 
 public interface IUserRepository
 {
-    Task<User> GetByIdAsync(int elementId, CancellationToken cancellationToken = default);
+    Task<User> GetByIdAsync(Guid elementId, CancellationToken cancellationToken = default);
     IQueryable<User> GetAll();
-    Task DeleteByIdAsync(int elementId, CancellationToken cancellationToken = default);
-    Task UpdateByIdAsync(int elementId, string email, CancellationToken cancellationToken = default);
+    Task DeleteByIdAsync(Guid elementId, CancellationToken cancellationToken = default);
+    Task UpdateByIdAsync(Guid elementId, string email, CancellationToken cancellationToken = default);
 }
