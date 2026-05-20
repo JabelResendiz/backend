@@ -80,13 +80,14 @@ public class ReportController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [EnableRateLimiting("GeneralQuery")]
     public async Task<ActionResult> GetReportAssigment(
-        [FromQuery] PagedRequestDto pagedRequestDto
+        [FromQuery] PagedRequestDto pagedRequestDto,
+        [FromQuery] ReportMedicalReviewerFilter filter
     )
     {
         if (pagedRequestDto == null)
             throw new ArgumentNullException(nameof(pagedRequestDto), "pagedRequestDto is required.");
 
-        var result = await _reportQueryService.GetReportAssigment(pagedRequestDto);
+        var result = await _reportQueryService.GetReportAssigment(pagedRequestDto, filter);
 
         return StatusCode(StatusCodes.Status202Accepted, new
         {
