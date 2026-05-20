@@ -25,16 +25,18 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
                         };
 
     private readonly IUserContextService _userContextService;
-    // private readonly IPdfService _pdfService;
+    private readonly IPdfService _pdfService;
     private readonly IReportRepository _reportRepository;
 
     public ReportQueryService(IUnitOfWork unitOfWork,
         IMapper mapper,
         IUserContextService userContextService,
+        IPdfService pdfService,
         IReportRepository reportRepository)
         : base(unitOfWork, mapper)
     {
         _userContextService = userContextService;
+        _pdfService = pdfService;
         _reportRepository = reportRepository;
     }
 
@@ -78,7 +80,9 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
     }
 
 
-    public async Task<PagedResultDto<ReportMedicalReviewerDto>> GetReportAssigment(PagedRequestDto paged)
+    public async Task<PagedResultDto<ReportMedicalReviewerDto>> GetReportAssigment(
+        PagedRequestDto paged,
+        ReportMedicalReviewerFilter filter)
     {
         var userId = _userContextService.GetUserId();
 
@@ -98,6 +102,11 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
         var query = _unitOfWork.GetRepository<AefiReport>()
                                .GetAllByItems(r => reportId.Contains(r.Id));
 
+
+        query = _reportRepository
+                        .GetMedicalReviewerByFilter(
+                            query,
+                            filter);
 
         var totalItems = await query.CountAsync();
 
@@ -163,8 +172,7 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
         reportsQuery = _reportRepository
                         .GetSectionResponsibleByFilter(
                             reportsQuery,
-                            filter)
-                        .OrderByDescending(r => r.ReportDate);
+                            filter);
 
         var totalItems = await reportsQuery.CountAsync();
 
@@ -191,16 +199,16 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
     }
 
 
-    // public async Task<byte[]> GetReportPdfAsync(string notificationNumber)
-    // {
-    //     var report = await _unitOfWork.GetRepository<AefiReport>()
-    //                     .GetAllByItems(ar => ar.NotificationNumber == notificationNumber)
-    //                     .ProjectTo<ReportPdfDto>(_mapper.ConfigurationProvider)
-    //                     .FirstOrDefaultAsync() ?? throw new ArgumentNullException("Report not found");
+    public async Task<byte[]> GetReportPdfAsync(string notificationNumber)
+    {
+        var report = await _unitOfWork.GetRepository<AefiReport>()
+                        .GetAllByItems(ar => ar.NotificationNumber == notificationNumber)
+                        .ProjectTo<ReportPdfDto>(_mapper.ConfigurationProvider)
+                        .FirstOrDefaultAsync() ?? throw new ArgumentNullException("Report not found");
 
 
-    //     return _pdfService.GenerateReportPdf(report);
-    // }
+        return _pdfService.GenerateReportPdf(report);
+    }
 
 
     public async Task<PagedResultDto<ReportSummaryAdminDto>> GetFilter(
@@ -301,15 +309,15 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
     }
 
 
-    // public async Task<byte[]> GetReportDetailsPdfAsync(string notificationNumber)
-    // {
-    //     var report = await _unitOfWork.GetRepository<AefiReport>()
-    //                     .GetAllByItems(ar => ar.NotificationNumber == notificationNumber)
-    //                     .ProjectTo<ReportDetailAdminDto>(_mapper.ConfigurationProvider)
-    //                     .FirstOrDefaultAsync() ?? throw new ArgumentNullException("Report not found");
+    public async Task<byte[]> GetReportDetailsPdfAsync(string notificationNumber)
+    {
+        var report = await _unitOfWork.GetRepository<AefiReport>()
+                        .GetAllByItems(ar => ar.NotificationNumber == notificationNumber)
+                        .ProjectTo<ReportDetailAdminDto>(_mapper.ConfigurationProvider)
+                        .FirstOrDefaultAsync() ?? throw new ArgumentNullException("Report not found");
 
 
-    //     return _pdfService.GenerateReportDetailsPdf(report);
-    // }
+        return _pdfService.GenerateReportDetailsPdf(report);
+    }
 
 }

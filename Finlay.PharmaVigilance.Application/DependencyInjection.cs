@@ -75,6 +75,7 @@ public static class DependencyInjection
         services.AddScoped<IManufacturerQueryService, ManufacturerQueryService>();
 
         services.AddScoped<IMunicipalDashboardService, MunicipalDashboardService>();
+        services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
         return services;
 

@@ -7,15 +7,17 @@ public interface IReportQueryService : IGenericQueryService<AefiReport, PublicAe
 {
     Task<ReportUserDto> GetReportByNotificationNumber(string notificationNumber);
 
-    Task<PagedResultDto<ReportMedicalReviewerDto>> GetReportAssigment(PagedRequestDto paged);
+    Task<PagedResultDto<ReportMedicalReviewerDto>> GetReportAssigment(
+        PagedRequestDto paged,
+        ReportMedicalReviewerFilter filter);
 
     Task<PagedResultDto<ReportSectionResponsibleDto>> GetReportsBySectionResponsible(
         PagedRequestDto pagedRequestDto,
         ReportSectionResponsibleFilter filter);
 
-    // Task<byte[]> GetReportPdfAsync(string notificationNumber);
+    Task<byte[]> GetReportPdfAsync(string notificationNumber);
 
-    // Task<byte[]> GetReportDetailsPdfAsync(string notificationNumber);
+    Task<byte[]> GetReportDetailsPdfAsync(string notificationNumber);
 
     Task<PagedResultDto<ReportSummaryAdminDto>> GetFilter(
         PagedRequestDto paged,

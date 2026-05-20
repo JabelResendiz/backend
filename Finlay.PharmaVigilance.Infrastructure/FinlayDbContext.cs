@@ -218,9 +218,6 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
                           .IsRequired(false)
                           .HasMaxLength(100);
 
-                        entity.Property(e => e.DateOfBirth)
-                     .IsRequired();
-
                         entity.Property(e => e.IdentityNumber)
                         .IsRequired()
                         .HasMaxLength(20);
@@ -397,9 +394,9 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
                   .IsRequired()
                   .HasConversion<string>();
 
-
                         entity.Property(e => e.DoseNumber)
-                  .IsRequired();
+                  .IsRequired()
+                  .HasConversion<string>();
 
                         entity.Property(e => e.AdministrationDate)
                   .IsRequired();
@@ -475,9 +472,6 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
                         entity.HasIndex(e => e.IdentityNumber)
                 .IsUnique();
 
-                        entity.Property(e => e.DateOfBirth)
-                .IsRequired();
-
                         entity.Property(e => e.Gender)
                 .IsRequired()
                 .HasConversion<string>();
@@ -537,8 +531,6 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
               .IsRequired()
               .HasConversion<string>();
 
-                       entity.Property(e => e.DateOfBirth)
-              .IsRequired();
 
                        entity.Property(e => e.PhoneNumber)
               .IsRequired()

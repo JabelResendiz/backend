@@ -1,4 +1,5 @@
 using Finlay.PharmaVigilance.Application.DTO;
+using Finlay.PharmaVigilance.Application.Helpers;
 using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
 using Finlay.PharmaVigilance.Domain.Entities;
 using Finlay.PharmaVigilance.Domain.Enum;
@@ -32,17 +33,19 @@ public class ReporterValidator : IReportValidator<PublicAefiReportDto>
 
         var minVaccinationDate = reportDto.Vaccinations.Min(v => v.AdministrationDate);
 
+        var dateOfBirth = ExtractDateHelper.ExtractDateOfBirht(reporter.IdentityNumber);
+
         // Validate date of birth
-        if (reporter.DateOfBirth > minVaccinationDate)
+        if (dateOfBirth > minVaccinationDate)
             throw new ArgumentException(
                 "Reporter's date of birth must be before the vaccination date.",
-                nameof(reporter.DateOfBirth));
+                nameof(dateOfBirth));
 
-        var age = CalculateAge(reporter.DateOfBirth!.Value, reportDto.ReportDate!.Value);
+        var age = CalculateAge(dateOfBirth, reportDto.ReportDate!.Value);
         if (age < 18)
             throw new ArgumentException(
                 "Reporter must be at least 18 years old.",
-                nameof(reporter.DateOfBirth));
+                nameof(dateOfBirth));
 
         // Validate province and municipality
         var province = await _unitOfWork.GetRepository<Province>()
@@ -75,7 +78,7 @@ public class ReporterValidator : IReportValidator<PublicAefiReportDto>
         }
 
 
-        ValidateIdentityNumberFormat(reporter.IdentityNumber, reporter.DateOfBirth.Value);
+        ValidateIdentityNumberFormat(reporter.IdentityNumber, dateOfBirth);
 
         Console.WriteLine($"==========================={reporter.ReporterRelationship}=======================");
 

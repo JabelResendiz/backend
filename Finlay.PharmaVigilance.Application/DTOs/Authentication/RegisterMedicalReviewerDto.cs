@@ -19,8 +19,8 @@ public class RegisterMedicalReviewerDto : RegisterUserDto
     [RegularExpression(@"^\d{11}$", ErrorMessage = "Identity number must be exactly 11 digits.")]
     public string IdentityNumber { get; set; } = null!;
 
-    [Required(ErrorMessage = "Date Of Birth is required.")]
-    public DateTime? DateOfBirth { get; set; }
+    // [Required(ErrorMessage = "Date Of Birth is required.")]
+    // public DateTime? DateOfBirth { get; set; }
 
     [StringLength(100, MinimumLength = 1, ErrorMessage = "Specialty must be between 1 and 100 characters.")]
     public string? Specialty { get; set; }

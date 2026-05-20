@@ -16,4 +16,5 @@ public class DoctorPerformanceDto
     public double AverageReviewTimeHours { get; set; }
 
     public double CompletionRate { get; set; }
+    public double NumeroDeCasosGravesCompletados { get; set; }
 }

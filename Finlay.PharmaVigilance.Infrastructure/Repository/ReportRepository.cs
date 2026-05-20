@@ -94,6 +94,74 @@ public class ReportRepository : GenericRepository<AefiReport>, IReportRepository
         bool asc = filter.Order?.ToLower() == "asc";
 
         Console.WriteLine($"=================================={filter.SortBy?.ToLower()}===============================");
+        Console.WriteLine($"=================================={asc}===============================");
+        var names = query
+    .Select(r => r.VaccinatedSubject.FullName)
+    .Take(20)
+    .ToList();
+
+        foreach (var name in names)
+        {
+            Console.WriteLine($"NAME: '{name}'");
+        }
+
+        query = filter.SortBy?.ToLower() switch
+        {
+            "reportdate" => asc
+                ? query.OrderBy(r => r.ReportDate)
+                : query.OrderByDescending(r => r.ReportDate),
+
+            "vaccinatedsubject.fullname" => asc
+                ? query.OrderBy(r => r.VaccinatedSubject.FullName)
+                : query.OrderByDescending(r => r.VaccinatedSubject.FullName),
+
+            _ => query.OrderByDescending(r => r.ReportDate) // default
+        };
+
+
+        names = query
+    .Select(r => r.VaccinatedSubject.FullName)
+    .Take(20)
+    .ToList();
+
+        foreach (var name in names)
+        {
+            Console.WriteLine($"NAME: '{name}'");
+        }
+
+        return query;
+
+    }
+
+
+
+
+
+
+    public IQueryable<AefiReport> GetMedicalReviewerByFilter(
+        IQueryable<AefiReport> query,
+        ReportMedicalReviewerFilter filter)
+    {
+
+        if (!string.IsNullOrWhiteSpace(filter.VaccineName))
+        {
+            query = query.Where(ar =>
+            ar.Vaccinations.Any(v => v.Lot.Vaccine.Name == filter.VaccineName));
+        }
+
+
+        if (!string.IsNullOrWhiteSpace(filter.Severity))
+        {
+            if (Enum.TryParse<SeverityLevel>(filter.Severity, true, out var severityEnum))
+            {
+                query = query.Where(r =>
+                    r.AdverseEvents.Any(a =>
+                        a.SeverityLevel == severityEnum));
+            }
+
+        }
+
+        bool asc = filter.Order?.ToLower() == "asc";
 
         query = filter.SortBy?.ToLower() switch
         {

@@ -1,4 +1,5 @@
 using Finlay.PharmaVigilance.Application.DTO;
+using Finlay.PharmaVigilance.Application.Helpers;
 using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
 using Finlay.PharmaVigilance.Domain.Entities;
 using Finlay.PharmaVigilance.Domain.Enum;
@@ -74,12 +75,13 @@ public class VaccinationValidator : IReportValidator<ReportDto>
                 nameof(vaccination.LotId));
             }
 
+            var subjectDateOfBirht = ExtractDateHelper.ExtractDateOfBirht(reportDto.VaccinatedSubject.IdentityNumber);
 
             // Validate administration date is after patient's birth and before adverse event date
-            if (vaccination.AdministrationDate < reportDto.VaccinatedSubject.DateOfBirth)
+            if (vaccination.AdministrationDate < subjectDateOfBirht)
                 throw new ArgumentException(
                     $"Vaccination administration date cannot be before the patient's date of birth. " +
-                    $"Patient birth date: {reportDto.VaccinatedSubject.DateOfBirth:yyyy-MM-dd}, " +
+                    $"Patient birth date: {subjectDateOfBirht:yyyy-MM-dd}, " +
                     $"Vaccination date: {vaccination.AdministrationDate:yyyy-MM-dd}",
                     nameof(vaccination.AdministrationDate));
 

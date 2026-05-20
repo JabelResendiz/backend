@@ -17,8 +17,8 @@ public class ReporterDto
     [RegularExpression(@"^\d{11}$", ErrorMessage = "Identity number must be exactly 11 digits.")]
     public string IdentityNumber { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Date Of Birth is required.")]
-    public DateTime? DateOfBirth { get; set; }
+    // [Required(ErrorMessage = "Date Of Birth is required.")]
+    // public DateTime? DateOfBirth { get; set; }
 
     [Required(ErrorMessage = "Province Id is required.")]
     public int ProvinceId { get; set; }

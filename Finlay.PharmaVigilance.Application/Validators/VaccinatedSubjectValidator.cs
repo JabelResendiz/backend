@@ -1,4 +1,5 @@
 using Finlay.PharmaVigilance.Application.DTO;
+using Finlay.PharmaVigilance.Application.Helpers;
 using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
 using Finlay.PharmaVigilance.Domain.Entities;
 using Finlay.PharmaVigilance.Domain.Enum;
@@ -33,11 +34,13 @@ public class VaccinatedSubjectValidator : IReportValidator<ReportDto>
 
         var minVaccinationDate = reportDto.Vaccinations.Min(v => v.AdministrationDate);
 
+        var dateOfBirth = ExtractDateHelper.ExtractDateOfBirht(subject.IdentityNumber);
+
         // Validate date of birth
-        if (subject.DateOfBirth > minVaccinationDate)
+        if (dateOfBirth > minVaccinationDate)
             throw new ArgumentException(
                 "Vaccinated subject's date of birth must be before the vaccination date.",
-                nameof(subject.DateOfBirth));
+                nameof(dateOfBirth));
 
         // Validate province and municipality
         var province = await _unitOfWork.GetRepository<Province>()
@@ -62,7 +65,7 @@ public class VaccinatedSubjectValidator : IReportValidator<ReportDto>
                 nameof(subject.IsPregnant));
 
         // Validate identity number consistency with date of birth
-        ValidateIdentityNumberFormat(subject.IdentityNumber, subject.DateOfBirth);
+        ValidateIdentityNumberFormat(subject.IdentityNumber, dateOfBirth);
 
         if (!EnumHelper<Gender>.IsValid(subject.Gender.ToString()!))
         {

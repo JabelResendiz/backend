@@ -13,7 +13,12 @@ public interface IReportRepository : IGenericRepository<AefiReport>
 
 
     IQueryable<AefiReport> GetSectionResponsibleByFilter(
-    IQueryable<AefiReport> query,
-ReportSectionResponsibleFilter filter);
+        IQueryable<AefiReport> query,
+        ReportSectionResponsibleFilter filter);
+
+
+    IQueryable<AefiReport> GetMedicalReviewerByFilter(
+        IQueryable<AefiReport> query,
+        ReportMedicalReviewerFilter filter);
 
 }

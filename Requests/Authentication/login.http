@@ -1,4 +1,5 @@
-@host = https://backend-production-3a9c6.up.railway.app
+@host = https://backend-production-3c96.up.railway.app
+
 
 
 # Admin
@@ -6,7 +7,7 @@ POST {{host}}/api/Authentication/login
 Content-Type:  application/json
 
 {
-  "email": "carlos@example.com",
+  "email": "resp2@example.com",
   "password": "Password_123!"
 }
 

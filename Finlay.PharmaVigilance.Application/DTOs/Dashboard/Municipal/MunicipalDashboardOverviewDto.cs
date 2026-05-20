@@ -9,6 +9,7 @@ public class MunicipalDashboardOverviewDto
     public int UnderReviewReports { get; set; }
 
     public int CompletedReports { get; set; }
+    public int RejectedReports { get; set; }
 
 
     public double AverageReviewTimeHours { get; set; }

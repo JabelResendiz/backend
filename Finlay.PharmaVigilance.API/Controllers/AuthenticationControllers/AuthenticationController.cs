@@ -23,6 +23,14 @@ public class AuthenticationController : ControllerBase
     public async Task<IActionResult> LoginUser(LoginUserDto loginDto)
     {
 
+        if (loginDto == null)
+            throw new ArgumentNullException(nameof(loginDto), "Login data is required.");
+
+        // var isValid = await _captchaService.VerifyToken(loginDto.Token);
+
+        // if (!isValid)
+        //     return BadRequest(new { success = false });
+
         var authResult = await _identityService.LoginUserAsync(loginDto);
 
         // Response.Cookies.Append("refreshToken", authResult.RefreshToken,

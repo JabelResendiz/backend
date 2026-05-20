@@ -24,18 +24,17 @@ public class MedicalReviewerValidator : IReportValidator<RegisterMedicalReviewer
         if (reportDto == null)
             throw new ArgumentNullException(nameof(reportDto), "MedicalReviewer information is required.");
 
-        if (!reportDto.DateOfBirth.HasValue)
-            throw new ArgumentException("MedicalReviewer Date of Birth is required.", nameof(reportDto));
+        var dateOfBirth = ExtractDateHelper.ExtractDateOfBirht(reportDto.IdentityNumber);
 
         var easternNow = TimeZoneHelper.GetEasternNow();
 
-        if (reportDto.DateOfBirth > easternNow)
+        if (dateOfBirth > easternNow)
             throw new ArgumentException(
                 "Medical Reviewer Date Of Birth cannot be in the future.",
-                nameof(reportDto.DateOfBirth));
+                nameof(dateOfBirth));
 
 
-        ValidateIdentityNumberFormat(reportDto.IdentityNumber, reportDto.DateOfBirth);
+        ValidateIdentityNumberFormat(reportDto.IdentityNumber, dateOfBirth);
 
         var existingMedical = await _unitOfWork.GetRepository<MedicalReviewer>()
                                     .FirstOrDefaultAsync(mr => mr.IdentityNumber == reportDto.IdentityNumber);

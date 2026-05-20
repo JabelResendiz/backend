@@ -9,66 +9,57 @@ namespace Finlay.PharmaVigilance.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [EnableRateLimiting("GeneralQuery")]
-[Authorize(Roles = "SectionResponsible")]
-public class MunicipalDashboardController : ControllerBase
+[Authorize(Roles = "Admin")]
+public class AdminDashboardController : ControllerBase
 {
-    private readonly IMunicipalDashboardService _municipalDashboardService;
-
-    public MunicipalDashboardController(
-        IMunicipalDashboardService municipalDashboardService
-    )
+    private readonly IAdminDashboardService _adminDashboardService;
+    public AdminDashboardController(IAdminDashboardService adminDashboardService)
     {
-        _municipalDashboardService = municipalDashboardService;
-
-
+        _adminDashboardService = adminDashboardService;
     }
 
 
-
-    [HttpGet("overview")]
+    [HttpGet("report")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetMunicipalDashboardOverview()
+    public async Task<IActionResult> GetAdminReport()
     {
-        var result = await _municipalDashboardService.GetOverviewAsync();
+        var result = _adminDashboardService.GetReportAsync();
+
         return Ok(result);
+
     }
 
 
-
-    [HttpGet("doctors-performance")]
+    [HttpGet("performance")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetDoctorPerformance()
+    public async Task<IActionResult> GetPerformance()
     {
-        // una coleccion de doctor performance
-        var result = await _municipalDashboardService.GetDoctorPerformanceAsync();
+        var result = _adminDashboardService.GetPerformanceAsync();
+
         return Ok(result);
+
     }
 
 
 
-
-    [HttpGet("stats_municipal")]
+    [HttpGet("vaccines")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    public async Task<IActionResult> GetStatsDashboard(
-        [FromQuery] DashboardFilterDto filter
-    )
+    public async Task<IActionResult> GetVaccine()
     {
-
-        var result = await _municipalDashboardService
-        .GetDashboardAsync(filter);
+        var result = _adminDashboardService.GetVaccinesAsync();
 
         return Ok(result);
-    }
 
+    }
 
 
 

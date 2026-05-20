@@ -12,8 +12,8 @@ public class VaccinatedSubjectDto
     [StringLength(20, MinimumLength = 5, ErrorMessage = "Identity number must be between 5 and 20 characters.")]
     public string IdentityNumber { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Date of birth is required.")]
-    public DateTime? DateOfBirth { get; set; }
+    // [Required(ErrorMessage = "Date of birth is required.")]
+    // public DateTime? DateOfBirth { get; set; }
 
     [Required(ErrorMessage = "Gender is required.")]
     public Gender? Gender { get; set; }
