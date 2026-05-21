@@ -67,7 +67,7 @@ public class IdentityService : IIdentityService
 
         // If the credentials are invalid, return null.
         if (savedUser == null)
-            throw new Exception("invalid credentials");
+            throw new ArgumentNullException("invalid credentials");
 
         // generate token for the authenticate user
         var accessToken = await _jwtTokenGenerator.GenerateToken(savedUser);

@@ -56,12 +56,21 @@ public class ReportController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     [EnableRateLimiting("GeneralQuery")]
-    public async Task<IActionResult> GetReportByNotificationNumber(string notificationNumber)
+    public async Task<IActionResult> GetReportByNotificationNumber(
+        [FromQuery] ReportAccessQueryDto request
+    )
     {
-        if (notificationNumber == null)
-            throw new ArgumentNullException(nameof(notificationNumber), "notificationNumber is required.");
+        if (request == null)
+            throw new ArgumentNullException(nameof(request), "Request Dto is required.");
 
-        var result = await _reportQueryService.GetReportByNotificationNumber(notificationNumber);
+
+        var isValid = await _captchaService.VerifyToken(request.Token);
+
+        if (!isValid)
+            return BadRequest(new { success = false });
+
+
+        var result = await _reportQueryService.GetReportByNotificationNumber(request.NotificationNumber);
 
         return StatusCode(StatusCodes.Status202Accepted, new
         {
