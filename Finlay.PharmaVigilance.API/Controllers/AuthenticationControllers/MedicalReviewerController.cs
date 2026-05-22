@@ -57,20 +57,6 @@ public class MedicalReviewerController : ControllerBase
 
     }
 
-    // [HttpGet("getbyProvince")]
-    // [Authorize(Roles = "SectionResponsible")]
-    // [ProducesResponseType(StatusCodes.Status200OK)]
-    // [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    // [ProducesResponseType(StatusCodes.Status409Conflict)]
-    // [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-    // public async Task<ActionResult<IEnumerable<GetMedicalReviewerDto>>> GetMedicalReviewerByProvince()
-    // {
-
-    //     var users = await _medicalReviewerService.ListByProvinceAsync();
-    //     return Ok(users);
-
-    // }
-
 
     [HttpGet("by-current-user-municipality")]
     [Authorize(Roles = "SectionResponsible")]
@@ -79,7 +65,8 @@ public class MedicalReviewerController : ControllerBase
     [ProducesResponseType(StatusCodes.Status409Conflict)]
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<ActionResult> GetMedicalReviewerByCurrentUserMunicipality(
-        [FromQuery] PagedRequestDto paged
+        [FromQuery] PagedRequestDto paged,
+        [FromQuery] MedicalReviewerFilterDto? filter
     )
     {
         if (paged == null)
@@ -88,7 +75,7 @@ public class MedicalReviewerController : ControllerBase
         paged.BaseUrl = $"{Request.Scheme}://{Request.Host}{Request.Path}";
 
 
-        var users = await _medicalReviewerService.GetMedicalReviewerForCurrentUserAsync(paged);
+        var users = await _medicalReviewerService.GetMedicalReviewerForCurrentUserAsync(paged, filter);
         return Ok(users);
 
     }

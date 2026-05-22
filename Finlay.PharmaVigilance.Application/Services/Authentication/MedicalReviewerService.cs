@@ -172,7 +172,9 @@ public class MedicalReviewerService : IMedicalReviewerService
     }
 
 
-    public async Task<PagedResultDto<GetMedicalReviewerDto>> GetMedicalReviewerForCurrentUserAsync(PagedRequestDto paged)
+    public async Task<PagedResultDto<GetMedicalReviewerDto>> GetMedicalReviewerForCurrentUserAsync(
+        PagedRequestDto paged,
+        MedicalReviewerFilterDto? filter)
     {
         var userId = _userContextService.GetUserId();
 
@@ -185,9 +187,10 @@ public class MedicalReviewerService : IMedicalReviewerService
         var provinceId = sectionResponsible.ProvinceId;
         var municipalityId = sectionResponsible.MunicipalityId;
 
-        var query = _medical.GetAllByItems(
-            mr => mr.ProvinceId == provinceId && mr.MunicipalityId == municipalityId);
+        // var query = _medical.GetAllByItems(
+        //     mr => mr.ProvinceId == provinceId && mr.MunicipalityId == municipalityId);
 
+        var query = _medical.GetByFilter(provinceId, municipalityId, filter);
 
         var totalItems = await query.CountAsync();
 

@@ -1,3 +1,4 @@
+using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Domain.Entities;
 
 namespace Finlay.PharmaVigilance.Application.IRepository;
@@ -34,4 +35,9 @@ public interface IMedicalReviewerRepository : IGenericRepository<MedicalReviewer
     /// <param name="userId">The User ID to check.</param>
     /// <returns>True if a MedicalReviewer exists for this User ID; otherwise, false.</returns>
     Task<bool> ExistsByUserIdAsync(Guid userId);
+
+
+    IQueryable<MedicalReviewer> GetByFilter(
+        int provinceId, int municipalityId,
+        MedicalReviewerFilterDto? filter);
 }
