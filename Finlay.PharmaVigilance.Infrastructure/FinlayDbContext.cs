@@ -658,7 +658,11 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
                    .HasForeignKey(a => a.MedicalReviewerId)
                    .OnDelete(DeleteBehavior.Restrict);
 
-
+                        entity.HasIndex(a => new
+                        {
+                                a.Status,
+                                a.AssignedAt
+                        });
 
                 });
 

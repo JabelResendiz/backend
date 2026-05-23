@@ -77,6 +77,9 @@ public static class DependencyInjection
         services.AddScoped<IMunicipalDashboardService, MunicipalDashboardService>();
         services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 
+
+        services.AddScoped<IAssignmentExpirationService, AssignmentExpirationService>();
+
         return services;
 
 

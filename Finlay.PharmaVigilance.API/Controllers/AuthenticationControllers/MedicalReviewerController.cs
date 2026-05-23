@@ -80,4 +80,20 @@ public class MedicalReviewerController : ControllerBase
 
     }
 
+
+
+    [HttpGet("summary")]
+    [Authorize(Roles = "SectionResponsible")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<ActionResult> GetMedicalRevieweSummary()
+    {
+
+        var medical = await _medicalReviewerService.ListByMunicipalityAsync();
+        return Ok(medical);
+
+    }
+
 }

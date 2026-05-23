@@ -83,19 +83,27 @@ public class MedicalReviewerRepository : GenericRepository<MedicalReviewer>, IMe
 
         if (!string.IsNullOrWhiteSpace(filter.Speciality))
         {
-            // if (Enum.TryParse<Specialty>(filter.Speciality, true, out var specialtyEnum))
-            // {
-            //     Console.WriteLine()
-            //     query = query.Where(r =>
-            //         r.Specialty == specialtyEnum.ToString());
-            // }
-
             query = query.Where(mr =>
            mr.Specialty == filter.Speciality);
 
         }
 
+        return query;
+    }
+
+
+
+    public IEnumerable<GetMedicalReviewerDetailDto> OrderAndSort(
+        IEnumerable<GetMedicalReviewerDetailDto> query,
+        MedicalReviewerFilterDto? filter
+    )
+    {
+
+        if (filter == null) return query;
+
         bool asc = filter.Order?.ToLower() == "asc";
+
+        Console.WriteLine(filter.SortBy?.ToLower());
 
         query = filter.SortBy?.ToLower() switch
         {
@@ -104,23 +112,34 @@ public class MedicalReviewerRepository : GenericRepository<MedicalReviewer>, IMe
                 : query.OrderByDescending(r => r.CreatedAt),
 
             "fullname" => asc
-                ? query.OrderBy(r => r.User.UserName)
-                : query.OrderByDescending(r => r.User.UserName),
+                ? query.OrderBy(r => r.FullName)
+                : query.OrderByDescending(r => r.FullName),
+
+            "totalassignments" => asc
+                ? query.OrderBy(r => r.TotalAssignments)
+                : query.OrderByDescending(r => r.TotalAssignments),
+
+            "averagetimereview" => asc
+                ? query.OrderBy(r => r.AverageTimeReview)
+                : query.OrderByDescending(r => r.AverageTimeReview),
+
+            "expiredassignments" => asc
+                ? query.OrderBy(r => r.ExpiredAssignments)
+                : query.OrderByDescending(r => r.ExpiredAssignments),
+
+            "completedassignments" => asc
+                ? query.OrderBy(r => r.CompletedAssignments)
+                : query.OrderByDescending(r => r.CompletedAssignments),
+
 
             _ => query.OrderByDescending(r => r.CreatedAt) // default
         };
 
 
-        //     var names = query
-        // .Select(r => r.User.UserName)
-        // .Take(20)
-        // .ToList();
-
-        //     foreach (var name in names)
-        //     {
-        //         Console.WriteLine($"NAME: '{name}'");
-        //     }
-
         return query;
     }
+
+
+
+
 }

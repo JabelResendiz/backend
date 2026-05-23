@@ -40,6 +40,17 @@ public class MedicalReviewController : ControllerBase
         });
     }
 
+
+
+    [HttpDelete]
+    public async Task<IActionResult> DeleteMedicalReview(Guid id)
+    {
+        await _medicalReviewCommandService.DeleteAsync(id);
+        return Ok(new
+        {
+            message = "Delete succesffuly"
+        });
+    }
 }
 
 

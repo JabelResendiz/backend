@@ -46,7 +46,7 @@ public class MunicipalDashboardController : ControllerBase
     public async Task<IActionResult> GetDoctorPerformance()
     {
         // una coleccion de doctor performance
-        var result = await _municipalDashboardService.GetDoctorPerformanceAsync();
+        var result = await _municipalDashboardService.GetPerformanceAsync();
         return Ok(result);
     }
 

@@ -104,6 +104,8 @@ public class MedicalReviewCommandService : IMedicalReviewCommandService
         medicalReview.MedicalReviewAssignment = validAssignment;
         medicalReview.MedicalReviewAssignment.Status = ReviewAssignmentStatus.Completed;
 
+        medicalReview.MedicalReviewAssignment.MedicalReview = medicalReview;
+
         report.Status = ReportStatus.Approved;
 
         await _unitOfWork.GetRepository<MedicalReview>().CreateAsync(medicalReview);

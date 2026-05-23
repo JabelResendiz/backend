@@ -81,6 +81,20 @@ public class ReportRepository : GenericRepository<AefiReport>, IReportRepository
 
         }
 
+        if (!string.IsNullOrWhiteSpace(filter.ReportStatus))
+        {
+            if (Enum.TryParse<ReportStatus>(filter.ReportStatus, true, out var statusEnum))
+            {
+                query = query.Where(r => r.Status == statusEnum);
+            }
+
+        }
+
+        else
+        {
+            query = query.Where(r => r.Status == ReportStatus.Reopened || r.Status == ReportStatus.Submitted);
+        }
+
         if (filter.From.HasValue)
         {
             query = query.Where(r => r.ReportDate >= filter.From.Value);
@@ -93,17 +107,6 @@ public class ReportRepository : GenericRepository<AefiReport>, IReportRepository
 
         bool asc = filter.Order?.ToLower() == "asc";
 
-        Console.WriteLine($"=================================={filter.SortBy?.ToLower()}===============================");
-        Console.WriteLine($"=================================={asc}===============================");
-        var names = query
-    .Select(r => r.VaccinatedSubject.FullName)
-    .Take(20)
-    .ToList();
-
-        foreach (var name in names)
-        {
-            Console.WriteLine($"NAME: '{name}'");
-        }
 
         query = filter.SortBy?.ToLower() switch
         {
@@ -117,17 +120,6 @@ public class ReportRepository : GenericRepository<AefiReport>, IReportRepository
 
             _ => query.OrderByDescending(r => r.ReportDate) // default
         };
-
-
-        names = query
-    .Select(r => r.VaccinatedSubject.FullName)
-    .Take(20)
-    .ToList();
-
-        foreach (var name in names)
-        {
-            Console.WriteLine($"NAME: '{name}'");
-        }
 
         return query;
 

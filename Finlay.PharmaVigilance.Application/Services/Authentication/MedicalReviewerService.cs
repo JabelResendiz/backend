@@ -1,5 +1,4 @@
 using AutoMapper;
-using AutoMapper.QueryableExtensions;
 using Finlay.PharmaVigilance.Application.Authentication;
 using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.DTO.Authentication;
@@ -129,11 +128,8 @@ public class MedicalReviewerService : IMedicalReviewerService
     }
 
 
-    public async Task<IEnumerable<GetMedicalReviewerDto>> ListByMunicipalityAsync(int municipalityId, CancellationToken cancellationToken = default)
+    public async Task<IEnumerable<GetMedicalReviewerDto>> ListByMunicipalityAsync()
     {
-        if (municipalityId <= 0 || municipalityId >= 16)
-            throw new InvalidOperationException($"Invalid input {municipalityId}");
-
         var userId = _userContextService.GetUserId();
 
         var sectionResponsible = await _unitOfWork.GetRepository<SectionResponsible>()
@@ -142,13 +138,7 @@ public class MedicalReviewerService : IMedicalReviewerService
         if (sectionResponsible == null)
             throw new UnauthorizedAccessException("User is not a section responsible.");
 
-        var provinceId = sectionResponsible.ProvinceId;
-
-        var municipality = await _unitOfWork.GetRepository<Municipality>().GetByIdAsync(municipalityId);
-        if (municipality == null || municipality.ProvinceId != provinceId)
-            throw new KeyNotFoundException($"Municipality with ID {municipalityId} does not exist or does not belong to the specified province.");
-
-        var medicalList = await _medical.GetByMunicipalityAsync(municipalityId);
+        var medicalList = await _medical.GetByMunicipalityAsync(sectionResponsible.MunicipalityId);
 
         return _mapper.Map<IEnumerable<GetMedicalReviewerDto>>(medicalList);
     }
@@ -172,46 +162,100 @@ public class MedicalReviewerService : IMedicalReviewerService
     }
 
 
-    public async Task<PagedResultDto<GetMedicalReviewerDto>> GetMedicalReviewerForCurrentUserAsync(
+    public async Task<PagedResultDto<GetMedicalReviewerDetailDto>>
+    GetMedicalReviewerForCurrentUserAsync(
         PagedRequestDto paged,
         MedicalReviewerFilterDto? filter)
     {
         var userId = _userContextService.GetUserId();
 
-        var sectionResponsible = await _unitOfWork.GetRepository<SectionResponsible>()
-                                        .FirstOrDefaultAsync(sr => sr.UserId == userId);
+        var sectionResponsible = await _unitOfWork
+            .GetRepository<SectionResponsible>()
+            .FirstOrDefaultAsync(sr => sr.UserId == userId);
 
         if (sectionResponsible == null)
-            throw new UnauthorizedAccessException("User is not a section responsible.");
+            throw new UnauthorizedAccessException(
+                "User is not a section responsible.");
 
-        var provinceId = sectionResponsible.ProvinceId;
-        var municipalityId = sectionResponsible.MunicipalityId;
+        var reviewers = await _medical
+            .GetByFilter(sectionResponsible.ProvinceId, sectionResponsible.MunicipalityId, filter)
+            .Include(r => r.User)
+            .Include(r => r.MedicalReviews)
+                .ThenInclude(r => r.MedicalReview)
+            .ToListAsync();
 
-        // var query = _medical.GetAllByItems(
-        //     mr => mr.ProvinceId == provinceId && mr.MunicipalityId == municipalityId);
+        var result = reviewers
+            .Select(r =>
+            {
+                var assignments = r.MedicalReviews;
 
-        var query = _medical.GetByFilter(provinceId, municipalityId, filter);
+                var completedAssignments = assignments
+                    .Where(a => a.Status == ReviewAssignmentStatus.Completed)
+                    .ToList();
 
-        var totalItems = await query.CountAsync();
+                double averageTimeReview = 0;
 
-        var items = await _medical.GetPaged(query, (paged.PageNumber - 1) * paged.PageSize, paged.PageSize)
-                        .ProjectTo<GetMedicalReviewerDto>(_mapper.ConfigurationProvider)
-                        .ToListAsync();
+                if (completedAssignments.Any())
+                {
+                    averageTimeReview = Math.Round(
+                                completedAssignments.Average(a =>
+                                    (a.MedicalReview!.ReviewedAt - a.AssignedAt).TotalHours),
+                                2
+                            );
+                }
+
+                return new GetMedicalReviewerDetailDto
+                {
+                    FullName = r.User.UserName ?? "",
+                    Institution = r.Institution,
+                    PhoneNumber = r.User.PhoneNumber ?? "",
+                    CreatedAt = r.CreatedAt,
+
+                    TotalAssignments = assignments.Count,
+
+                    PendingAssignments = assignments.Count(a =>
+                        a.Status == ReviewAssignmentStatus.Pending),
+
+                    CompletedAssignments = assignments.Count(a =>
+                        a.Status == ReviewAssignmentStatus.Completed),
+
+                    ExpiredAssignments = assignments.Count(a =>
+                        a.Status == ReviewAssignmentStatus.Expired),
+
+                    AverageTimeReview = averageTimeReview
+                };
+            });
 
 
-        return new PagedResultDto<GetMedicalReviewerDto>
+        result = _medical
+            .OrderAndSort(result, filter)
+            .ToList();
+
+        // .ToList();
+
+        var totalItems = result.Count();
+
+        var items = result
+            .Skip((paged.PageNumber - 1) * paged.PageSize)
+            .Take(paged.PageSize)
+            .ToList();
+
+        return new PagedResultDto<GetMedicalReviewerDetailDto>
         {
             Items = items,
             TotalCount = totalItems,
             PageNumber = paged.PageNumber,
             PageSize = paged.PageSize,
-            NextPageUrl = paged.PageNumber * paged.PageSize < totalItems
-                        ? $"{paged.BaseUrl}?pageNumber={paged.PageNumber + 1}&pageSize={paged.PageSize}"
-                        : null,
-            PreviousPageUrl = paged.PageNumber > 1
-                        ? $"{paged.BaseUrl}?pageNumber={paged.PageNumber - 1}&pageSize={paged.PageSize}"
-                        : null
 
+            NextPageUrl =
+                paged.PageNumber * paged.PageSize < totalItems
+                ? $"{paged.BaseUrl}?pageNumber={paged.PageNumber + 1}&pageSize={paged.PageSize}"
+                : null,
+
+            PreviousPageUrl =
+                paged.PageNumber > 1
+                ? $"{paged.BaseUrl}?pageNumber={paged.PageNumber - 1}&pageSize={paged.PageSize}"
+                : null
         };
     }
 

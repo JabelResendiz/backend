@@ -18,7 +18,8 @@ using Finlay.PharmaVigilance.Application.IServices;
 using Finlay.PharmaVigilance.Infrastructure.Email;
 using Finlay.PharmaVigilance.Infrastructure.Consumers;
 using MassTransit;
-// using Finlay.PharmaVigilance.Infrastructure.MassTransit;
+using Finlay.PharmaVigilance.Infrastructure.BackgroundServices;
+
 
 
 namespace Finlay.PharmaVigilance.Infrastructure;
@@ -106,6 +107,8 @@ public static class DependencyInjection
         services.AddMassTransit(x =>
         {
             x.AddConsumer<MedicalReviewerConsumer>();
+            x.AddConsumer<AssignmentExpiredConsumer>();
+
 
             x.UsingRabbitMq((context, cfg) =>
             {
@@ -113,6 +116,10 @@ public static class DependencyInjection
                 cfg.ConfigureEndpoints(context);
             });
         });
+
+
+        services.AddHostedService<AssignmentExpirationBackgroundService>();
+
 
         //services.AddHostedService<MedicalReviewerConsumer>();
         //services.AddHostedService<EmailToReporterConsumer>();

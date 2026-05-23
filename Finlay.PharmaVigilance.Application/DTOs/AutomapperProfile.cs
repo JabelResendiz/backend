@@ -25,9 +25,7 @@ public class AutomapperProfile : Profile
         // Medical Reviewer Registration
         CreateMap<RegisterMedicalReviewerDto, MedicalReviewer>();
         CreateMap<MedicalReviewer, GetMedicalReviewerDto>()
-            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.UserName))
-            .ForMember(dest => dest.Email, opt => opt.MapFrom(src => src.User.Email))
-            .ForMember(dest => dest.PhoneNumber, opt => opt.MapFrom(src => src.User.PhoneNumber));
+            .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.UserName));
 
         CreateMap<RegisterMedicalReviewerDto, User>();
 
@@ -146,7 +144,17 @@ public class AutomapperProfile : Profile
                         .Select(a => a.SeverityLevel)
                         .FirstOrDefault()
                 )
-            );
+            )
+        .ForMember(
+            dest => dest.LastDoctorName,
+            opt => opt.MapFrom(src =>
+                src.MedicalReviewAssignments
+                    .OrderByDescending(mra => mra.AssignedAt)
+                    .Select(mra => mra.MedicalReviewer.User.UserName)
+                    .FirstOrDefault()
+            )
+        );
+
         CreateMap<AefiReport, ReportMedicalReviewerDto>();
         CreateMap<AefiReport, ReportUserDto>();
 

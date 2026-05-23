@@ -12,4 +12,6 @@ public class ReportSectionResponsibleDto
     public required VaccinatedSubjectSummaryDto VaccinatedSubject { get; set; }
     public required IEnumerable<VaccinationSummaryDto> Vaccinations { get; set; }
     public required IEnumerable<AdverseEventSummaryDto> AdverseEvents { get; set; }
+    public string? LastDoctorName { get; set; }
+    public string? RejectionReason { get; set; }
 }

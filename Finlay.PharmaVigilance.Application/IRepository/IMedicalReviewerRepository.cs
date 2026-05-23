@@ -38,6 +38,11 @@ public interface IMedicalReviewerRepository : IGenericRepository<MedicalReviewer
 
 
     IQueryable<MedicalReviewer> GetByFilter(
-        int provinceId, int municipalityId,
-        MedicalReviewerFilterDto? filter);
+       int provinceId, int municipalityId,
+       MedicalReviewerFilterDto? filter);
+
+
+    IEnumerable<GetMedicalReviewerDetailDto> OrderAndSort(
+     IEnumerable<GetMedicalReviewerDetailDto> query,
+     MedicalReviewerFilterDto? filter);
 }

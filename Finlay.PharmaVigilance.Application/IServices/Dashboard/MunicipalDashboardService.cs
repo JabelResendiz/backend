@@ -6,7 +6,7 @@ public interface IMunicipalDashboardService
 {
     Task<MunicipalDashboardOverviewDto> GetOverviewAsync();
 
-    Task<IEnumerable<DoctorPerformanceDto>> GetDoctorPerformanceAsync();
+    Task<MunicipalDashboardPerformanceDto> GetPerformanceAsync();
 
     Task<SectionResponsibleMunicipalDashboardDto> GetDashboardAsync(DashboardFilterDto filter);
 }

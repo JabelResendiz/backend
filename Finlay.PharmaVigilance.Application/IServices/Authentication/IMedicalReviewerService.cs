@@ -16,11 +16,11 @@ public interface IMedicalReviewerService
     /// <returns>A task representing the asynchronous operation, returning a response message.</returns>
     Task<string> RegisterMedicalReviewerAsync(RegisterMedicalReviewerDto registerDto);
 
-    Task<IEnumerable<GetMedicalReviewerDto>> ListByMunicipalityAsync(int municipalityId, CancellationToken cancellationToken = default);
+    Task<IEnumerable<GetMedicalReviewerDto>> ListByMunicipalityAsync();
 
     // Task<IEnumerable<GetMedicalReviewerDto>> ListByProvinceAsync(CancellationToken cancellationToken = default);
 
-    Task<PagedResultDto<GetMedicalReviewerDto>> GetMedicalReviewerForCurrentUserAsync(
+    Task<PagedResultDto<GetMedicalReviewerDetailDto>> GetMedicalReviewerForCurrentUserAsync(
         PagedRequestDto paged,
         MedicalReviewerFilterDto? filter);
 

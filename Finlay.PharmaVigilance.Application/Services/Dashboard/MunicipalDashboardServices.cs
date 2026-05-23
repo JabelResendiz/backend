@@ -1,4 +1,5 @@
 using Finlay.PharmaVigilance.Application.DTO;
+using Finlay.PharmaVigilance.Application.IRepository;
 using Finlay.PharmaVigilance.Application.IServices;
 using Finlay.PharmaVigilance.Application.IServices.Common;
 using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
@@ -15,16 +16,19 @@ public class MunicipalDashboardService : IMunicipalDashboardService
     private readonly IUnitOfWork _unitOfWork;
     private readonly ILogger<MunicipalDashboardService> _logger;
     private readonly IUserContextService _userContextService;
+    private readonly IMedicalAssignmentRepository _assignmentRepository;
 
     public MunicipalDashboardService(
         IUnitOfWork unitOfWork,
         ILogger<MunicipalDashboardService> logger,
-        IUserContextService userContextService
+        IUserContextService userContextService,
+        IMedicalAssignmentRepository assignmentRepository
     )
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
         _userContextService = userContextService;
+        _assignmentRepository = assignmentRepository;
     }
     public async Task<MunicipalDashboardOverviewDto> GetOverviewAsync()
     {
@@ -45,7 +49,8 @@ public class MunicipalDashboardService : IMunicipalDashboardService
                     Pending = g.Count(x => x.Status == ReportStatus.Submitted),
                     UnderReview = g.Count(x => x.Status == ReportStatus.UnderReview),
                     Completed = g.Count(x => x.Status == ReportStatus.Approved),
-                    Rejected = g.Count(x => x.Status == ReportStatus.Rejected)
+                    Rejected = g.Count(x => x.Status == ReportStatus.Rejected),
+                    Reopened = g.Count(x => x.Status == ReportStatus.Reopened)
                 })
                 .FirstOrDefaultAsync();
 
@@ -72,6 +77,7 @@ public class MunicipalDashboardService : IMunicipalDashboardService
             UnderReviewReports = data?.UnderReview ?? 0,
             CompletedReports = data?.Completed ?? 0,
             RejectedReports = data?.Rejected ?? 0,
+            ReopenedReports = data?.Reopened ?? 0,
             AverageReviewTimeHours = avg,
 
             CompletionRate = (data == null || data.Total == 0)
@@ -83,7 +89,9 @@ public class MunicipalDashboardService : IMunicipalDashboardService
 
 
 
-    // public async Task<IEnumerable<DoctorPerformanceDto>> GetDoctorPerformanceAsync()
+
+
+    // public async Task<MunicipalDashboardPerformanceDto> GetPerformanceAsync()
     // {
     //     var user = _userContextService.GetUserId();
 
@@ -91,163 +99,168 @@ public class MunicipalDashboardService : IMunicipalDashboardService
     //         .FirstOrDefaultAsync(sr => sr.UserId == user)
     //         ?? throw new Exception("Section Responsible not found for the current user.");
 
-    //     var rawData = await _unitOfWork.GetRepository<MedicalReviewAssignment>()
-    //         .GetAllByItems(r =>
-    //             r.MedicalReviewer.MunicipalityId == sectionResponsible.MunicipalityId)
-    //         .Select(r => new
-    //         {
-    //             r.MedicalReviewerId,
-    //             DoctorName = r.MedicalReviewer.User.UserName,
-    //             r.Status,
-    //             r.AssignedAt,
-    //             ReviewedAt = r.MedicalReview != null
-    //                 ? r.MedicalReview.ReviewedAt
-    //                 : (DateTime?)null
-    //         })
-    //         .ToListAsync();
+    //     var doctorPerformance = await _assignmentRepository.GetDoctorPerformanceAsync(sectionResponsible.MunicipalityId);
 
-    //     var result = rawData
-    //         .GroupBy(x => new { x.MedicalReviewerId, x.DoctorName })
-    //         .Select(g => new DoctorPerformanceDto
-    //         {
-    //             DoctorId = g.Key.MedicalReviewerId,
-    //             DoctorName = g.Key.DoctorName!,
+    //     var totalCompletedReportsByHours = await _assignmentRepository.GetTimeHoursAsync(sectionResponsible.MunicipalityId);
 
-    //             AssignedReports = g.Count(),
+    //     var municipalMetrics = await _assignmentRepository.GetMetrics(sectionResponsible.Id);
 
-    //             CompletedReports = g.Count(x => x.Status == ReviewAssignmentStatus.Completed),
+    //     return new MunicipalDashboardPerformanceDto
+    //     {
+    //         DoctorPerformances = doctorPerformance,
+    //         TimeHours = totalCompletedReportsByHours,
+    //         AverageAssignmentByReport = municipalMetrics.AverageAssignmentByReport,
+    //         AverageReviewTimeHours = municipalMetrics.AverageReviewTimeHours,
+    //         AverageAssignmentTimeHours = municipalMetrics.AverageAssignmentTimeHours
 
-    //             PendingReports = g.Count(x => x.Status == ReviewAssignmentStatus.Pending),
-
-    //             ExpiredReports = g.Count(x => x.Status == ReviewAssignmentStatus.Expired),
-
-    //             CancelledReports = g.Count(x => x.Status == ReviewAssignmentStatus.Cancelled),
-
-    //             AverageReviewTimeHours = g
-    //                 .Where(x => x.ReviewedAt != null)
-    //                 .Select(x => (x.ReviewedAt!.Value - x.AssignedAt).TotalHours)
-    //                 .DefaultIfEmpty(0)
-    //                 .Average(),
-
-    //             CompletionRate = g.Count() == 0
-    //                 ? 0
-    //                 : (double)g.Count(x => x.Status == ReviewAssignmentStatus.Completed) * 100 / g.Count(),
-
-
-    //         })
-    //         .ToList();
-
-    //     return result;
+    //     };
     // }
 
-    public async Task<IEnumerable<DoctorPerformanceDto>> GetDoctorPerformanceAsync()
+    public async Task<MunicipalDashboardPerformanceDto> GetPerformanceAsync()
     {
-        return new List<DoctorPerformanceDto>()
+        return new MunicipalDashboardPerformanceDto
+        {
+            AverageAssignmentByReport = 1,
+            AverageReviewTimeHours = 10.7,
+            AverageAssignmentTimeHours = 4.6,
+            TimeHours = new List<TimeHourDto>
+        {
+            new TimeHourDto
+            {
+                Hour= "0-5",
+                TotalReport = 20
+            },
+            new TimeHourDto
+            {
+                Hour = "5-10",
+                TotalReport = 30
+            },
+            new TimeHourDto
+            {
+                Hour = "10-20",
+                TotalReport = 15,
+            },
+             new TimeHourDto
+             {
+                 Hour = "20-24",
+                 TotalReport = 20
+             },
+             new TimeHourDto
+             {
+                 Hour = "24+",
+                 TotalReport = 4
+             }
+        }
+        ,
+            DoctorPerformances = new List<DoctorPerformanceDto>()
         {
             new DoctorPerformanceDto
             {
-                DoctorId = Guid.NewGuid(),
+               // DoctorId = Guid.NewGuid(),
                 DoctorName = "Dr. Martha Silva",
                 AssignedReports = 10,
                 CompletedReports = 8,
                 PendingReports = 1,
                 ExpiredReports = 0,
                 CancelledReports = 1,
-                AverageReviewTimeHours = 24.5,
-                CompletionRate = 80
+                // AverageReviewTimeHours = 24.5,
+                // CompletionRate = 80
             },
             new DoctorPerformanceDto
             {
-                DoctorId = Guid.NewGuid(),
+                // DoctorId = Guid.NewGuid(),
                 DoctorName = "Dr. Carlos Mendes",
                 AssignedReports = 15,
                 CompletedReports = 12,
                 PendingReports = 2,
                 ExpiredReports = 1,
                 CancelledReports = 0,
-                AverageReviewTimeHours = 30.2,
-                CompletionRate = 80,
-                NumeroDeCasosGravesCompletados = 3
+                // AverageReviewTimeHours = 30.2,
+                // CompletionRate = 80,
+                // NumeroDeCasosGravesCompletados = 3
             },
             new DoctorPerformanceDto
             {
-                DoctorId = Guid.NewGuid(),
+                // DoctorId = Guid.NewGuid(),
                 DoctorName = "Dr. Ana Pereira",
                 AssignedReports = 20,
                 CompletedReports = 18,
                 PendingReports = 1,
                 ExpiredReports = 0,
                 CancelledReports = 1,
-                AverageReviewTimeHours = 22.8,
-                CompletionRate = 90,
-                NumeroDeCasosGravesCompletados = 5
+                // AverageReviewTimeHours = 22.8,
+                // CompletionRate = 90,
+                // NumeroDeCasosGravesCompletados = 5
             },
             new DoctorPerformanceDto
             {
-                DoctorId = Guid.NewGuid(),
+                // DoctorId = Guid.NewGuid(),
                 DoctorName = "Dr. João Costa",
                 AssignedReports = 12,
                 CompletedReports = 7,
                 PendingReports = 4,
                 ExpiredReports = 0,
                 CancelledReports = 1,
-                AverageReviewTimeHours = 28.4,
-                CompletionRate = 83.3,
-                NumeroDeCasosGravesCompletados = 2
+                // AverageReviewTimeHours = 28.4,
+                // CompletionRate = 83.3,
+                // NumeroDeCasosGravesCompletados = 2
             },
             new DoctorPerformanceDto
             {
-                DoctorId = Guid.NewGuid(),
+                // DoctorId = Guid.NewGuid(),
                 DoctorName = "Dr. Sofia Almeida",
                 AssignedReports = 18,
                 CompletedReports = 6,
                 PendingReports = 11,
                 ExpiredReports = 0,
                 CancelledReports = 1,
-                AverageReviewTimeHours = 26.7,
-                CompletionRate = 88.9,
-                NumeroDeCasosGravesCompletados = 4
+                // AverageReviewTimeHours = 26.7,
+                // CompletionRate = 88.9,
+                // NumeroDeCasosGravesCompletados = 4
             },
             new DoctorPerformanceDto
             {
-                DoctorId = Guid.NewGuid(),
+                // DoctorId = Guid.NewGuid(),
                 DoctorName = "Dr. Pedro Fernandes",
                 AssignedReports = 14,
                 CompletedReports = 1,
                 PendingReports = 12,
                 ExpiredReports = 0,
                 CancelledReports = 1,
-                AverageReviewTimeHours = 29.3,
-                CompletionRate = 78.6,
-                NumeroDeCasosGravesCompletados = 1
+                // AverageReviewTimeHours = 29.3,
+                // CompletionRate = 78.6,
+                // NumeroDeCasosGravesCompletados = 1
             },
             new DoctorPerformanceDto
             {
-                DoctorId = Guid.NewGuid(),
+                //DoctorId = Guid.NewGuid(),
                 DoctorName = "Dr. Maria Oliveira",
                 AssignedReports = 21,
                 CompletedReports = 14,
                 PendingReports = 6,
                 ExpiredReports = 0,
                 CancelledReports = 1,
-                AverageReviewTimeHours = 25.6,
-                CompletionRate = 87.5,
-                NumeroDeCasosGravesCompletados = 3
+                // AverageReviewTimeHours = 25.6,
+                // CompletionRate = 87.5,
+                // NumeroDeCasosGravesCompletados = 3
             },
             new DoctorPerformanceDto
             {
-                DoctorId = Guid.NewGuid(),
+                //DoctorId = Guid.NewGuid(),
                 DoctorName = "Dr. Luís Santos",
                 AssignedReports = 13,
                 CompletedReports = 9,
                 PendingReports = 3,
                 ExpiredReports = 0,
                 CancelledReports = 1,
-                AverageReviewTimeHours = 27.8,
-                CompletionRate = 81.8,
-                NumeroDeCasosGravesCompletados = 2
+                // AverageReviewTimeHours = 27.8,
+                // CompletionRate = 81.8,
+                // NumeroDeCasosGravesCompletados = 2
             },
+        }
         };
+
+
     }
 
     public async Task<SectionResponsibleMunicipalDashboardDto> GetDashboardAsync(DashboardFilterDto filter)
