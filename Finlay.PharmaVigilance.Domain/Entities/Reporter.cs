@@ -1,5 +1,6 @@
 
 using Finlay.PharmaVigilance.Domain.Enum;
+using Finlay.PharmaVigilance.Domain.ValueObjects;
 
 namespace Finlay.PharmaVigilance.Domain.Entities;
 
@@ -7,16 +8,14 @@ public class Reporter : GuidEntity
 {
     public string FullName { get; set; } = null!;
     public ReporterRelationship ReporterRelationship { get; set; }
-    public string IdentityNumber { get; set; } = null!;
-    public DateTime DateOfBirth => ExtractDateOfBirth(IdentityNumber);
-
+    public IdentityNumber IdentityNumber { get; set; } = null!;
     public int ProvinceId { get; set; }
     public Province Province { get; set; } = null!;
     public int MunicipalityId { get; set; }
     public Municipality Municipality { get; set; } = null!;
     public string PhoneNumber { get; set; } = null!;
     public string Email { get; set; } = null!;
-
+    public Gender Gender { get; set; }
     public string? ProfessionalLicense { get; set; }
     public string? Institution { get; set; }
 
@@ -25,34 +24,4 @@ public class Reporter : GuidEntity
 
     public ICollection<AefiReport> AefiReports { get; set; } = new List<AefiReport>();
 
-
-
-
-
-    private static DateTime ExtractDateOfBirth(string identityNumber)
-    {
-        string yy = identityNumber.Substring(0, 2);
-        string mm = identityNumber.Substring(2, 2);
-        string dd = identityNumber.Substring(4, 2);
-
-        int year = int.Parse(yy);
-        int month = int.Parse(mm);
-        int day = int.Parse(dd);
-
-        int currentYearTwoDigits = DateTime.Now.Year % 100;
-        int fullYear = (year > currentYearTwoDigits) ? 1900 + year : 2000 + year;
-
-        DateTime extractedDate;
-
-        try
-        {
-            extractedDate = new DateTime(fullYear, month, day);
-        }
-        catch
-        {
-            throw new ArgumentException("Invalid date encoded in identity number.");
-        }
-
-        return extractedDate;
-    }
 }

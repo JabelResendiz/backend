@@ -11,8 +11,6 @@ public class AdverseEventDto
 
     [Required(ErrorMessage = "Start date is required.")]
     public DateTime? StartDate { get; set; }
-
-    [Required(ErrorMessage = "Finish date is required.")]
     public DateTime? FinishDate { get; set; }
 
     [StringLength(500, MinimumLength = 0)]
@@ -27,8 +25,14 @@ public class AdverseEventDto
     [Required(ErrorMessage = "Permanent Disability is required.")]
     public bool PermanentDisability { get; set; }
 
-    [Required(ErrorMessage = "Is Life Threatening is required.")]
-    public bool IsLifeThreatening { get; set; }
+    [Required(ErrorMessage = "Was Hospitalized is required.")]
+    public bool WasHospitalized { get; set; }
+
+    [Required(ErrorMessage = "Anomaly is required.")]
+    public bool Anomaly { get; set; }
+
+    [Required(ErrorMessage = "No Complications is required.")]
+    public bool NoComplications { get; set; }
 
     [Required(ErrorMessage = "Resulted In Death is required.")]
     public bool ResultedInDeath { get; set; }

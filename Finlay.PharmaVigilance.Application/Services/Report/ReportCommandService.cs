@@ -85,7 +85,7 @@ public class ReportCommandService : IReportCommandService
             // Step 1: Get or create VaccinatedSubject (patient)
             var vaccinatedSubjectRepository = _unitOfWork.GetRepository<VaccinatedSubject>();
             var existingVaccinatedSubject = await vaccinatedSubjectRepository
-                .FirstOrDefaultAsync(x => x.IdentityNumber == reportDto.VaccinatedSubject.IdentityNumber);
+                .FirstOrDefaultAsync(x => x.IdentityNumber.Value == reportDto.VaccinatedSubject.IdentityNumber);
 
             VaccinatedSubject vaccinatedSubject;
             if (existingVaccinatedSubject != null)
@@ -104,7 +104,7 @@ public class ReportCommandService : IReportCommandService
             // Step 2: Get or create Reporter by normalized full name
             var reporterRepository = _unitOfWork.GetRepository<Reporter>();
             var existingReporter = await reporterRepository
-                .FirstOrDefaultAsync(x => x.IdentityNumber == reportDto.Reporter.IdentityNumber);
+                .FirstOrDefaultAsync(x => x.IdentityNumber.Value == reportDto.Reporter.IdentityNumber);
 
             Reporter reporter;
             if (existingReporter != null)
@@ -220,7 +220,7 @@ public class ReportCommandService : IReportCommandService
             // Step 1: Get or create VaccinatedSubject (patient)
             var vaccinatedSubjectRepository = _unitOfWork.GetRepository<VaccinatedSubject>();
             var existingVaccinatedSubject = await vaccinatedSubjectRepository
-                .FirstOrDefaultAsync(x => x.IdentityNumber == reportDto.VaccinatedSubject.IdentityNumber);
+                .FirstOrDefaultAsync(x => x.IdentityNumber.Value == reportDto.VaccinatedSubject.IdentityNumber);
 
             VaccinatedSubject vaccinatedSubject;
             if (existingVaccinatedSubject != null)

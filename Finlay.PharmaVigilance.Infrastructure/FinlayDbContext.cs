@@ -218,12 +218,16 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
                           .IsRequired(false)
                           .HasMaxLength(100);
 
-                        entity.Property(e => e.IdentityNumber)
-                        .IsRequired()
-                        .HasMaxLength(20);
+                        entity.OwnsOne(e => e.IdentityNumber, id =>
+                        {
+                                id.Property(p => p.Value)
+                                .HasColumnName("IdentityNumber")
+                                .IsRequired()
+                                .HasMaxLength(20);
 
-                        entity.HasIndex(e => e.IdentityNumber)
-                .IsUnique();
+                                id.HasIndex(p => p.Value)
+                                .IsUnique();
+                        });
 
 
 
@@ -262,6 +266,10 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
                         entity.HasKey(e => e.Id);
                         entity.Property(e => e.StartDate)
                       .IsRequired();
+
+                        entity.Property(e => e.FinishDate)
+                        .IsRequired(false);
+
                         entity.Property(e => e.Description)
                       .IsRequired(false)
                       .HasMaxLength(800);
@@ -283,7 +291,13 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
                         entity.Property(e => e.PermanentDisability)
                     .IsRequired();
 
-                        entity.Property(e => e.IsLifeThreatening)
+                        entity.Property(e => e.WasHospitalized)
+                    .IsRequired();
+
+                        entity.Property(e => e.Anomaly)
+                    .IsRequired();
+
+                        entity.Property(e => e.NoComplications)
                     .IsRequired();
 
                         entity.Property(e => e.ResultedInDeath)
@@ -368,16 +382,7 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
                         .IsRequired(false)
                         .HasMaxLength(300);
 
-
-                        entity.Property(p => p.CodingSystem)
-                    .IsRequired()
-                    .HasMaxLength(30);
-
                         entity.Property(p => p.Category)
-                .IsRequired()
-                .HasMaxLength(30);
-
-                        entity.Property(p => p.StandardCode)
                 .IsRequired()
                 .HasMaxLength(30);
 
@@ -445,9 +450,9 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
                 .OnDelete(DeleteBehavior.Restrict);
 
 
-                        entity.Property(e => e.Code)
-                      .IsRequired(false)
-                      .HasMaxLength(30);
+                        entity.Property(e => e.TargetPathology)
+                      .IsRequired()
+                      .HasMaxLength(130);
 
                         entity.Property(e => e.Description)
                   .IsRequired(false)
@@ -465,12 +470,16 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
                 .IsRequired()
                 .HasMaxLength(150);
 
-                        entity.Property(e => e.IdentityNumber)
-                .IsRequired()
-                .HasMaxLength(20);
+                        entity.OwnsOne(e => e.IdentityNumber, id =>
+                        {
+                                id.Property(p => p.Value)
+                                .HasColumnName("IdentityNumber")
+                                .IsRequired()
+                                .HasMaxLength(20);
 
-                        entity.HasIndex(e => e.IdentityNumber)
-                .IsUnique();
+                                id.HasIndex(p => p.Value)
+                                .IsUnique();
+                        });
 
                         entity.Property(e => e.Gender)
                 .IsRequired()
@@ -478,9 +487,6 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
 
                         entity.Property(e => e.IsPregnant)
                 .IsRequired(false);
-
-                        entity.Property(e => e.HealthArea)
-                .HasMaxLength(100);
 
                         entity.Property(e => e.Address)
                 .HasMaxLength(250);
@@ -520,12 +526,21 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
               .IsRequired()
               .HasMaxLength(150);
 
-                       entity.Property(p => p.IdentityNumber)
-              .IsRequired()
-              .HasMaxLength(20);
+                       entity.Property(e => e.Gender)
+                         .IsRequired()
+                         .HasConversion<string>();
 
-                       entity.HasIndex(e => e.IdentityNumber)
-                .IsUnique();
+                       entity.OwnsOne(e => e.IdentityNumber, id =>
+                         {
+                                 id.Property(p => p.Value)
+                                 .HasColumnName("IdentityNumber")
+                                 .IsRequired()
+                                 .HasMaxLength(20);
+
+                                 id.HasIndex(p => p.Value)
+                                 .IsUnique();
+                         });
+
 
                        entity.Property(e => e.ReporterRelationship)
               .IsRequired()

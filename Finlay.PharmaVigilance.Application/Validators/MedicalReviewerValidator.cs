@@ -37,7 +37,7 @@ public class MedicalReviewerValidator : IReportValidator<RegisterMedicalReviewer
         ValidateIdentityNumberFormat(reportDto.IdentityNumber, dateOfBirth);
 
         var existingMedical = await _unitOfWork.GetRepository<MedicalReviewer>()
-                                    .FirstOrDefaultAsync(mr => mr.IdentityNumber == reportDto.IdentityNumber);
+                                    .FirstOrDefaultAsync(mr => mr.IdentityNumber.Value == reportDto.IdentityNumber);
 
 
         if (existingMedical != null)

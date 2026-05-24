@@ -129,10 +129,9 @@ public class CatalogCommandService : ICatalogCommandService
             await _unitOfWork.CompleteAsync();
 
             _logger.LogInformation(
-                "Symptom created: {Name}, Category: {Category}, Code: {Code}",
+                "Symptom created: {Name}, Category: {Category}",
                 symptomDto.Name,
-                symptomDto.Category,
-                symptomDto.StandardCode
+                symptomDto.Category
             );
 
             return "Symptom successfully created";

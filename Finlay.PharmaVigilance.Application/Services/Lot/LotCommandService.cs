@@ -1,4 +1,5 @@
 
+using System.Data;
 using System.Linq.Expressions;
 using AutoMapper;
 using Finlay.PharmaVigilance.Application.DTO;
@@ -38,6 +39,12 @@ public class LotCommandService : ILotCommandService
                             .GetByIdAsync(lotDto.VaccineId)
                             ?? throw new KeyNotFoundException(
                                         $"Vaccine with ID {lotDto.VaccineId} not found in the database.");
+
+            var lotName = await _unitOfWork.GetRepository<Lot>()
+                                .FirstOrDefaultAsync(l => l.LotNumber == lotDto.LotNumber);
+
+            if (lotName != null)
+                throw new DuplicateNameException("Lot NUmber is duplicated");
 
             var lot = _mapper.Map<Lot>(lotDto);
 

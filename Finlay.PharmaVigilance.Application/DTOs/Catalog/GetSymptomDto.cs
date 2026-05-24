@@ -10,5 +10,4 @@ public class GetPrivateSymptomsDto : GetSymptomDto
 {
     public required bool IsActive { get; set; }
     public required string Category { get; set; }
-    public required string StandardCode { get; set; }
 }
