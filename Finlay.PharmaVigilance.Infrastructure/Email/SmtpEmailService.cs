@@ -22,19 +22,11 @@ public class SmtpEmailService : IEmailService
     {
         try
         {
-            _logger.LogInformation("==================Vamos a extraer las variables=================");
-
             var host = _configuration["Email:Smtp:Host"];
             var port = int.Parse(_configuration["Email:Smtp:Port"] ?? "587");
             var user = _configuration["Email:Smtp:User"];
             var password = _configuration["Email:Smtp:Password"];
             var fromName = _configuration["Email:Smtp:FromName"];
-
-            _logger.LogInformation("==================Variables extraidas=================");
-
-
-            _logger.LogInformation($"Host: {host} ; Port:{port} ; User:{user} ; Password:{password} ; FromName:{fromName}");
-
 
             // Validate configuration
             if (string.IsNullOrEmpty(host) || string.IsNullOrEmpty(user) || string.IsNullOrEmpty(password))
