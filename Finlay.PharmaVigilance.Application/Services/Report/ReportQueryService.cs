@@ -99,11 +99,13 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
         var query = _unitOfWork.GetRepository<AefiReport>()
                                .GetAllByItems(r => reportId.Contains(r.Id));
 
+        Console.WriteLine("=======================AQUI ESTAMOS=======================");
 
         query = _reportRepository
                         .GetMedicalReviewerByFilter(
                             query,
                             filter);
+        Console.WriteLine("=======================AQUI ESTAMOS3=======================");
 
         var totalItems = await query.CountAsync();
 
@@ -111,6 +113,9 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
                         .GetPaged(query, (paged.PageNumber - 1) * paged.PageSize, paged.PageSize)
                         .ProjectTo<ReportMedicalReviewerDto>(_mapper.ConfigurationProvider)
                         .ToListAsync();
+
+
+        Console.WriteLine("=======================AQUI ESTAMOS2=======================");
 
 
         return new PagedResultDto<ReportMedicalReviewerDto>
