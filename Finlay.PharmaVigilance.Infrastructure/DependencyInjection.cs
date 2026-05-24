@@ -141,6 +141,7 @@ public static class DependencyInjection
         services.AddScoped<IVaccinationCenterRepository, VaccinationCenterRepository>();
         services.AddScoped<ILotRepository, LotRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
+        services.AddScoped<IMedicalAssignmentRepository, MedicalAssignmentRepository>();
 
 
         return services;
