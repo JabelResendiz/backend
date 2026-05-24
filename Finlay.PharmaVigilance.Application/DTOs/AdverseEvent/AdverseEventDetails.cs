@@ -15,6 +15,7 @@ public class AdverseEventDetailDto
     public required bool ResultedInDeath { get; set; }
     public DateTime? DeathDate { get; set; }
     public required PatientStatus CurrentStatus { get; set; }
+    public required Intensity Intensity { get; set; }
     public required GetSymptomDto Symptom { get; set; }
 }
 

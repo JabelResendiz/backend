@@ -17,18 +17,24 @@ public class MunicipalDashboardService : IMunicipalDashboardService
     private readonly ILogger<MunicipalDashboardService> _logger;
     private readonly IUserContextService _userContextService;
     private readonly IMedicalAssignmentRepository _assignmentRepository;
+    private readonly IVaccinationRepository _vaccinationRepository;
+    private readonly IAdverseEventRepository _adverseEventRepository;
 
     public MunicipalDashboardService(
         IUnitOfWork unitOfWork,
         ILogger<MunicipalDashboardService> logger,
         IUserContextService userContextService,
-        IMedicalAssignmentRepository assignmentRepository
+        IMedicalAssignmentRepository assignmentRepository,
+        IVaccinationRepository vaccinationRepository,
+        IAdverseEventRepository adverseEventRepository
     )
     {
         _unitOfWork = unitOfWork;
         _logger = logger;
         _userContextService = userContextService;
         _assignmentRepository = assignmentRepository;
+        _vaccinationRepository = vaccinationRepository;
+        _adverseEventRepository = adverseEventRepository;
     }
     public async Task<MunicipalDashboardOverviewDto> GetOverviewAsync()
     {
@@ -262,6 +268,28 @@ public class MunicipalDashboardService : IMunicipalDashboardService
 
 
     }
+
+
+
+
+
+    // public async Task<SectionResponsibleMunicipalDashboardDto> GetDashboardAsync(DashboardFilterDto filter)
+    // {
+    //     var user = _userContextService.GetUserId();
+
+    //     var sectionResponsible = await _unitOfWork.GetRepository<SectionResponsible>()
+    //                             .FirstOrDefaultAsync(sr => sr.UserId == user)
+    //                             ?? throw new Exception("Section Responsible not found for the current user.");
+
+    //     var municipalityId = sectionResponsible.MunicipalityId;
+
+    //     var vaccineData = _vaccinationRepository.GetVaccineByFilter(municipalityId);
+
+    //     var symptomData = _adverseEventRepository.GetSymptomFilter(municipalityId);
+
+    //     var ditributionData = _adverseEventRepository.GetSeverityDistribution(municipalityId);
+
+    // }
 
     public async Task<SectionResponsibleMunicipalDashboardDto> GetDashboardAsync(DashboardFilterDto filter)
     {

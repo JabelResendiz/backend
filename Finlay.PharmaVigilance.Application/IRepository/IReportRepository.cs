@@ -21,4 +21,6 @@ public interface IReportRepository : IGenericRepository<AefiReport>
         IQueryable<AefiReport> query,
         ReportMedicalReviewerFilter filter);
 
+
+
 }

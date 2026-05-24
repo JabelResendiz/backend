@@ -4,6 +4,7 @@ using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.IRepository;
 using Finlay.PharmaVigilance.Domain.Entities;
 using Finlay.PharmaVigilance.Domain.Enum;
+using Microsoft.EntityFrameworkCore;
 
 namespace Finlay.PharmaVigilance.Infrastructure.Repository;
 
@@ -171,4 +172,29 @@ public class ReportRepository : GenericRepository<AefiReport>, IReportRepository
         return query;
 
     }
+
+
+    // public async IQueryable<AefiReport> GetVaccineByRepository()
+    // {
+    //     /*
+
+
+    //     SELECT 
+    //         v.Name,
+    //         COUNT(DISTINCT ar.Id) AS cantidad
+    //     FROM aefireport ar
+    //     INNER JOIN vaccinations vac
+    //         ON ar.Id = vac.AefiReportId
+    //     INNER JOIN lots l
+    //         ON l.Id = vac.LotId
+    //     INNER JOIN vaccines v
+    //         ON l.VaccineId = v.Id
+    //     GROUP BY v.Name;
+
+    //     */
+
+
+
+
+    // }
 }

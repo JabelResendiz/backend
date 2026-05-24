@@ -155,7 +155,17 @@ public class AutomapperProfile : Profile
             )
         );
 
-        CreateMap<AefiReport, ReportMedicalReviewerDto>();
+        CreateMap<AefiReport, ReportMedicalReviewerDto>()
+            .ForMember(
+                dest => dest.AssignedDate,
+                opt => opt.MapFrom(src =>
+                    src.MedicalReviewAssignments
+                        .OrderByDescending(mra => mra.AssignedAt)
+                        .Select(mra => mra.AssignedAt)
+                        .FirstOrDefault()
+                    )
+            );
+
         CreateMap<AefiReport, ReportUserDto>();
 
         CreateMap<AefiReport, ReportPdfDto>();
