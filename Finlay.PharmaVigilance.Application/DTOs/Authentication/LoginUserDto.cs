@@ -16,7 +16,7 @@ public class LoginUserDto
     [MinLength(6, ErrorMessage = "Password must be at least 6 characters long.")]
     public string Password { get; set; } = string.Empty;
 
-    [Required(ErrorMessage = "Captcha Token information is required.")]
-    public string Token { get; set; } = string.Empty;
+    // [Required(ErrorMessage = "Captcha Token information is required.")]
+    // public string Token { get; set; } = string.Empty;
 
 }
