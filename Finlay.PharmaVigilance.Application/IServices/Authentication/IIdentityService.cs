@@ -32,5 +32,7 @@ public interface IIdentityService
 
     Task LogoutAsync(string refreshToken);
 
+    Task CompleteRegistrationAsync(
+        CompleteRegistrationDto dto);
 
 }

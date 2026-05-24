@@ -1,3 +1,4 @@
+using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.DTO.Authentication;
 using Finlay.PharmaVigilance.Application.IServices;
 using Finlay.PharmaVigilance.Application.IServices.Authentication;
@@ -76,6 +77,16 @@ public class AuthenticationController : ControllerBase
             message = result,
             success = true
         });
+    }
+
+    [HttpPost("complete-registration")]
+    public async Task<IActionResult> Create(
+        CompleteRegistrationDto dto
+    )
+    {
+        await _identityService.CompleteRegistrationAsync(dto);
+
+        return Ok();
     }
 
 

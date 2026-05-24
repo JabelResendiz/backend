@@ -1,4 +1,5 @@
 
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 using AutoMapper;
 using Finlay.PharmaVigilance.Application.Authentication;
@@ -189,4 +190,32 @@ public class IdentityService : IIdentityService
     }
 
 
+    public async Task CompleteRegistrationAsync(
+        CompleteRegistrationDto dto)
+    {
+        var user = await _identityManager
+                    .FindByEmailAsync(dto.Email)
+                    ?? throw new Exception("User not found");
+
+        var medicalReviewer = await _unitOfWork
+            .GetRepository<MedicalReviewer>()
+            .FirstOrDefaultAsync(
+                mr => mr.UserId == user.Id)
+            ?? throw new Exception("Medical reviewer not found");
+
+        if (medicalReviewer.ProfessionalLicense != dto.ProfessionalNumber)
+            throw new Exception("Professional number is invalid");
+
+        var result = await _identityManager.ResetPassword(user, dto.Token, dto.Password);
+
+        if (!result.Succeeded)
+            throw new Exception("Invalid token");
+
+        user.EmailConfirmed = true;
+
+        await _identityManager.UpdateUser(user);
+
+        await _unitOfWork.CompleteAsync();
+
+    }
 }

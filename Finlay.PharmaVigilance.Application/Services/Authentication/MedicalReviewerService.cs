@@ -90,8 +90,11 @@ public class MedicalReviewerService : IMedicalReviewerService
 
             var user = _mapper.Map<User>(registerDto);
             user.UserRole = UserRole.MedicalReviewer.ToString();
+            user.EmailConfirmed = false;
 
             var createdUser = await _identityManager.CreateUserAsync(user, registerDto.Password);
+
+
             if (createdUser == null)
                 throw new InvalidOperationException("Failed to create user account.");
 
@@ -113,7 +116,8 @@ public class MedicalReviewerService : IMedicalReviewerService
             await _publishEndpoint.Publish(new MedicalReviewerRegisteredEvent
             {
                 Email = createdUser.Email!,
-                FullName = createdUser.UserName!
+                FullName = createdUser.UserName!,
+                Token = await _identityManager.GeneratePasswordResetToken(user)
             });
 
             return "Medical Reviewer successfully registered";

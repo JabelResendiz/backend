@@ -1,5 +1,6 @@
 
 using Finlay.PharmaVigilance.Domain.Entities;
+using Microsoft.AspNetCore.Identity;
 
 namespace Finlay.PharmaVigilance.Application.Authentication;
 
@@ -45,4 +46,10 @@ public interface IIdentityManager
     /// <returns></returns>
     Task AddRoles(string userId, string role);
 
+    Task<string> GeneratePasswordResetToken(User user);
+
+    Task<User?> FindByEmailAsync(string email);
+    Task UpdateUser(User user);
+
+    Task<IdentityResult> ResetPassword(User user, string token, string password);
 }

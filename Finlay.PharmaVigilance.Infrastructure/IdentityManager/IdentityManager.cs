@@ -74,4 +74,32 @@ public class IdentityManager : IIdentityManager
     }
 
 
+    public async Task<string> GeneratePasswordResetToken(User user)
+    {
+        return await _userManager.GeneratePasswordResetTokenAsync(user);
+    }
+
+    public async Task<User?> FindByEmailAsync(string email)
+    {
+        return await _userManager.FindByEmailAsync(email);
+    }
+
+    public async Task<IdentityResult> ResetPassword(User user, string token, string password)
+    {
+        var result = await _userManager
+                        .ResetPasswordAsync(
+                                user,
+                                token, password
+                        );
+
+        return result;
+    }
+
+
+    public async Task UpdateUser(User user)
+    {
+        await _userManager.UpdateAsync(user);
+    }
+
+
 }
