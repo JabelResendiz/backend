@@ -113,12 +113,12 @@ public class MedicalReviewerService : IMedicalReviewerService
             await _unitOfWork.GetRepository<MedicalReviewer>().CreateAsync(medicalReviewer);
             await _unitOfWork.CompleteAsync();
 
-            // await _publishEndpoint.Publish(new MedicalReviewerRegisteredEvent
-            // {
-            //     Email = createdUser.Email!,
-            //     FullName = createdUser.UserName!,
-            //     Token = await _identityManager.GeneratePasswordResetToken(user)
-            // });
+            await _publishEndpoint.Publish(new MedicalReviewerRegisteredEvent
+            {
+                Email = createdUser.Email!,
+                FullName = createdUser.UserName!,
+                Token = await _identityManager.GeneratePasswordResetToken(user)
+            });
 
             return "Medical Reviewer successfully registered";
         }

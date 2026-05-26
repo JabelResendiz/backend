@@ -1,4 +1,6 @@
+using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.IServices;
+using Finlay.PharmaVigilance.Domain.Enum;
 using Finlay.PharmaVigilance.Domain.Events;
 using MassTransit;
 
@@ -18,25 +20,19 @@ public class MedicalReviewerConsumer : IConsumer<MedicalReviewerRegisteredEvent>
     {
         var data = context.Message;
 
-        // await _emailService.SendEmailAsync(
-        //     data.Email,
-        //     "Welcome",
-        //     $"Hola {data.Email}, bienvenido"
-        // );
-
-        var token = data.Token;
-
-        Console.WriteLine(token);
-
         var url =
-            $"https://frontend-five-sepia-10.vercel.app/activate-account" +
+            $"http://localhost:5173/activate-account" +
             $"?email={data.Email}" +
-            $"&token={Uri.EscapeDataString(token)}";
+            $"&token={Uri.EscapeDataString(data.Token)}";
 
         await _emailService.SendEmailAsync(
             data.Email!,
-            "Activación de cuenta",
-            $"Active su cuenta aquí: {url}"
+            EmailTemplateType.ActivateAccount,
+            new ActivateAccountTemplate
+            {
+                FullName = data.FullName,
+                ActivationUrl = url
+            }
         );
 
     }

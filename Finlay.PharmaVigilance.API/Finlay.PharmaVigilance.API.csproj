@@ -24,4 +24,10 @@
     <ProjectReference Include="..\Finlay.PharmaVigilance.Infrastructure\Finlay.PharmaVigilance.Infrastructure.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="logo.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>

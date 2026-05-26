@@ -1,6 +1,8 @@
 using Finlay.PharmaVigilance.Domain.Events;
 using Finlay.PharmaVigilance.Application.IServices;
 using MassTransit;
+using Finlay.PharmaVigilance.Domain.Enum;
+using Finlay.PharmaVigilance.Application.DTO;
 
 namespace Finlay.PharmaVigilance.Infrastructure.Consumers;
 
@@ -19,7 +21,11 @@ public class AssignmentExpiredConsumer : IConsumer<AssignmentExpiredEvent>
 
         await _emailService.SendEmailAsync(
             data.SectionResponsibleEmail,
-            "Asignación expirada",
-            $"El reporte {data.ReportId} ha expirado y ha sido reabierto.");
+            EmailTemplateType.AssignmentExpired,
+            new AssignmentExpiredTemplate
+            {
+                ReportId = data.ReportId
+            }
+        );
     }
 }

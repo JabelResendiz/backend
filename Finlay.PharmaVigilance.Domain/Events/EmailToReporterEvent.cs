@@ -8,8 +8,3 @@ public class EmailToReporterEvent
 }
 
 
-public class EmailToSectionResponsibleEvent
-{
-    public string ReportNumber { get; set; } = null!;
-    public string SectionResponsibleEmail { get; set; } = null!;
-}

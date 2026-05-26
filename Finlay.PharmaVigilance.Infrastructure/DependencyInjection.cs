@@ -19,6 +19,7 @@ using Finlay.PharmaVigilance.Infrastructure.Email;
 using Finlay.PharmaVigilance.Infrastructure.Consumers;
 using MassTransit;
 using Finlay.PharmaVigilance.Infrastructure.BackgroundServices;
+using Finlay.PharmaVigilance.Infrastructure.Settings;
 
 
 
@@ -86,21 +87,18 @@ public static class DependencyInjection
     };
 });
 
-        // // Add custom repositories and services       
-        // services.AddScoped<IUnitOfWork, UnitOfWork>();
-        // //services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-        // services.AddScoped<IUserRepository, UserRepository>();
-        // services.AddScoped<IIdentityManager, IdentityManager>();
-
-        // //DISABLED: Roles are now initialized in Program.cs after migrations
-        // services.AddHostedService<RoleInitializer>();
-
+        services.Configure<EmailJsSettings>(
+    configuration.GetSection("Email:EmailJS")
+);
 
         // Add custom repositories and services       
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         //services.AddScoped<IEmployeeRepository, EmployeeRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
-        services.AddSingleton<IEmailService, SmtpEmailService>();
+
+
+        //services.AddSingleton<IEmailService, SmtpEmailService>();
+        services.AddHttpClient<IEmailService, EmailJsService>();
 
         // MassTransit with RabbitMQ Configuration
         var rabbitMqUrl = configuration["RABBITMQ_URL"] ?? "amqp://guest:guest@localhost:5672";
@@ -108,7 +106,7 @@ public static class DependencyInjection
         {
             x.AddConsumer<MedicalReviewerConsumer>();
             x.AddConsumer<AssignmentExpiredConsumer>();
-
+            x.AddConsumer<ReportConfirmationConsumer>();
 
             x.UsingRabbitMq((context, cfg) =>
             {
