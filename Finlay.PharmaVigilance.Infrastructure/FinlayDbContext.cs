@@ -225,6 +225,9 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
                                 .IsRequired()
                                 .HasMaxLength(20);
 
+                                // Age es propiedad calculada, no se guarda en BD
+                                id.Ignore(v => v.Age);
+
                                 id.HasIndex(p => p.Value)
                                 .IsUnique();
                         });

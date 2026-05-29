@@ -218,6 +218,7 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
 
         var items = await _reportRepository
                     .GetPaged(query, (paged.PageNumber - 1) * paged.PageSize, paged.PageSize)
+                    .AsNoTracking()
                     .ProjectTo<ReportSummaryAdminDto>(_mapper.ConfigurationProvider)
                     .ToListAsync();
 

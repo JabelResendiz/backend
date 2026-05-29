@@ -84,7 +84,8 @@ public class AutomapperProfile : Profile
 
         CreateMap<VaccinatedSubject, VaccinatedSubjectAdminDto>()
             .ForMember(dest => dest.ProvinceName, opt => opt.MapFrom(src => src.Province.Name))
-            .ForMember(dest => dest.MunicipalityName, opt => opt.MapFrom(src => src.Municipality.Name));
+            .ForMember(dest => dest.MunicipalityName, opt => opt.MapFrom(src => src.Municipality.Name))
+            .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.IdentityNumber.Age));
 
 
         // AdverseEvent

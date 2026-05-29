@@ -7,6 +7,8 @@ using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
 using Finlay.PharmaVigilance.Application.Helpers;
 using Finlay.PharmaVigilance.Domain.Entities;
 using Finlay.PharmaVigilance.Domain.Enum;
+using MassTransit;
+using Finlay.PharmaVigilance.Domain.Events;
 
 namespace Finlay.PharmaVigilance.Application.Services;
 
@@ -15,18 +17,19 @@ public class MedicalReviewAssignmentCommandService : IMedicalReviewAssignmentCom
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IUserContextService _userContextService;
-    //private readonly IEmailAppService _emailAppService;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public MedicalReviewAssignmentCommandService(
         IUnitOfWork unitOfWork,
         IMapper mapper,
-        IUserContextService userContextService
+        IUserContextService userContextService,
+        IPublishEndpoint publishEndpoint
     )
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork)); ;
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper)); ;
         _userContextService = userContextService ?? throw new ArgumentNullException(nameof(userContextService));
-        //_emailAppService = emailAppService ?? throw new ArgumentNullException(nameof(emailAppService));
+        _publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
     }
 
     public async Task<MedicalReviewAssignmentDTO> CreateAsync(MedicalReviewAssignmentDTO dto)
@@ -79,9 +82,6 @@ public class MedicalReviewAssignmentCommandService : IMedicalReviewAssignmentCom
             throw new ArgumentException("Assigned At date cannot be in the future. It must be less than or equal to the current date (Eastern Time UTC-5).",
                             nameof(dto.AssignedAt));
 
-        Console.WriteLine($"========================dto.AssignedAt : {dto.AssignedAt}=======================");
-        Console.WriteLine($"========================report.ReportDate : {report.ReportDate}=======================");
-
         if (dto.AssignedAt < report.ReportDate)
             throw new ArgumentException("Assigned At date cannot be before the report creation date.",
                             nameof(dto.AssignedAt));
@@ -99,7 +99,13 @@ public class MedicalReviewAssignmentCommandService : IMedicalReviewAssignmentCom
         await _unitOfWork.GetRepository<MedicalReviewAssignment>().CreateAsync(medicalReviewAssignment);
         await _unitOfWork.CompleteAsync();
 
-        //await _emailAppService.SendEmailToMedicalReviewerAsync(medicalReviewer);
+        await _publishEndpoint.Publish(new NewAssignmentEvent
+        {
+            MedicalReviewerName = medicalReviewer.User.UserName!,
+            MedicalReviewerEmail = medicalReviewer.User.Email!,
+            ReportNumber = report.NotificationNumber
+        });
+
 
         return dto;
     }

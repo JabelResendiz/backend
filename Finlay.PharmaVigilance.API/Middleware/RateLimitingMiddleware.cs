@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.RateLimiting;
+using System.Security.Claims;
 using System.Threading.RateLimiting;
 
 namespace Finlay.PharmaVigilance.Api.Middleware;
@@ -57,7 +58,7 @@ public static class RateLimitingMiddleware
             // Autenticación: muy restrictivo (5 req/min)
             options.AddFixedWindowLimiter("Auth", config =>
             {
-                config.PermitLimit = 500000;
+                config.PermitLimit = 5000000;
                 config.Window = TimeSpan.FromMinutes(1);
                 config.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
                 config.QueueLimit = 0;
@@ -75,11 +76,21 @@ public static class RateLimitingMiddleware
             // Consultas generales: más permisivo (100 req/min)
             options.AddSlidingWindowLimiter("GeneralQuery", config =>
             {
-                config.PermitLimit = 1000000;
+                config.PermitLimit = 10000000;
                 config.Window = TimeSpan.FromMinutes(1);
                 config.SegmentsPerWindow = 3;
                 config.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
                 config.QueueLimit = 10;
+            });
+
+            // Comandos con límite diario (ej: completar revisiones médicas)
+            options.AddSlidingWindowLimiter("CommandDaily", config =>
+            {
+                config.PermitLimit = 50;
+                config.Window = TimeSpan.FromDays(1);
+                config.SegmentsPerWindow = 24;
+                config.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+                config.QueueLimit = 0;
             });
 
             // ==========================================
@@ -88,13 +99,15 @@ public static class RateLimitingMiddleware
             options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(
                 httpContext =>
                 {
-                    var ipAddress = GetClientIp(httpContext);
+                    // Usar ID de usuario si está autenticado, IP si es anónimo
+                    var userId = httpContext.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                    var partitionKey = userId ?? GetClientIp(httpContext);
 
                     return RateLimitPartition.GetFixedWindowLimiter(
-                        partitionKey: ipAddress,
+                        partitionKey: partitionKey,
                         factory: _ => new FixedWindowRateLimiterOptions
                         {
-                            PermitLimit = 10000000,
+                            PermitLimit = userId != null ? 200 : 100, // Más permisivo para autenticados
                             Window = TimeSpan.FromMinutes(1),
                             QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                             QueueLimit = 0
