@@ -69,7 +69,8 @@ public class AutomapperProfile : Profile
             .ForMember(dest => dest.VaccinationCenterName, opt => opt.MapFrom(src => src.VaccinationCenter.Name));
 
         CreateMap<Vaccination, VaccinationPdfDto>()
-            .ForMember(dest => dest.VaccineName, opt => opt.MapFrom(src => src.Lot.Vaccine.Name));
+            .ForMember(dest => dest.VaccineName, opt => opt.MapFrom(src => src.Lot.Vaccine.Name))
+            .ForMember(dest => dest.LotNumber, opt => opt.MapFrom(src => src.Lot.LotNumber));
 
 
         CreateMap<VaccinationCenterDto, VaccinationCenter>();
@@ -80,7 +81,10 @@ public class AutomapperProfile : Profile
         CreateMap<VaccinatedSubject, VaccinatedSubjectDetailsDto>();
         CreateMap<VaccinatedSubject, VaccinatedSubjectSummaryDto>();
 
-        CreateMap<VaccinatedSubject, VaccinatedSubjectPdfDto>();
+        CreateMap<VaccinatedSubject, VaccinatedSubjectPdfDto>()
+            .ForMember(dest => dest.ProvinceName, opt => opt.MapFrom(src => src.Province.Name))
+            .ForMember(dest => dest.MunicipalityName, opt => opt.MapFrom(src => src.Municipality.Name))
+            .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.IdentityNumber.Age));
 
         CreateMap<VaccinatedSubject, VaccinatedSubjectAdminDto>()
             .ForMember(dest => dest.ProvinceName, opt => opt.MapFrom(src => src.Province.Name))
@@ -103,7 +107,8 @@ public class AutomapperProfile : Profile
 
         CreateMap<AdverseEvent, AdverseEventSummaryDto>();
 
-        CreateMap<AdverseEvent, AdverseEventPdfDto>();
+        CreateMap<AdverseEvent, AdverseEventPdfDto>()
+            .ForMember(dest => dest.SymptomName, opt => opt.MapFrom(src => src.Symptom.Name));
 
 
         CreateMap<AdverseEvent, AdverseEventAdminDto>()
@@ -126,7 +131,9 @@ public class AutomapperProfile : Profile
         CreateMap<Reporter, ReporterDetailsDto>();
         CreateMap<Reporter, ReporterSummaryDto>();
 
-        CreateMap<Reporter, ReporterPdfDto>();
+        CreateMap<Reporter, ReporterPdfDto>()
+            .ForMember(dest => dest.ProvinceName, opt => opt.MapFrom(src => src.Province.Name))
+            .ForMember(dest => dest.MunicipalityName, opt => opt.MapFrom(src => src.Municipality.Name));
 
         CreateMap<Reporter, ReporterAdminDto>();
 
@@ -169,7 +176,13 @@ public class AutomapperProfile : Profile
 
         CreateMap<AefiReport, ReportUserDto>();
 
-        CreateMap<AefiReport, ReportPdfDto>();
+        CreateMap<AefiReport, ReportPdfDto>()
+            .ForMember(dest => dest.GlobalSeverityLevel,
+                opt => opt.MapFrom(src =>
+                    src.AdverseEvents
+                        .OrderByDescending(a => a.SeverityLevel)
+                        .Select(a => a.SeverityLevel)
+                        .FirstOrDefault()));
 
         CreateMap<AefiReport, ReportSummaryAdminDto>()
             .ForMember(
@@ -222,5 +235,7 @@ public class AutomapperProfile : Profile
             .ForMember(dest => dest.MedicalReviewerName, opt => opt.MapFrom(src => src.MedicalReviewer.User.UserName))
             .ForMember(dest => dest.SectionResponsibleName, opt => opt.MapFrom(src => src.SectionResponsible.User.UserName));
 
+
+        CreateMap<AuditLogDto, AuditLog>();
     }
 }

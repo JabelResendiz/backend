@@ -12,8 +12,10 @@ public class SectionResponsibleMunicipalDashboardDto
     public int TotalDeaths { get; set; }
     public int TotalVisitedDoctor { get; set; }
     public int TotalEmergencyRoom { get; set; }
+    public int TotalWasHospitalized { get; set; }
+    public int TotalAnomaly { get; set; }
+    public int TotalNoComplications { get; set; }
     public int TotalPermanentDisability { get; set; }
-    public int TotalLifeThreatening { get; set; }
 
     //public IEnumerable<VaccinationCenterStatsDto> VaccinationCenters { get; set; } = [];
 }
@@ -50,3 +52,14 @@ public class ReportsTimelineDto
     public int TotalReports { get; set; }
 }
 
+
+public class SeriousDataDto
+{
+    public int VisitedDoctor { get; set; }
+    public int WentToEmergencyRoom { get; set; }
+    public int PermanentDisability { get; set; }
+    public int Anomaly { get; set; }
+    public int WasHospitalized { get; set; }
+    public int ResultedInDeath { get; set; }
+    public int NoComplications { get; set; }
+}

@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Reporte de Farmacovigilancia - Usuario</title>
+    <style>
+        @page {
+            size: A4;
+            margin: 1.5cm;
+        }
+
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            font-size: 10pt;
+            line-height: 1.4;
+            color: #333333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .bg-ifvblue {
+            background-color: #1D3A83;
+        }
+
+        .text-white {
+            color: #ffffff;
+        }
+
+        .header-box {
+            padding: 15px 20px;
+            border-radius: 8px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header-title h1 {
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 0 0 5px 0;
+        }
+
+        .header-title p {
+            font-size: 9pt;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        .header-logo {
+            text-align: right;
+        }
+
+        .header-logo img {
+            height: 1.2cm;
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .header-logo p {
+            font-size: 9pt;
+            margin: 0;
+            opacity: 0.9;
+        }
+
+        h2 {
+            font-size: 12pt;
+            color: #1D3A83;
+            border-bottom: 1px solid #1D3A83;
+            padding-bottom: 3px;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .data-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px 20px;
+            margin-bottom: 15px;
+        }
+
+        .data-field {
+            font-weight: bold;
+            font-size: 9pt;
+            color: #000000;
+            display: block;
+            margin-bottom: 2px;
+        }
+
+        .data-value {
+            font-size: 10pt;
+        }
+
+        .text-block {
+            margin-bottom: 15px;
+        }
+
+        .text-block .data-value {
+            margin-top: 4px;
+            text-align: justify;
+        }
+
+        .footer {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            font-size: 9pt;
+            color: #666666;
+        }
+
+        .footer hrule {
+            border: none;
+            border-top: 1px solid #cccccc;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="header-box bg-ifvblue text-white">
+        <div class="header-title">
+            <h1>REPORTE DE FARMACOVIGILANCIA</h1>
+            <p>Resumen de reporte para usuario</p>
+        </div>
+        <div class="header-logo">
+            <!-- El logo se carga desde logo.png y se convierte a Base64 en PdfService si está disponible -->
+            <img src="logo.png" alt="Logo">
+            <p>Fecha: {{REPORT-DATE}}</p>
+        </div>
+    </div>
+    <h2>Información General</h2>
+    <div class="data-grid">
+        <div><span class="data-field">Número de Notificación</span>
+            <div class="data-value">{{NOTIFICATION-NUMBER}}</div>
+        </div>
+        <div><span class="data-field">Estado</span>
+            <div class="data-value">{{STATUS}}</div>
+        </div>
+        <div><span class="data-field">Severidad Global</span>
+            <div class="data-value">{{SEVERITY}}</div>
+        </div>
+    </div>
+    <h2>Paciente</h2>
+    <div class="data-grid">
+        <div><span class="data-field">Nombre</span>
+            <div class="data-value">{{PATIENT-NAME}}</div>
+        </div>
+        <div><span class="data-field">Edad</span>
+            <div class="data-value">{{AGE}}</div>
+        </div>
+        <div><span class="data-field">Sexo</span>
+            <div class="data-value">{{GENDER}}</div>
+        </div>
+        <div><span class="data-field">Provincia</span>
+            <div class="data-value">{{PROVINCE}}</div>
+        </div>
+        <div><span class="data-field">Municipio</span>
+            <div class="data-value">{{PATIENT-MUNICIPALITY}}</div>
+        </div>
+        <div><span class="data-field">Embarazada</span>
+            <div class="data-value">{{PREGNANT}}</div>
+        </div>
+    </div>
+
+    <h2>Reportante</h2>
+    <div class="data-grid">
+        <div><span class="data-field">Nombre</span>
+            <div class="data-value">{{REPORTER-NAME}}</div>
+        </div>
+        <div><span class="data-field">Relación</span>
+            <div class="data-value">{{REPORTER-RELATIONSHIP}}</div>
+        </div>
+        <div><span class="data-field">Provincia</span>
+            <div class="data-value">{{REPORTER-PROVINCE}}</div>
+        </div>
+        <div><span class="data-field">Municipio</span>
+            <div class="data-value">{{REPORTER-MUNICIPALITY}}</div>
+        </div>
+    </div>
+
+    <div class="text-block"><span class="data-field">Antecedentes Médicos</span>
+        <div class="data-value">{{MEDICAL-HISTORY}}</div>
+    </div>
+    <div class="text-block"><span class="data-field">Medicamentos</span>
+        <div class="data-value">{{MEDICATIONS}}</div>
+    </div>
+    <div class="text-block"><span class="data-field">Alergias</span>
+        <div class="data-value">{{ALLERGIES}}</div>
+    </div>
+    <h2>Vacunaciones</h2>
+    <div class="text-block">
+        <div class="data-value">{{VACCINATIONS}}</div>
+    </div>
+    <h2>Eventos Adversos</h2>
+    <div class="text-block">
+        <div class="data-value">{{ADVERSE-EVENTS}}</div>
+    </div>
+    <h2>Revisión Clínica</h2>
+    <div class="data-grid">
+        <div><span class="data-field">Causalidad</span>
+            <div class="data-value">{{CAUSALITY}}</div>
+        </div>
+        <div><span class="data-field">Significado Clínico</span>
+            <div class="data-value">{{CLINICAL-SIGNIFICANCE}}</div>
+        </div>
+        <div><span class="data-field">Fecha de Revisión</span>
+            <div class="data-value">{{REVIEWED-AT}}</div>
+        </div>
+    </div>
+    <div class="footer">
+        <div style="border-top: 1px solid #cccccc; margin-bottom: 5px;"></div><span>Documento generado automáticamente -
+            Instituto Finlay de Vacunas</span>
+    </div>
+</body>
+
+</html>

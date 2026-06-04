@@ -1,5 +1,6 @@
 using AutoMapper;
 using Finlay.PharmaVigilance.Application.Authentication;
+using Finlay.PharmaVigilance.Application.Common.EventBus;
 using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.DTO.Authentication;
 using Finlay.PharmaVigilance.Application.IRepository;
@@ -10,7 +11,6 @@ using Finlay.PharmaVigilance.Application.Validators;
 using Finlay.PharmaVigilance.Domain.Entities;
 using Finlay.PharmaVigilance.Domain.Enum;
 using Finlay.PharmaVigilance.Domain.Events;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -28,10 +28,7 @@ public class MedicalReviewerService : IMedicalReviewerService
     private readonly IMedicalReviewerRepository _medical;
     private readonly IEnumerable<IReportValidator<RegisterMedicalReviewerDto>> _validators;
     private readonly ILogger<MedicalReviewerService> _logger;
-
-    // private readonly IEventBus _eventBus;
-
-    private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IEventBus _eventBus;
 
     /// <summary>
     /// Initializes a new instance of the MedicalReviewerService class.
@@ -42,7 +39,7 @@ public class MedicalReviewerService : IMedicalReviewerService
         IMapper mapper,
         IUserContextService userContextService,
         IMedicalReviewerRepository medical,
-        IPublishEndpoint publishEndpoint,
+        IEventBus eventBus,
         IEnumerable<IReportValidator<RegisterMedicalReviewerDto>> validators,
         ILogger<MedicalReviewerService> logger)
     {
@@ -54,7 +51,7 @@ public class MedicalReviewerService : IMedicalReviewerService
         _medical = medical ?? throw new ArgumentNullException(nameof(medical)); ;
         _validators = validators ?? throw new ArgumentNullException(nameof(validators));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+        _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
     }
 
     /// <summary>
@@ -113,7 +110,7 @@ public class MedicalReviewerService : IMedicalReviewerService
             await _unitOfWork.GetRepository<MedicalReviewer>().CreateAsync(medicalReviewer);
             await _unitOfWork.CompleteAsync();
 
-            await _publishEndpoint.Publish(new MedicalReviewerRegisteredEvent
+            await _eventBus.PublishAsync(new MedicalReviewerRegisteredEvent
             {
                 Email = createdUser.Email!,
                 FullName = createdUser.UserName!,

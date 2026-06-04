@@ -273,26 +273,26 @@ public class MunicipalDashboardService : IMunicipalDashboardService
 
 
 
-    // public async Task<SectionResponsibleMunicipalDashboardDto> GetDashboardAsync(DashboardFilterDto filter)
-    // {
-    //     var user = _userContextService.GetUserId();
-
-    //     var sectionResponsible = await _unitOfWork.GetRepository<SectionResponsible>()
-    //                             .FirstOrDefaultAsync(sr => sr.UserId == user)
-    //                             ?? throw new Exception("Section Responsible not found for the current user.");
-
-    //     var municipalityId = sectionResponsible.MunicipalityId;
-
-    //     var vaccineData = _vaccinationRepository.GetVaccineByFilter(municipalityId);
-
-    //     var symptomData = _adverseEventRepository.GetSymptomFilter(municipalityId);
-
-    //     var ditributionData = _adverseEventRepository.GetSeverityDistribution(municipalityId);
-
-    // }
-
     public async Task<SectionResponsibleMunicipalDashboardDto> GetDashboardAsync(DashboardFilterDto filter)
     {
+        var user = _userContextService.GetUserId();
+
+        var sectionResponsible = await _unitOfWork.GetRepository<SectionResponsible>()
+                                .FirstOrDefaultAsync(sr => sr.UserId == user)
+                                ?? throw new Exception("Section Responsible not found for the current user.");
+
+        var municipalityId = sectionResponsible.MunicipalityId;
+
+        var vaccineData = await _vaccinationRepository.GetVaccineByFilter(municipalityId);
+
+        var symptomData = await _adverseEventRepository.GetSymptomFilter(municipalityId);
+
+        var distributionData = await _adverseEventRepository.GetSeverityDistribution(municipalityId);
+
+        var seriousData = await _adverseEventRepository.GetSeriousDataAsync(municipalityId);
+
+
+
         var timeline = filter.Period switch
         {
             "7d" => new List<ReportsTimelineDto>
@@ -307,94 +307,150 @@ public class MunicipalDashboardService : IMunicipalDashboardService
         },
 
             "1m" => new List<ReportsTimelineDto>
-        {
-            new() { Label = "Semana 1", TotalReports = 15 },
-            new() { Label = "Semana 2", TotalReports = 21 },
-            new() { Label = "Semana 3", TotalReports = 18 },
-            new() { Label = "Semana 4", TotalReports = 25 },
-        },
+            {
+                new() { Label = "Semana 1", TotalReports = 15 },
+                new() { Label = "Semana 2", TotalReports = 21 },
+                new() { Label = "Semana 3", TotalReports = 18 },
+                new() { Label = "Semana 4", TotalReports = 25 },
+            },
 
             _ => new List<ReportsTimelineDto>
-        {
-            new() { Label = "Ene", TotalReports = 40 },
-            new() { Label = "Feb", TotalReports = 55 },
-            new() { Label = "Mar", TotalReports = 61 },
-            new() { Label = "Abr", TotalReports = 47 },
-            new() { Label = "May", TotalReports = 70 },
-        }
+            {
+                new() { Label = "Ene", TotalReports = 40 },
+                new() { Label = "Feb", TotalReports = 55 },
+                new() { Label = "Mar", TotalReports = 61 },
+                new() { Label = "Abr", TotalReports = 47 },
+                new() { Label = "May", TotalReports = 70 },
+            }
         };
+
 
         return new SectionResponsibleMunicipalDashboardDto
         {
-            TopVaccines = new List<VaccineStatsDto>
-        {
-            new()
-            {
-                VaccineName = "Abdala",
-                TotalReports = 45
-            },
-            new()
-            {
-                VaccineName = "Soberana 02",
-                TotalReports = 33
-            },
-            new()
-            {
-                VaccineName = "Pfizer-BioNTech",
-                TotalReports = 25
-            },
-            new()
-            {
-                VaccineName = "Moderna",
-                TotalReports = 18
-            },
-        },
-
-            TopSymptoms = new List<SymptomStatsDto>
-        {
-            new()
-            {
-                SymptomName = "Fiebre",
-                TotalReports = 52
-            },
-            new()
-            {
-                SymptomName = "Dolor de cabeza",
-                TotalReports = 44
-            },
-            new()
-            {
-                SymptomName = "Fatiga",
-                TotalReports = 31
-            },
-            new()
-            {
-                SymptomName = "Mareos",
-                TotalReports = 16
-            },
-        },
-
-            SeverityDistribution = new List<SeverityDistributionDto>
-        {
-            new()
-            {
-                Severity = "Grave",
-                TotalReports = 18
-            },
-            new()
-            {
-                Severity = "Leve",
-                TotalReports = 102
-            },
-        },
-
-
+            TopVaccines = vaccineData,
+            TopSymptoms = symptomData,
+            SeverityDistribution = distributionData,
             ReportsTimeline = timeline,
-            TotalDeaths = 5,
-            TotalEmergencyRoom = 12,
-            TotalLifeThreatening = 3,
-            TotalPermanentDisability = 2,
-            TotalVisitedDoctor = 25
+            TotalDeaths = seriousData.ResultedInDeath,
+            TotalEmergencyRoom = seriousData.WentToEmergencyRoom,
+            TotalPermanentDisability = seriousData.PermanentDisability,
+            TotalWasHospitalized = seriousData.WasHospitalized,
+            TotalVisitedDoctor = seriousData.VisitedDoctor,
+            TotalAnomaly = seriousData.Anomaly,
+            TotalNoComplications = seriousData.NoComplications
         };
+
     }
+
+
+
+
+    // public async Task<SectionResponsibleMunicipalDashboardDto> GetDashboardAsync(DashboardFilterDto filter)
+    // {
+    //     var timeline = filter.Period switch
+    //     {
+    //         "7d" => new List<ReportsTimelineDto>
+    //     {
+    //         new() { Label = "Lun", TotalReports = 4 },
+    //         new() { Label = "Mar", TotalReports = 6 },
+    //         new() { Label = "Mié", TotalReports = 5 },
+    //         new() { Label = "Jue", TotalReports = 8 },
+    //         new() { Label = "Vie", TotalReports = 3 },
+    //         new() { Label = "Sáb", TotalReports = 2 },
+    //         new() { Label = "Dom", TotalReports = 1 },
+    //     },
+
+    //         "1m" => new List<ReportsTimelineDto>
+    //     {
+    //         new() { Label = "Semana 1", TotalReports = 15 },
+    //         new() { Label = "Semana 2", TotalReports = 21 },
+    //         new() { Label = "Semana 3", TotalReports = 18 },
+    //         new() { Label = "Semana 4", TotalReports = 25 },
+    //     },
+
+    //         _ => new List<ReportsTimelineDto>
+    //     {
+    //         new() { Label = "Ene", TotalReports = 40 },
+    //         new() { Label = "Feb", TotalReports = 55 },
+    //         new() { Label = "Mar", TotalReports = 61 },
+    //         new() { Label = "Abr", TotalReports = 47 },
+    //         new() { Label = "May", TotalReports = 70 },
+    //     }
+    //     };
+
+    //     return new SectionResponsibleMunicipalDashboardDto
+    //     {
+    //         TopVaccines = new List<VaccineStatsDto>
+    //     {
+    //         new()
+    //         {
+    //             VaccineName = "Soberana",
+    //             TotalReports = 45
+    //         },
+    //         new()
+    //         {
+    //             VaccineName = "VA-MENGOC-BC",
+    //             TotalReports = 33
+    //         },
+    //         new()
+    //         {
+    //             VaccineName = "PCV11",
+    //             TotalReports = 25
+    //         },
+    //         new()
+    //         {
+    //             VaccineName = "QuimiHib",
+    //             TotalReports = 18
+    //         },
+    //     },
+
+    //         TopSymptoms = new List<SymptomStatsDto>
+    //     {
+    //         new()
+    //         {
+    //             SymptomName = "Fiebre",
+    //             TotalReports = 52
+    //         },
+    //         new()
+    //         {
+    //             SymptomName = "Dolor de cabeza",
+    //             TotalReports = 44
+    //         },
+    //         new()
+    //         {
+    //             SymptomName = "Fatiga",
+    //             TotalReports = 31
+    //         },
+    //         new()
+    //         {
+    //             SymptomName = "Mareos",
+    //             TotalReports = 16
+    //         },
+    //     },
+
+    //         SeverityDistribution = new List<SeverityDistributionDto>
+    //     {
+    //         new()
+    //         {
+    //             Severity = "Grave",
+    //             TotalReports = 18
+    //         },
+    //         new()
+    //         {
+    //             Severity = "Leve",
+    //             TotalReports = 102
+    //         },
+    //     },
+
+
+    //         ReportsTimeline = timeline,
+    //         TotalDeaths = 5,
+    //         TotalEmergencyRoom = 12,
+    //         TotalLifeThreatening = 3,
+    //         TotalPermanentDisability = 2,
+    //         TotalVisitedDoctor = 25
+    //     };
+    // }
+
+
 }

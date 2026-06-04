@@ -6,7 +6,9 @@ using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.IRepository;
 using Finlay.PharmaVigilance.Application.IServices;
 using Finlay.PharmaVigilance.Application.IServices.Common;
+using Finlay.PharmaVigilance.Application.IServices.Pdf;
 using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
+using Finlay.PharmaVigilance.Application.Enum;
 using Finlay.PharmaVigilance.Domain.Entities;
 using Finlay.PharmaVigilance.Domain.Enum;
 using Microsoft.EntityFrameworkCore;
@@ -25,16 +27,19 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
                         };
 
     private readonly IUserContextService _userContextService;
+    private readonly IPdfService _pdfService;
     private readonly IReportRepository _reportRepository;
 
     public ReportQueryService(IUnitOfWork unitOfWork,
         IMapper mapper,
         IUserContextService userContextService,
-        IReportRepository reportRepository)
+        IReportRepository reportRepository,
+        IPdfService pdfService)
         : base(unitOfWork, mapper)
     {
         _userContextService = userContextService;
         _reportRepository = reportRepository;
+        _pdfService = pdfService;
     }
 
     public override Expression<Func<AefiReport, object>>[] GetIncludes() => includes;
@@ -46,6 +51,7 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
 
         var report = await _unitOfWork.GetRepository<AefiReport>()
                         .GetAllByItems(ar => ar.NotificationNumber == notificationNumber)
+                        .AsNoTracking()
                         .ProjectTo<ReportUserDto>(_mapper.ConfigurationProvider)
                         .FirstOrDefaultAsync() ?? throw new ArgumentNullException("Report not found");
 
@@ -76,6 +82,20 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
 
     }
 
+    public async Task<byte[]> GetReportPdfByNotificationNumber(string notificationNumber, ReportPdfTemplateType templateType)
+    {
+        if (string.IsNullOrWhiteSpace(notificationNumber))
+            throw new ArgumentNullException(nameof(notificationNumber), "Notification number is required.");
+
+        var report = await _unitOfWork.GetRepository<AefiReport>()
+                        .GetAllByItems(ar => ar.NotificationNumber == notificationNumber)
+                        .AsNoTracking()
+                        .ProjectTo<ReportPdfDto>(_mapper.ConfigurationProvider)
+                        .FirstOrDefaultAsync() ?? throw new ArgumentNullException("Report not found");
+
+        return _pdfService.GenerateReportPdf(report, templateType);
+    }
+
 
     public async Task<PagedResultDto<ReportMedicalReviewerDto>> GetReportAssigment(
         PagedRequestDto paged,
@@ -99,23 +119,19 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
         var query = _unitOfWork.GetRepository<AefiReport>()
                                .GetAllByItems(r => reportId.Contains(r.Id));
 
-        Console.WriteLine("=======================AQUI ESTAMOS=======================");
 
         query = _reportRepository
                         .GetMedicalReviewerByFilter(
                             query,
                             filter);
-        Console.WriteLine("=======================AQUI ESTAMOS3=======================");
 
         var totalItems = await query.CountAsync();
 
         var items = await _unitOfWork.GetRepository<AefiReport>()
                         .GetPaged(query, (paged.PageNumber - 1) * paged.PageSize, paged.PageSize)
+                        .AsNoTracking()
                         .ProjectTo<ReportMedicalReviewerDto>(_mapper.ConfigurationProvider)
                         .ToListAsync();
-
-
-        Console.WriteLine("=======================AQUI ESTAMOS2=======================");
 
 
         return new PagedResultDto<ReportMedicalReviewerDto>
@@ -179,6 +195,7 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
 
         var items = await _unitOfWork.GetRepository<AefiReport>()
                         .GetPaged(reportsQuery, (paged.PageNumber - 1) * paged.PageSize, paged.PageSize)
+                        .AsNoTracking()
                         .ProjectTo<ReportSectionResponsibleDto>(_mapper.ConfigurationProvider)
                         .ToListAsync();
 
@@ -198,8 +215,6 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
         };
 
     }
-
-
 
     public async Task<PagedResultDto<ReportSummaryAdminDto>> GetFilter(
         PagedRequestDto paged,
@@ -291,6 +306,7 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
     {
         var reportDetail = await _reportRepository
                         .GetAllByItems(r => r.Id == reportId)
+                        .AsNoTracking()
                         .ProjectTo<ReportDetailAdminDto>(_mapper.ConfigurationProvider)
                         .FirstOrDefaultAsync() ?? throw new ArgumentNullException("Report not found");
 
@@ -298,7 +314,6 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
         return reportDetail;
 
     }
-
 
 
 }

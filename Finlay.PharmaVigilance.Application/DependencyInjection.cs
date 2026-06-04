@@ -47,6 +47,7 @@ public static class DependencyInjection
         // reporter
         services.AddScoped<IReportCommandService, ReportCommandService>();
         services.AddScoped<IReportQueryService, ReportQueryService>();
+        services.AddScoped<IReportDuplicateService, ReportDuplicateService>();
 
         // Report Validators - Chain of Responsibility pattern for comprehensive validation
         services.AddScoped<IReportValidator<ReportDto>, ReportDateValidator>();

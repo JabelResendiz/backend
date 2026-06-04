@@ -1,0 +1,103 @@
+\documentclass[10pt,a4paper]{article}
+
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=1.5cm]{geometry}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{graphicx}
+\usepackage{helvet}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{longtable}
+\renewcommand{\familydefault}{\sfdefault}
+
+\definecolor{ifvblue}{RGB}{29,58,131}
+\definecolor{softgray}{RGB}{245,245,245}
+
+\newcommand{\field}[1]{\textbf{\small #1}}
+
+% ================= HEADER BOX =================
+\newtcolorbox{headerbox}{
+  colback=ifvblue,
+  colupper=white,
+  boxrule=0pt,
+  arc=2mm,
+  left=4mm,
+  right=4mm,
+  top=2mm,
+  bottom=2mm
+}
+
+\begin{document}
+
+% ================= HEADER =================
+\begin{headerbox}
+\begin{tabularx}{\textwidth}{X r}
+\textbf{\Large REPORTE DE FARMACOVIGILANCIA} &
+\includegraphics[height=1.2cm]{logo.png} \\
+\small Sistema de Eventos Adversos & \small Fecha: {{REPORT-DATE}} \\
+\end{tabularx}
+\end{headerbox}
+
+\vspace{5mm}
+
+% ================= GENERAL =================
+\section*{Información General}
+
+\begin{tabularx}{\textwidth}{X X}
+\field{Número de Notificación} & {{NOTIFICATION-NUMBER}} \\
+\field{Estado} & {{STATUS}} \\
+\field{Severidad Global} & {{SEVERITY}} \\
+\end{tabularx}
+
+\vspace{3mm}
+
+% ================= PATIENT =================
+\section*{Paciente}
+
+\begin{tabularx}{\textwidth}{X X}
+\field{Edad} & {{AGE}} \\
+\field{Sexo} & {{GENDER}} \\
+\field{Provincia} & {{PROVINCE}} \\
+\field{Embarazo} & {{PREGNANT}} \\
+\end{tabularx}
+
+\vspace{2mm}
+
+\field{Antecedentes Médicos}
+\par {{MEDICAL-HISTORY}}
+
+\vspace{2mm}
+\field{Medicamentos}
+\par {{MEDICATIONS}}
+
+\vspace{2mm}
+\field{Alergias}
+\par {{ALLERGIES}}
+
+% ================= VACCINES =================
+\section*{Vacunaciones}
+
+{{VACCINATIONS}}
+
+% ================= EVENTS =================
+\section*{Eventos Adversos}
+
+{{ADVERSE-EVENTS}}
+
+% ================= REVIEW =================
+\section*{Revisión Médica}
+
+\begin{tabularx}{\textwidth}{X X}
+\field{Causalidad} & {{CAUSALITY}} \\
+\field{Significancia Clínica} & {{CLINICAL-SIGNIFICANCE}} \\
+\field{Fecha Revisión} & {{REVIEWED-AT}} \\
+\end{tabularx}
+
+\vfill
+
+\hrule
+\small Documento generado automáticamente - Instituto Finlay de Vacunas
+
+\end{document}

@@ -54,7 +54,6 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
 
         public DbSet<Admin> Admins { get; set; }
         public DbSet<AdverseEvent> AdverseEvents { get; set; }
-        // public DbSet<AdverseEventSymptom> AdverseEventSymptoms { get; set; }
         public DbSet<AefiReport> AefiReport { get; set; }
         public DbSet<Alert> Alerts { get; set; }
         public DbSet<MedicalReview> MedicalReviews { get; set; }
@@ -72,6 +71,8 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
         public DbSet<Lot> Lots { get; set; }
         public DbSet<Manufacturer> Manufacturers { get; set; }
         public DbSet<RefreshToken> RefreshTokens { get; set; }
+        public DbSet<AuditLog> AuditLogs { get; set; }
+        public DbSet<ReportDuplicate> ReportDuplicates { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -755,6 +756,39 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
                  .OnDelete(DeleteBehavior.Cascade);
 
              });
+
+                builder.Entity<AuditLog>(entity =>
+           {
+                   entity.HasKey(e => e.Id);
+
+                   entity.Property(e => e.EntityName)
+                .IsRequired();
+
+                   entity.Property(e => e.Action)
+                .IsRequired();
+
+
+           });
+
+                builder.Entity<ReportDuplicate>(entity =>
+                {
+                        entity.HasKey(e => e.Id);
+
+                        entity.Property(e => e.EnumReportDuplicate)
+                .HasConversion<string>()
+                .IsRequired();
+
+                        entity.HasOne(e => e.AefiReportOriginal)
+                .WithMany()
+                .HasForeignKey(e => e.AefiReportOriginalId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+                        entity.HasOne(e => e.AefiReportCopy)
+                .WithMany()
+                .HasForeignKey(e => e.AefiReportCopyId)
+                .OnDelete(DeleteBehavior.Cascade);
+                });
+
 
         }
 }

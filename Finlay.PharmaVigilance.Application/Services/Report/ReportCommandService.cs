@@ -1,5 +1,6 @@
 using System.Linq.Expressions;
 using AutoMapper;
+using Finlay.PharmaVigilance.Application.Common.EventBus;
 using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.IServices;
 using Finlay.PharmaVigilance.Application.IServices.Common;
@@ -7,8 +8,6 @@ using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
 using Finlay.PharmaVigilance.Application.Validators;
 using Finlay.PharmaVigilance.Domain.Entities;
 using Finlay.PharmaVigilance.Domain.Enum;
-using Finlay.PharmaVigilance.Domain.Events;
-using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -31,8 +30,8 @@ public class ReportCommandService : IReportCommandService
     private readonly IEnumerable<IReportValidator<PublicAefiReportDto>> _publicValidators;
     private readonly IUserContextService _userContextService;
     private readonly ILogger<ReportCommandService> _logger;
-    private readonly IPublishEndpoint _publishEndpoint;
-
+    private readonly IEventBus _eventBus;
+    private readonly IReportDuplicateService _reportDuplicate;
 
     private static readonly Expression<Func<MedicalReviewer, object>>[] includes =
                             { e => e.User! };
@@ -45,7 +44,8 @@ public class ReportCommandService : IReportCommandService
         IEnumerable<IReportValidator<PublicAefiReportDto>> publicValidators,
         IUserContextService userContextService,
         ILogger<ReportCommandService> logger,
-        IPublishEndpoint publishEndpoint)
+        IEventBus eventBus,
+        IReportDuplicateService reportDuplicateService)
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork));
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
@@ -54,7 +54,8 @@ public class ReportCommandService : IReportCommandService
         _publicValidators = publicValidators ?? throw new ArgumentNullException(nameof(publicValidators));
         _userContextService = userContextService ?? throw new ArgumentNullException(nameof(userContextService));
         _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-        _publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+        _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
+        _reportDuplicate = reportDuplicateService ?? throw new ArgumentNullException(nameof(reportDuplicateService));
     }
 
     public Expression<Func<MedicalReviewer, object>>[] GetIncludes() => includes;
@@ -157,6 +158,22 @@ public class ReportCommandService : IReportCommandService
 
             _logger.LogInformation("Saving AEFI report with NotificationNumber {NotificationNumber}", report.NotificationNumber);
 
+            var aefiReport = await _reportDuplicate.ValidateDuplicate(report);
+
+            ReportDuplicate reportDuplicate;
+
+            if (aefiReport != null)
+            {
+                reportDuplicate = new ReportDuplicate
+                {
+                    EnumReportDuplicate = EnumReportDuplicate.IsPossibleDuplicate,
+                    AefiReportOriginalId = aefiReport.Id,
+                    AefiReportOriginal = aefiReport,
+                    AefiReportCopyId = report.Id,
+                    AefiReportCopy = report
+                };
+            }
+
             await _unitOfWork.GetRepository<AefiReport>().CreateAsync(report);
             await _unitOfWork.CompleteAsync();
 
@@ -175,44 +192,15 @@ public class ReportCommandService : IReportCommandService
 
             _logger.LogDebug($"📧 Queremos enviar email a: {reporter.Email} y {sectionResponsibleUser.Email}");
 
-            var symptomIds = reportDto.AdverseEvents
-    .Select(ad => ad.SymptomId)
-    .Distinct()
-    .ToList();
 
-            var symptomNames = await _unitOfWork
-                .GetRepository<Symptom>()
-                .GetAllByItems(s => symptomIds.Contains(s.Id))
-                .Select(s => s.Name)
-                .ToListAsync();
-
-
-            var vaccineIds = reportDto.Vaccinations
-    .Select(v => v.VaccineId)
-    .Distinct()
-    .ToList();
-
-            var vaccinesNames = await _unitOfWork
-                .GetRepository<Vaccine>()
-                .GetAllByItems(v => vaccineIds.Contains(v.Id))
-                .Select(v => v.Name)
-                .ToListAsync();
-
-
-            await _publishEndpoint.Publish(new ReportConfirmationEvent
+            await _eventBus.PublishAsync(new ReportConfirmationEvent
             {
                 ReportNumber = report.NotificationNumber,
                 Email = reporter.Email,
-                SymptomsName = symptomNames,
-                VaccinesName = vaccinesNames,
+                SymptomIds = reportDto.AdverseEvents.Select(ad => ad.SymptomId).Distinct().ToList(),
+                VaccineIds = reportDto.Vaccinations.Select(v => v.VaccineId).Distinct().ToList(),
                 ReportDate = report.ReportDate
             });
-
-            // await _eventBus.PublishAsync(new EmailToSectionResponsibleEvent
-            // {
-            //     ReportNumber = report.NotificationNumber,
-            //     SectionResponsibleEmail = sectionResponsibleUser.Email!
-            // });
 
 
             return new CreateReportResponseDto

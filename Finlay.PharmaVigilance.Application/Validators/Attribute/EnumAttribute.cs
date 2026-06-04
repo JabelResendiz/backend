@@ -39,14 +39,14 @@ public class EnumValidationAttribute : ValidationAttribute
             return new ValidationResult("Value is required.");
         }
 
-        bool isValid = Enum.TryParse(
+        bool isValid = System.Enum.TryParse(
             _enumType,
             valueString,
             true,
             out var parsedEnum
         );
 
-        if (!isValid || parsedEnum == null || !Enum.IsDefined(_enumType, parsedEnum))
+        if (!isValid || parsedEnum == null || !System.Enum.IsDefined(_enumType, parsedEnum))
         {
             return new ValidationResult(
                 $"'{valueString}' is not a valid value for {_enumType.Name}."

@@ -1,4 +1,3 @@
-using System.Linq.Expressions;
 using AutoMapper;
 using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.IServices;
@@ -7,8 +6,8 @@ using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
 using Finlay.PharmaVigilance.Application.Helpers;
 using Finlay.PharmaVigilance.Domain.Entities;
 using Finlay.PharmaVigilance.Domain.Enum;
-using MassTransit;
 using Finlay.PharmaVigilance.Domain.Events;
+using Finlay.PharmaVigilance.Application.Common.EventBus;
 
 namespace Finlay.PharmaVigilance.Application.Services;
 
@@ -17,19 +16,19 @@ public class MedicalReviewAssignmentCommandService : IMedicalReviewAssignmentCom
     private readonly IUnitOfWork _unitOfWork;
     private readonly IMapper _mapper;
     private readonly IUserContextService _userContextService;
-    private readonly IPublishEndpoint _publishEndpoint;
+    private readonly IEventBus _eventBus;
 
     public MedicalReviewAssignmentCommandService(
         IUnitOfWork unitOfWork,
         IMapper mapper,
         IUserContextService userContextService,
-        IPublishEndpoint publishEndpoint
+        IEventBus eventBus
     )
     {
         _unitOfWork = unitOfWork ?? throw new ArgumentNullException(nameof(unitOfWork)); ;
         _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper)); ;
         _userContextService = userContextService ?? throw new ArgumentNullException(nameof(userContextService));
-        _publishEndpoint = publishEndpoint ?? throw new ArgumentNullException(nameof(publishEndpoint));
+        _eventBus = eventBus ?? throw new ArgumentNullException(nameof(eventBus));
     }
 
     public async Task<MedicalReviewAssignmentDTO> CreateAsync(MedicalReviewAssignmentDTO dto)
@@ -59,7 +58,8 @@ public class MedicalReviewAssignmentCommandService : IMedicalReviewAssignmentCom
             throw new InvalidOperationException("This report is already assigned to a medical reviewer.");
 
         var medicalReviewer = await _unitOfWork.GetRepository<MedicalReviewer>()
-                                    .GetByIdAsync(dto.MedicalReviewerId);
+                                    .GetByIdAsync(dto.MedicalReviewerId, default, o => o.User);
+
         if (medicalReviewer == null)
             throw new KeyNotFoundException("Medical Reviewer not found.");
 
@@ -91,21 +91,23 @@ public class MedicalReviewAssignmentCommandService : IMedicalReviewAssignmentCom
         medicalReviewAssignment.MedicalReviewer = medicalReviewer;
         medicalReviewAssignment.AefiReport = report;
         medicalReviewAssignment.SectionResponsibleId = sectionResponsible.Id;
+
+
         medicalReviewAssignment.Status = ReviewAssignmentStatus.Pending;
-
-
         report.Status = ReportStatus.UnderReview;
 
-        await _unitOfWork.GetRepository<MedicalReviewAssignment>().CreateAsync(medicalReviewAssignment);
+        await _unitOfWork
+        .GetRepository<MedicalReviewAssignment>()
+        .CreateAsync(medicalReviewAssignment);
         await _unitOfWork.CompleteAsync();
 
-        await _publishEndpoint.Publish(new NewAssignmentEvent
-        {
-            MedicalReviewerName = medicalReviewer.User.UserName!,
-            MedicalReviewerEmail = medicalReviewer.User.Email!,
-            ReportNumber = report.NotificationNumber
-        });
 
+        // await _eventBus.PublishAsync(new NewAssignmentEvent
+        // {
+        //     MedicalReviewerName = medicalReviewer.User.UserName!,
+        //     MedicalReviewerEmail = medicalReviewer.User.Email!,
+        //     ReportNumber = report.NotificationNumber
+        // });
 
         return dto;
     }

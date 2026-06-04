@@ -20,6 +20,8 @@ using Finlay.PharmaVigilance.Infrastructure.Consumers;
 using MassTransit;
 using Finlay.PharmaVigilance.Infrastructure.BackgroundServices;
 using Finlay.PharmaVigilance.Infrastructure.Settings;
+using Finlay.PharmaVigilance.Application.Common.EventBus;
+using Finlay.PharmaVigilance.Infrastructure.EventBus;
 
 
 
@@ -49,7 +51,6 @@ public static class DependencyInjection
             {
                 // Log connection string issues for debugging
                 Console.WriteLine($"Database connection error: {ex.Message}");
-                Console.WriteLine($"Connection string attempted: {connectionString}");
                 throw;
             }
         });
@@ -73,27 +74,26 @@ public static class DependencyInjection
         services.AddAuth(configuration);
 
         services.ConfigureApplicationCookie(options =>
-{
-    options.Events.OnRedirectToLogin = context =>
-    {
-        context.Response.StatusCode = 401;
-        return Task.CompletedTask;
-    };
+        {
+            options.Events.OnRedirectToLogin = context =>
+            {
+                context.Response.StatusCode = 401;
+                return Task.CompletedTask;
+            };
 
-    options.Events.OnRedirectToAccessDenied = context =>
-    {
-        context.Response.StatusCode = 403;
-        return Task.CompletedTask;
-    };
-});
+            options.Events.OnRedirectToAccessDenied = context =>
+            {
+                context.Response.StatusCode = 403;
+                return Task.CompletedTask;
+            };
+        });
 
         services.Configure<EmailJsSettings>(
-    configuration.GetSection("Email:EmailJS")
-);
+            configuration.GetSection("Email:EmailJS")
+        );
 
         // Add custom repositories and services       
         services.AddScoped<IUnitOfWork, UnitOfWork>();
-        //services.AddScoped<IEmployeeRepository, EmployeeRepository>();
         services.AddScoped<IUserRepository, UserRepository>();
 
 
@@ -119,13 +119,9 @@ public static class DependencyInjection
         services.AddHostedService<AssignmentExpirationBackgroundService>();
 
 
-        //services.AddHostedService<MedicalReviewerConsumer>();
-        //services.AddHostedService<EmailToReporterConsumer>();
-        //services.AddHostedService<EmailToSectionResponsibleConsumer>();
-        // services.AddScoped<IEventBus, RabbitMqEventBus>();
+        services.AddScoped<IEventBus, MassTransitEventBus>();
 
         // services.AddScoped<ICaptchaService, CaptchaService>();
-
         services.AddScoped<ICaptchaService, FriendlyCaptchaService>();
 
         services.AddScoped<IIdentityManager, IdentityManager>();

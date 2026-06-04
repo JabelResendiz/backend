@@ -35,4 +35,22 @@ public class AdverseEvent : GuidEntity
 
     public Guid SymptomId { get; set; }
     public Symptom Symptom { get; set; } = null!;
+
+
+
+    public ReportPriority GetPriority()
+    {
+        // Prioridad alta: evento serio o criterios de peligro
+        if (SeverityLevel == SeverityLevel.Serious || CurrentStatus == PatientStatus.Fatal)
+            return ReportPriority.High;
+
+        // Prioridad media: no serio pero intensidad severa o paciente no recuperado
+        if (Intensity == Intensity.Severe ||
+            CurrentStatus == PatientStatus.NotRecovered ||
+            CurrentStatus == PatientStatus.RecoveredWithSequelae)
+            return ReportPriority.Medium;
+
+        // Prioridad baja: resto de casos
+        return ReportPriority.Low;
+    }
 }

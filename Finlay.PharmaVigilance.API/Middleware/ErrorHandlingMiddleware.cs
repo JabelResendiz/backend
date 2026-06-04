@@ -52,6 +52,12 @@ public class ErrorHandlingMiddleware
                 message = exception.Message;
                 break;
 
+            case UnauthorizedAccessException:
+                code = HttpStatusCode.Unauthorized;
+                type = "Unauthorized";
+                message = exception.Message;
+                break;
+
             default:
                 // Para excepciones inesperadas, deja el mensaje genérico o agrega detalles según dev/prod
                 message = exception.Message;

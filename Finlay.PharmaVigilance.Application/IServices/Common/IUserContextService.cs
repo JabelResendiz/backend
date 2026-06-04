@@ -14,4 +14,6 @@ public interface IUserContextService
     /// Thrown when no user is authenticated or the user ID claim is not found in the token.
     /// </exception>
     Guid GetUserId();
+    Guid? GetUserIdOrNull();
+    string? IPAddress { get; }
 }

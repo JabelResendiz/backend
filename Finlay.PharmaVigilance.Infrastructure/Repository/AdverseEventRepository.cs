@@ -1,5 +1,3 @@
-
-
 using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.IRepository;
 using Finlay.PharmaVigilance.Domain.Entities;
@@ -58,6 +56,26 @@ public class AdverseEventRepository : GenericRepository<AdverseEvent>, IAdverseE
         {
             Console.WriteLine($"{i.Severity}----> {i.TotalReports}");
         }
+
+        return result;
+    }
+
+    public async Task<SeriousDataDto> GetSeriousDataAsync(int municipalityId)
+    {
+        var result = await _entity
+            .Where(ad => ad.AefiReport.VaccinatedSubject.MunicipalityId == municipalityId)
+            .GroupBy(ad => 1)
+            .Select(g => new SeriousDataDto
+            {
+                VisitedDoctor = g.Count(x => x.VisitedDoctor),
+                WentToEmergencyRoom = g.Count(x => x.WentToEmergencyRoom),
+                PermanentDisability = g.Count(x => x.PermanentDisability),
+                Anomaly = g.Count(x => x.Anomaly),
+                WasHospitalized = g.Count(x => x.WasHospitalized),
+                ResultedInDeath = g.Count(x => x.ResultedInDeath),
+                NoComplications = g.Count(x => x.NoComplications)
+            })
+            .FirstOrDefaultAsync() ?? new SeriousDataDto();
 
         return result;
     }

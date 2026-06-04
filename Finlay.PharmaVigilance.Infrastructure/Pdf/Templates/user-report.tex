@@ -1,0 +1,138 @@
+\documentclass[10pt, a4paper]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[spanish]{babel}
+\usepackage[margin=1.5cm]{geometry}
+\usepackage{xcolor}
+\usepackage{tcolorbox}
+\usepackage{graphicx}
+\usepackage{helvet} % Fuente similar a la del documento
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{tabularx}
+\usepackage{wasysym} % Para los checkboxes
+
+% Definición de colores basados en el original
+\definecolor{ifvblue}{RGB}{29, 58, 131}
+\definecolor{lightgray}{RGB}{240, 240, 240}
+\definecolor{textgray}{RGB}{100, 100, 100}
+
+% Configuración de las cajas de sección
+\newtcolorbox{sectionbox}[1]{
+    colback=ifvblue,
+    colframe=ifvblue,
+    colupper=white,
+    sharp corners,
+    fontupper=\bfseries\small,
+    valign=center,
+    height=0.8cm,
+    title=#1,
+    left=5pt
+}
+
+\begin{document}
+
+% --- ENCABEZADO ---
+\begin{minipage}[t]{0.4\textwidth}
+    \vspace{0pt}
+    % Aquí insertas la imagen del logo
+    \includegraphics[height=1.5cm]{logo.png} \quad 
+    
+\end{minipage}
+\begin{minipage}[t]{0.6\textwidth}
+	\vspace{0pt}
+	\raggedleft
+	{\Large\bfseries\textcolor{ifvblue}{REPORTE DE\\FARMACOVIGILANCIA -\\EVENTO ADVERSO}} \\[5pt]
+	{\small\textcolor{textgray}{Instituto Finlay de Vacunas - Sistema de Notificación\\de Eventos Adversos Post-Vacunación}} \\[3pt]
+	{\small \textbf{Fecha de Reporte:} N/A}
+\end{minipage}
+\vspace{5pt}
+{\color{ifvblue}\hrule height 2pt}
+\vspace{15pt}
+
+% --- SECCIÓN 1 ---
+\begin{sectionbox}{1. INFORMACIÓN DEL REPORTANTE}
+\end{sectionbox}
+
+\vspace{5pt}
+\begin{tabularx}{\textwidth}{X X}
+    \footnotesize\textbf{\textcolor{textgray}{NOMBRE COMPLETO}} & \footnotesize\textbf{\textcolor{textgray}{RELACIÓN CON EL PACIENTE}} \\
+    \rule{0pt}{15pt} & \\
+    \footnotesize\textbf{\textcolor{textgray}{NÚMERO DE IDENTIDAD}} & \footnotesize\textbf{\textcolor{textgray}{FECHA DE NACIMIENTO}} \\
+    & \footnotesize N/A \\
+    \footnotesize\textbf{\textcolor{textgray}{TELÉFONO}} & \footnotesize\textbf{\textcolor{textgray}{CORREO ELECTRÓNICO}} \\
+\end{tabularx}
+
+\vspace{15pt}
+
+% --- SECCIÓN 2 ---
+\begin{sectionbox}{2. INFORMACIÓN DEL PACIENTE VACUNADO}
+\end{sectionbox}
+
+\vspace{5pt}
+\begin{tabularx}{\textwidth}{X X}
+    \footnotesize\textbf{\textcolor{textgray}{NOMBRE COMPLETO}} & \footnotesize\textbf{\textcolor{textgray}{NÚMERO DE IDENTIDAD}} \\
+    \rule{0pt}{15pt} & \\
+    \footnotesize\textbf{\textcolor{textgray}{FECHA DE NACIMIENTO}} & \footnotesize\textbf{\textcolor{textgray}{GÉNERO}} \\
+    \footnotesize N/A & \\
+    \footnotesize\textbf{\textcolor{textgray}{EMBARAZADA}} & \footnotesize\textbf{\textcolor{textgray}{ÁREA DE SALUD}} \\
+    \footnotesize No & \\
+    \footnotesize\textbf{\textcolor{textgray}{DIRECCIÓN}} & \\
+    \footnotesize\textbf{\textcolor{textgray}{TELÉFONO}} & \footnotesize\textbf{\textcolor{textgray}{CORREO ELECTRÓNICO}} \\
+\end{tabularx}
+
+\vspace{5pt}
+\footnotesize\textbf{\textcolor{textgray}{MEDICAMENTOS ACTUALES}} \\
+\rule{0pt}{10pt} \\
+\footnotesize\textbf{\textcolor{textgray}{ALERGIAS}} \\
+\rule{0pt}{10pt} \\
+\footnotesize\textbf{\textcolor{textgray}{HISTORIAL MÉDICO}} \\
+
+\vspace{15pt}
+
+% --- SECCIÓN 3 ---
+\begin{sectionbox}{3. INFORMACIÓN DE VACUNACIÓN}
+\end{sectionbox}
+
+\vspace{5pt}
+\begin{tabularx}{\textwidth}{|l X l X}
+    \footnotesize\textcolor{ifvblue}{\rule{2pt}{0pt} \textbf{VACUNA 1}} & & \footnotesize\textbf{\textcolor{textgray}{NÚMERO DE LOTE}} & \\
+    \footnotesize\textcolor{ifvblue}{\rule{2pt}{0pt} \textbf{SITIO DE APLICACIÓN}} & & \footnotesize\textbf{\textcolor{textgray}{NÚMERO DE DOSIS}} & \\
+    \footnotesize\textcolor{ifvblue}{\rule{2pt}{0pt} \textbf{FECHA DE ADMINISTRACIÓN}} & & \footnotesize\textbf{\textcolor{textgray}{CENTRO DE VACUNACIÓN}} & \\
+    \footnotesize\rule{2pt}{0pt} N/A & & & \\
+\end{tabularx}
+
+\vspace{15pt}
+
+% --- SECCIÓN 4 ---
+\begin{sectionbox}{4. EVENTOS ADVERSOS REPORTADOS}
+\end{sectionbox}
+
+\vspace{10pt}
+\begin{tabularx}{\textwidth}{X X}
+    \footnotesize\textbf{\textcolor{textgray}{FECHA DE INICIO}} & \footnotesize\textbf{\textcolor{textgray}{ESTADO ACTUAL}} \\
+    \footnotesize N/A & \\
+\end{tabularx}
+
+\vspace{10pt}
+\footnotesize\textbf{\textcolor{textgray}{DESCRIPCIÓN DEL EVENTO}} \\
+\begin{tcolorbox}[colback=lightgray, colframe=lightgray, height=1.5cm, sharp corners]
+\end{tcolorbox}
+
+\vspace{10pt}
+\footnotesize\textbf{\textcolor{textgray}{GRAVEDAD DEL EVENTO}} \\
+\begin{itemize}
+    \item[\Square] \footnotesize Visitó al Médico
+    \item[\Square] \footnotesize Fue a Sala de Emergencias
+    \item[\Square] \footnotesize Discapacidad Permanente
+    \item[\Square] \footnotesize Peligro de Muerte
+    \item[\Square] \footnotesize Resultó en Muerte
+\end{itemize}
+
+\footnotesize\textbf{\textcolor{textgray}{SÍNTOMAS REPORTADOS}} \\
+\footnotesize N/A
+
+\vfill
+\begin{center}
+    \scriptsize\textcolor{textgray}{Documento Confidencial - Sistema de Farmacovigilancia}
+\end{center}
+
+\end{document}

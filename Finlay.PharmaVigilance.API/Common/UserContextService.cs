@@ -41,4 +41,24 @@ public class UserContextService : IUserContextService
 
         return Guid.Parse(userId);
     }
+
+    public Guid? GetUserIdOrNull()
+    {
+        var userId = _httpContextAccessor.HttpContext?
+            .User?
+            .FindFirst(ClaimTypes.NameIdentifier)?
+            .Value;
+
+        if (Guid.TryParse(userId, out var id))
+            return id;
+
+        return null;
+    }
+
+    public string? IPAddress =>
+        _httpContextAccessor
+            .HttpContext?
+            .Connection?
+            .RemoteIpAddress?
+            .ToString();
 }

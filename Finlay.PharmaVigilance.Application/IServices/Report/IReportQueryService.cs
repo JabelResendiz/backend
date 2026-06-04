@@ -1,4 +1,5 @@
 using Finlay.PharmaVigilance.Application.DTO;
+using Finlay.PharmaVigilance.Application.Enum;
 using Finlay.PharmaVigilance.Domain.Entities;
 
 namespace Finlay.PharmaVigilance.Application.IServices;
@@ -15,9 +16,7 @@ public interface IReportQueryService : IGenericQueryService<AefiReport, PublicAe
         PagedRequestDto pagedRequestDto,
         ReportSectionResponsibleFilter filter);
 
-    //Task<byte[]> GetReportPdfAsync(string notificationNumber);
-
-    //Task<byte[]> GetReportDetailsPdfAsync(string notificationNumber);
+    //Task<byte[]> GetReportPdfByNotificationNumber(string notificationNumber, ReportPdfTemplateType templateType);
 
     Task<PagedResultDto<ReportSummaryAdminDto>> GetFilter(
         PagedRequestDto paged,

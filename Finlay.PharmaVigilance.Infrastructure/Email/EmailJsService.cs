@@ -11,13 +11,15 @@ namespace Finlay.PharmaVigilance.Infrastructure.Email;
 
 public class EmailJsService : IEmailService
 {
-    private readonly HttpClient _httpClient;
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly EmailJsSettings _settings;
     private readonly string _logoDataUri;
 
-    public EmailJsService(HttpClient httpClient, IOptions<EmailJsSettings> options)
+    public EmailJsService(
+        IHttpClientFactory httpClientFactory,
+        IOptions<EmailJsSettings> options)
     {
-        _httpClient = httpClient;
+        _httpClientFactory = httpClientFactory;
         _settings = options.Value;
         _logoDataUri = GetLogoDataUri(); // Se carga una sola vez al instanciar
     }
@@ -29,22 +31,10 @@ public class EmailJsService : IEmailService
     {
         var url = "https://api.emailjs.com/api/v1.0/email/send";
 
-
-        Console.WriteLine("TODO PERFECTO HASTA AHORA");
-
         var templateId = GetTemplateId(templateType);
-
         var templateParams = ConvertToDictionary(templateData);
-
         templateParams["email"] = toEmail;
         templateParams["logo"] = _logoDataUri;
-
-        Console.WriteLine("TODO PERFECTO HASTA AHORA02");
-
-        foreach (var i in templateParams)
-        {
-            Console.WriteLine($"{i.Key} ----> {i.Value}");
-        }
 
         var payload = new
         {
@@ -58,7 +48,9 @@ public class EmailJsService : IEmailService
         var json = JsonSerializer.Serialize(payload);
         var content = new StringContent(json, Encoding.UTF8, "application/json");
 
-        var response = await _httpClient.PostAsync(url, content);
+        var client = _httpClientFactory.CreateClient();
+
+        var response = await client.PostAsync(url, content);
 
         if (!response.IsSuccessStatusCode)
         {

@@ -25,4 +25,8 @@ public class AefiReport : GuidEntity
     public ICollection<MedicalReviewAssignment> MedicalReviewAssignments { get; set; } = new List<MedicalReviewAssignment>();
 
 
+    public ReportPriority Priority =>
+        AdverseEvents.Any()
+            ? AdverseEvents.Max(ae => ae.GetPriority())
+            : ReportPriority.Low;
 }

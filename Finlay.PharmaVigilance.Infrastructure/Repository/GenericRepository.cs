@@ -72,7 +72,6 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BasicEntity
 
     public virtual void Update(T element)
     {
-        Console.WriteLine(element);
         _entity.Update(element); // Update the provided entity in the DbSet.
 
     }
@@ -87,7 +86,6 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BasicEntity
 
         if (includes != null)
         {
-            Console.WriteLine("Adolfoooo");
             foreach (var include in includes)
             {
                 query = query.Include(include);
@@ -111,8 +109,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BasicEntity
             }
         }
         var result = await query.FirstOrDefaultAsync(e => EF.Property<TId>(e, "Id")!.Equals(elementId), cancellationToken);
-        Console.WriteLine(elementId);
-        Console.WriteLine(result);
+
         if (result == null) // Check if the entity was not found.
             throw new KeyNotFoundException($"No entity was found with the ID '{elementId}'.");
 
@@ -121,7 +118,6 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BasicEntity
 
     public virtual async Task DeleteByIdAsync<TId>(TId elementId, CancellationToken cancellationToken = default)
     {
-        Console.WriteLine(elementId);
         // Retrieve the entity by its ID.
         var result = await GetByIdAsync(elementId, cancellationToken);
 
