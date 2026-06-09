@@ -1,5 +1,4 @@
-
-
+using System.Linq.Expressions;
 using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.IRepository;
 using Finlay.PharmaVigilance.Domain.Entities;
@@ -174,27 +173,46 @@ public class ReportRepository : GenericRepository<AefiReport>, IReportRepository
     }
 
 
-    // public async IQueryable<AefiReport> GetVaccineByRepository()
-    // {
-    //     /*
+    public async Task<ReportStatusDto?> GetReportStatus(params Expression<Func<AefiReport, bool>>[] expressions)
+    {
 
+        var query = GetAllByItems(expressions);
 
-    //     SELECT 
-    //         v.Name,
-    //         COUNT(DISTINCT ar.Id) AS cantidad
-    //     FROM aefireport ar
-    //     INNER JOIN vaccinations vac
-    //         ON ar.Id = vac.AefiReportId
-    //     INNER JOIN lots l
-    //         ON l.Id = vac.LotId
-    //     INNER JOIN vaccines v
-    //         ON l.VaccineId = v.Id
-    //     GROUP BY v.Name;
+        var data = await query
+                    .GroupBy(r => 1)
+                    .Select(g => new ReportStatusDto
+                    {
+                        TotalReports = g.Count(),
+                        SubmittedReports = g.Count(x => x.Status == ReportStatus.Submitted),
+                        UnderReviewReports = g.Count(x => x.Status == ReportStatus.UnderReview),
+                        ApprovedReports = g.Count(x => x.Status == ReportStatus.Approved),
+                        RejectedReports = g.Count(x => x.Status == ReportStatus.Rejected),
+                        ReopenedReports = g.Count(x => x.Status == ReportStatus.Reopened),
+                        ClosedReports = g.Count(x => x.Status == ReportStatus.Closed)
+                    })
+                    .FirstOrDefaultAsync();
 
-    //     */
+        return data;
+    }
 
+    public async Task<ReportStatusDto?> GetReportStatusByProvince()
+    {
 
+        var data = await _entity
+                    .GroupBy(r => r.VaccinatedSubject.ProvinceId)
+                    .Select(g => new ReportStatusDto
+                    {
+                        TotalReports = g.Count(),
+                        SubmittedReports = g.Count(x => x.Status == ReportStatus.Submitted),
+                        UnderReviewReports = g.Count(x => x.Status == ReportStatus.UnderReview),
+                        ApprovedReports = g.Count(x => x.Status == ReportStatus.Approved),
+                        RejectedReports = g.Count(x => x.Status == ReportStatus.Rejected),
+                        ReopenedReports = g.Count(x => x.Status == ReportStatus.Reopened),
+                        ClosedReports = g.Count(x => x.Status == ReportStatus.Closed)
+                    })
+                    .FirstOrDefaultAsync();
 
+        return data;
+    }
 
-    // }
 }

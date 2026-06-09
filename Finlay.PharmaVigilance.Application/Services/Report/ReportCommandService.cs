@@ -61,13 +61,25 @@ public class ReportCommandService : IReportCommandService
     public Expression<Func<MedicalReviewer, object>>[] GetIncludes() => includes;
 
 
-    public async Task<CreateReportResponseDto> CreatePublicReportAsync(PublicAefiReportDto reportDto)
+    public async Task<CreateReportResponseDto> CreatePublicReportAsync(PublicAefiReportDto reportDto, string idempotencyKey)
     {
 
         _logger.LogInformation("Starting public AEFI report creation process");
 
         if (reportDto == null)
             throw new ArgumentNullException(nameof(reportDto), "Report data is required.");
+
+        var existingReport = await _unitOfWork.GetRepository<AefiReport>()
+        .FirstOrDefaultAsync(r => r.IdempotencyKey == idempotencyKey);
+
+        if (existingReport != null)
+        {
+            // Si ya existe, retornamos los datos del reporte viejo inmediatamente
+            return new CreateReportResponseDto
+            {
+                NotificationNumber = existingReport.NotificationNumber
+            };
+        }
 
         try
         {
@@ -133,7 +145,7 @@ public class ReportCommandService : IReportCommandService
             report.Reporter = reporter;
             report.Status = ReportStatus.Submitted;
             report.NotificationNumber = _generator.Generate();
-
+            report.IdempotencyKey = idempotencyKey;
 
             var sectionResponsible = await _unitOfWork.GetRepository<SectionResponsible>()
                 .FirstOrDefaultAsync(sr => sr.MunicipalityId == reportDto.VaccinatedSubject.MunicipalityId);
@@ -156,51 +168,57 @@ public class ReportCommandService : IReportCommandService
 
             report.Alerts.Add(alert);
 
+
             _logger.LogInformation("Saving AEFI report with NotificationNumber {NotificationNumber}", report.NotificationNumber);
 
-            var aefiReport = await _reportDuplicate.ValidateDuplicate(report);
-
-            ReportDuplicate reportDuplicate;
-
-            if (aefiReport != null)
+            try
             {
-                reportDuplicate = new ReportDuplicate
+                await _unitOfWork.GetRepository<AefiReport>().CreateAsync(report);
+
+                Console.WriteLine($"Report and related entities created successfully, Id: {report.Id}");
+
+                var duplicate = await _reportDuplicate.ValidateAndRegisterAsync(report);
+
+                await _unitOfWork.CompleteAsync();
+            }
+            catch (DbUpdateException)
+            {
+                var savedReport = await _unitOfWork.GetRepository<AefiReport>()
+            .FirstOrDefaultAsync(r => r.IdempotencyKey == idempotencyKey);
+
+                return new CreateReportResponseDto
                 {
-                    EnumReportDuplicate = EnumReportDuplicate.IsPossibleDuplicate,
-                    AefiReportOriginalId = aefiReport.Id,
-                    AefiReportOriginal = aefiReport,
-                    AefiReportCopyId = report.Id,
-                    AefiReportCopy = report
+                    NotificationNumber = savedReport!.NotificationNumber
                 };
             }
 
-            await _unitOfWork.GetRepository<AefiReport>().CreateAsync(report);
-            await _unitOfWork.CompleteAsync();
+
+
 
             // send email
 
-            _logger.LogDebug("Preparing to send notification emails for report");
+            // _logger.LogDebug("Preparing to send notification emails for report");
 
-            if (reporter.Email == null)
-                throw new InvalidOperationException("Reporter email is null.");
+            // if (reporter.Email == null)
+            //     throw new InvalidOperationException("Reporter email is null.");
 
-            var sectionResponsibleUser = await _unitOfWork.UserRepository
-                        .GetByIdAsync(sectionResponsible.UserId);
+            // var sectionResponsibleUser = await _unitOfWork.UserRepository
+            //             .GetByIdAsync(sectionResponsible.UserId);
 
-            if (sectionResponsibleUser == null)
-                throw new InvalidOperationException("Section responsible user is null.");
+            // if (sectionResponsibleUser == null)
+            //     throw new InvalidOperationException("Section responsible user is null.");
 
-            _logger.LogDebug($"📧 Queremos enviar email a: {reporter.Email} y {sectionResponsibleUser.Email}");
+            // _logger.LogDebug($"📧 Queremos enviar email a: {reporter.Email} y {sectionResponsibleUser.Email}");
 
 
-            await _eventBus.PublishAsync(new ReportConfirmationEvent
-            {
-                ReportNumber = report.NotificationNumber,
-                Email = reporter.Email,
-                SymptomIds = reportDto.AdverseEvents.Select(ad => ad.SymptomId).Distinct().ToList(),
-                VaccineIds = reportDto.Vaccinations.Select(v => v.VaccineId).Distinct().ToList(),
-                ReportDate = report.ReportDate
-            });
+            // await _eventBus.PublishAsync(new ReportConfirmationEvent
+            // {
+            //     ReportNumber = report.NotificationNumber,
+            //     Email = reporter.Email,
+            //     SymptomIds = reportDto.AdverseEvents.Select(ad => ad.SymptomId).Distinct().ToList(),
+            //     VaccineIds = reportDto.Vaccinations.Select(v => v.VaccineId).Distinct().ToList(),
+            //     ReportDate = report.ReportDate
+            // });
 
 
             return new CreateReportResponseDto

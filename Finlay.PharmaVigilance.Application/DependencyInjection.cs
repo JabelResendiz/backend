@@ -75,14 +75,14 @@ public static class DependencyInjection
 
         services.AddScoped<IManufacturerQueryService, ManufacturerQueryService>();
 
-        services.AddScoped<IMunicipalDashboardService, MunicipalDashboardService>();
-        services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+        //services.AddScoped<IMunicipalDashboardService, MunicipalDashboardService>();
+        //services.AddScoped<IAdminDashboardService, AdminDashboardService>();
+        services.AddScoped<IMunicipalDashboardService, MockMunicipalDashboardService>();
+        services.AddScoped<IAdminDashboardService, MockAdminDashboardService>();
 
 
         services.AddScoped<IAssignmentExpirationService, AssignmentExpirationService>();
 
         return services;
-
-
     }
 }

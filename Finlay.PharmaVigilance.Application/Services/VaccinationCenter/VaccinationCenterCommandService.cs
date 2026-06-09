@@ -1,13 +1,8 @@
-using System.Linq.Expressions;
 using AutoMapper;
 using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.IServices;
-using Finlay.PharmaVigilance.Application.IServices.Common;
 using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
-using Finlay.PharmaVigilance.Application.Validators;
 using Finlay.PharmaVigilance.Domain.Entities;
-using Finlay.PharmaVigilance.Domain.Enum;
-using Finlay.PharmaVigilance.Domain.Events;
 using Microsoft.Extensions.Logging;
 
 namespace Finlay.PharmaVigilance.Application.Services;

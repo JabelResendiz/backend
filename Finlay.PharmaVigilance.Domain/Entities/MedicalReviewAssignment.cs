@@ -10,7 +10,7 @@ public class MedicalReviewAssignment : GuidEntity
     public DateTime AssignedAt { get; set; }
     public ReviewAssignmentStatus Status { get; set; }
     public string? RejectionReason { get; set; }
-
+    public byte[] RowVersion { get; set; } = null!;
 
     public SectionResponsible SectionResponsible { get; set; } = null!;
     public MedicalReviewer MedicalReviewer { get; set; } = null!;

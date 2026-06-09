@@ -79,7 +79,8 @@ public class AutomapperProfile : Profile
         // VaccinatedSubject
 
         CreateMap<VaccinatedSubject, VaccinatedSubjectDetailsDto>();
-        CreateMap<VaccinatedSubject, VaccinatedSubjectSummaryDto>();
+        CreateMap<VaccinatedSubject, VaccinatedSubjectSummaryDto>()
+            .ForMember(dest => dest.Age, opt => opt.MapFrom(src => src.IdentityNumber.Age));
 
         CreateMap<VaccinatedSubject, VaccinatedSubjectPdfDto>()
             .ForMember(dest => dest.ProvinceName, opt => opt.MapFrom(src => src.Province.Name))
@@ -237,5 +238,16 @@ public class AutomapperProfile : Profile
 
 
         CreateMap<AuditLogDto, AuditLog>();
+
+
+        CreateMap<ReportDuplicate, ReportDuplicateDto>()
+            .ForMember(dest => dest.SubjectName, opt => opt.MapFrom(src => src.AefiReportCopy.VaccinatedSubject.FullName))
+            .ForMember(dest => dest.OriginalReportDate, opt => opt.MapFrom(src => src.AefiReportOriginal.ReportDate))
+            .ForMember(dest => dest.CopyReportDate, opt => opt.MapFrom(src => src.AefiReportCopy.ReportDate))
+            .ForMember(dest => dest.OriginalReportStatus, opt => opt.MapFrom(src => src.AefiReportOriginal.Status));
+
+
+        CreateMap<ReportDuplicate, ReportDuplicateDetailDto>();
+
     }
 }

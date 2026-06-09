@@ -20,12 +20,6 @@ public interface IGenericRepository<T> where T : BasicEntity
     Task<T> CreateAsync(T element, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Updates an existing entity in the repository.
-    /// </summary>
-    /// <param name="element">The entity with updated values.</param>
-    void Update(T element);
-
-    /// <summary>
     /// Asynchronously retrieves an entity by its identifier.
     /// </summary>
     /// <typeparam name="TId">The type of the identifier.</typeparam>
@@ -60,14 +54,6 @@ public interface IGenericRepository<T> where T : BasicEntity
     Task DeleteByIdAsync<TId>(TId elementId, CancellationToken cancellationToken = default);
 
     /// <summary>
-    /// Synchronously retrieves an entity by its identifier.
-    /// </summary>
-    /// <typeparam name="TId">The type of the identifier.</typeparam>
-    /// <param name="elementId">The identifier of the entity to retrieve.</param>
-    /// <returns>The entity with the specified identifier.</returns>
-    T GetById<TId>(TId elementId);
-
-    /// <summary>
     /// Retrieves all entities that satisfy the specified filter expressions.
     /// </summary>
     /// <param name="expressions">A collection of filter expressions to apply to the query.</param>
@@ -81,7 +67,6 @@ public interface IGenericRepository<T> where T : BasicEntity
 
                                 CancellationToken cancellationToken = default,
                                 params Expression<Func<T, object>>[] includes);
-
 
 }
 

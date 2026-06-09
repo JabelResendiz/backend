@@ -4,6 +4,6 @@ namespace Finlay.PharmaVigilance.Application.IServices;
 
 public interface IReportCommandService
 {
-    Task<CreateReportResponseDto> CreatePublicReportAsync(PublicAefiReportDto reportDto);
+    Task<CreateReportResponseDto> CreatePublicReportAsync(PublicAefiReportDto reportDto, string idempotencyKey);
 
 }

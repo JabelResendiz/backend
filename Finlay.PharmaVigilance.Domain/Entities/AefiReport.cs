@@ -9,7 +9,7 @@ public class AefiReport : GuidEntity
     public ReportStatus Status { get; set; }
     public string NotificationNumber { get; set; } = null!;
     public bool isMedicalReport { get; set; }
-
+    public string IdempotencyKey { get; set; } = null!;
 
     public Guid ReporterId { get; set; }
     public Guid VaccinatedSubjectId { get; set; }

@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Domain.Entities;
 
@@ -21,6 +22,6 @@ public interface IReportRepository : IGenericRepository<AefiReport>
         IQueryable<AefiReport> query,
         ReportMedicalReviewerFilter filter);
 
-
+    Task<ReportStatusDto?> GetReportStatus(params Expression<Func<AefiReport, bool>>[] expressions);
 
 }

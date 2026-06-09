@@ -17,7 +17,6 @@ public class SectionResponsibleMunicipalDashboardDto
     public int TotalNoComplications { get; set; }
     public int TotalPermanentDisability { get; set; }
 
-    //public IEnumerable<VaccinationCenterStatsDto> VaccinationCenters { get; set; } = [];
 }
 
 public class VaccineStatsDto

@@ -48,38 +48,30 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
 
     public async Task<ReportUserDto> GetReportByNotificationNumber(string notificationNumber)
     {
-
         var report = await _unitOfWork.GetRepository<AefiReport>()
-                        .GetAllByItems(ar => ar.NotificationNumber == notificationNumber)
-                        .AsNoTracking()
-                        .ProjectTo<ReportUserDto>(_mapper.ConfigurationProvider)
-                        .FirstOrDefaultAsync() ?? throw new ArgumentNullException("Report not found");
+            .GetAllByItems(ar => ar.NotificationNumber == notificationNumber)
+            .AsNoTracking()
+            .ProjectTo<ReportUserDto>(_mapper.ConfigurationProvider)
+            .FirstOrDefaultAsync()
+            ?? throw new ArgumentNullException("Report not found");
 
+        var assignment = await _unitOfWork.GetRepository<MedicalReviewAssignment>()
+            .GetAllByItems(x => x.AefiReport.NotificationNumber == notificationNumber)
+            .OrderByDescending(x => x.AssignedAt)
+            .FirstOrDefaultAsync();
 
-        var existingReport = await _unitOfWork.GetRepository<AefiReport>()
-                        .FirstOrDefaultAsync(ar => ar.NotificationNumber == notificationNumber)
-                        ?? throw new ArgumentNullException("Report not found");
-
-        var existingAssignment = await _unitOfWork.GetRepository<MedicalReviewAssignment>()
-                                        .FirstOrDefaultAsync(mra => mra.AefiReportId == existingReport.Id);
-
-        if (existingAssignment != null)
+        if (assignment != null)
         {
-            var existingReview = await _unitOfWork.GetRepository<MedicalReview>()
-                                        .FirstOrDefaultAsync(mr => mr.MedicalReviewAssignmentId == existingAssignment.Id);
+            report.AssignedAt = assignment.AssignedAt;
 
-            // Console.WriteLine($"Existing Assignment: {existingAssignment.Id}, Status: {existingAssignment.Status}");
+            var review = await _unitOfWork.GetRepository<MedicalReview>()
+                .FirstOrDefaultAsync(x => x.MedicalReviewAssignmentId == assignment.Id);
 
-            report.AssignedAt = existingAssignment.AssignedAt;
-
-            if (existingReview != null)
-                report.ReviewedAt = existingReview.ReviewedAt;
-
-
+            if (review != null)
+                report.ReviewedAt = review.ReviewedAt;
         }
 
         return report;
-
     }
 
     public async Task<byte[]> GetReportPdfByNotificationNumber(string notificationNumber, ReportPdfTemplateType templateType)

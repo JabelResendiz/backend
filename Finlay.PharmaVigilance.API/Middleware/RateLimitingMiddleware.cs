@@ -86,7 +86,7 @@ public static class RateLimitingMiddleware
             // Comandos con límite diario (ej: completar revisiones médicas)
             options.AddSlidingWindowLimiter("CommandDaily", config =>
             {
-                config.PermitLimit = 50;
+                config.PermitLimit = 50000000;
                 config.Window = TimeSpan.FromDays(1);
                 config.SegmentsPerWindow = 24;
                 config.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
@@ -107,7 +107,7 @@ public static class RateLimitingMiddleware
                         partitionKey: partitionKey,
                         factory: _ => new FixedWindowRateLimiterOptions
                         {
-                            PermitLimit = userId != null ? 200 : 100, // Más permisivo para autenticados
+                            PermitLimit = userId != null ? 2000000 : 10000000, // Más permisivo para autenticados
                             Window = TimeSpan.FromMinutes(1),
                             QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
                             QueueLimit = 0

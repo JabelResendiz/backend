@@ -1,6 +1,3 @@
-
-
-using Finlay.PharmaVigilance.Application.Helpers;
 using Finlay.PharmaVigilance.Domain.Entities;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -12,45 +9,91 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
 {
         public FinlayDbContext(DbContextOptions options) : base(options)
         {
-
         }
 
-        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
-        {
-                var entriesGeneric = ChangeTracker.Entries<BasicEntity>();
+        // public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
+        // {
+        //     var entriesGeneric = ChangeTracker.Entries<BasicEntity>();
 
-                foreach (var entry in entriesGeneric)
-                {
-                        if (entry.State == EntityState.Added)
-                        {
-                                entry.Entity.CreatedAt = TimeZoneHelper.GetEasternNow();
-                                entry.Entity.UpdatedAt = TimeZoneHelper.GetEasternNow();
-                        }
+        //     foreach (var entry in entriesGeneric)
+        //     {
+        //         if (entry.State == EntityState.Added)
+        //         {
+        //             entry.Entity.CreatedAt = TimeZoneHelper.GetEasternNow();
+        //             entry.Entity.UpdatedAt = TimeZoneHelper.GetEasternNow();
+        //         }
 
-                        if (entry.State == EntityState.Modified)
-                        {
-                                entry.Entity.UpdatedAt = TimeZoneHelper.GetEasternNow();
-                        }
-                }
+        //         if (entry.State == EntityState.Modified)
+        //         {
+        //             entry.Entity.UpdatedAt = TimeZoneHelper.GetEasternNow();
+        //         }
+        //     }
 
-                var entriesUser = ChangeTracker.Entries<User>();
+        //     var entriesUser = ChangeTracker.Entries<User>();
 
-                foreach (var entry in entriesUser)
-                {
-                        if (entry.State == EntityState.Added)
-                        {
-                                entry.Entity.CreatedAt = DateTime.UtcNow;
-                                entry.Entity.UpdatedAt = DateTime.UtcNow;
-                        }
+        //     foreach (var entry in entriesUser)
+        //     {
+        //         if (entry.State == EntityState.Added)
+        //         {
+        //             entry.Entity.CreatedAt = DateTime.UtcNow;
+        //             entry.Entity.UpdatedAt = DateTime.UtcNow;
+        //         }
 
-                        if (entry.State == EntityState.Modified)
-                        {
-                                entry.Entity.UpdatedAt = DateTime.UtcNow;
-                        }
-                }
+        //         if (entry.State == EntityState.Modified)
+        //         {
+        //             entry.Entity.UpdatedAt = DateTime.UtcNow;
+        //         }
+        //     }
 
-                return await base.SaveChangesAsync(cancellationToken);
-        }
+        //     // Build audit entries for changed entities (skip AuditLog to avoid recursion)
+        //     var auditEntries = new List<AuditLog>();
+
+        //     var userIdString = _httpContextAccessor?.HttpContext?.User?.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        //     Guid? userId = null;
+        //     if (!string.IsNullOrEmpty(userIdString) && Guid.TryParse(userIdString, out var parsed))
+        //         userId = parsed;
+
+        //     var ip = _httpContextAccessor?.HttpContext?.Connection?.RemoteIpAddress?.ToString();
+
+        //     var tracked = ChangeTracker.Entries()
+        //         .Where(e => e.Entity is BasicEntity && !(e.Entity is AuditLog) && (e.State == EntityState.Added || e.State == EntityState.Modified || e.State == EntityState.Deleted));
+
+        //     foreach (var entry in tracked)
+        //     {
+        //         var idProperty = entry.Properties.FirstOrDefault(p => string.Equals(p.Metadata.Name, "Id", StringComparison.OrdinalIgnoreCase));
+        //         Guid? entityId = null;
+        //         if (idProperty?.CurrentValue is Guid g && g != Guid.Empty)
+        //             entityId = g;
+
+        //         var oldValues = (entry.State == EntityState.Modified || entry.State == EntityState.Deleted)
+        //             ? JsonSerializer.Serialize(entry.Properties.ToDictionary(p => p.Metadata.Name, p => p.OriginalValue))
+        //             : null;
+
+        //         var newValues = (entry.State == EntityState.Added || entry.State == EntityState.Modified)
+        //             ? JsonSerializer.Serialize(entry.Properties.ToDictionary(p => p.Metadata.Name, p => p.CurrentValue))
+        //             : null;
+
+        //         var audit = new AuditLog
+        //         {
+        //             UserId = userId,
+        //             Action = entry.State.ToString(),
+        //             EntityName = entry.Entity.GetType().Name,
+        //             EntityId = entityId,
+        //             OldValues = oldValues,
+        //             NewValues = newValues,
+        //             IpAddress = ip,
+        //             CreatedAt = TimeZoneHelper.GetEasternNow(),
+        //             UpdatedAt = TimeZoneHelper.GetEasternNow()
+        //         };
+
+        //         auditEntries.Add(audit);
+        //     }
+
+        //     if (auditEntries.Count > 0)
+        //         AuditLogs.AddRange(auditEntries);
+
+        //     return await base.SaveChangesAsync(cancellationToken);
+        // }
 
         public DbSet<Admin> Admins { get; set; }
         public DbSet<AdverseEvent> AdverseEvents { get; set; }
@@ -221,17 +264,17 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
 
                         entity.OwnsOne(e => e.IdentityNumber, id =>
                         {
-                                id.Property(p => p.Value)
-                                .HasColumnName("IdentityNumber")
-                                .IsRequired()
-                                .HasMaxLength(20);
+                                    id.Property(p => p.Value)
+                                    .HasColumnName("IdentityNumber")
+                                    .IsRequired()
+                                    .HasMaxLength(20);
 
                                 // Age es propiedad calculada, no se guarda en BD
-                                id.Ignore(v => v.Age);
+                                    id.Ignore(v => v.Age);
 
-                                id.HasIndex(p => p.Value)
-                                .IsUnique();
-                        });
+                                    id.HasIndex(p => p.Value)
+                                    .IsUnique();
+                            });
 
 
 
@@ -347,6 +390,13 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
                         entity.Property(e => e.NotificationNumber)
                       .IsRequired()
                       .HasMaxLength(100);
+
+                        entity.Property(e => e.IdempotencyKey)
+                    .IsRequired()
+                    .HasMaxLength(50);
+
+                        entity.HasIndex(e => e.IdempotencyKey)
+                .IsUnique();
 
                         entity.HasIndex(e => e.NotificationNumber)
                 .IsUnique();
@@ -476,14 +526,14 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
 
                         entity.OwnsOne(e => e.IdentityNumber, id =>
                         {
-                                id.Property(p => p.Value)
-                                .HasColumnName("IdentityNumber")
-                                .IsRequired()
-                                .HasMaxLength(20);
+                                    id.Property(p => p.Value)
+                                    .HasColumnName("IdentityNumber")
+                                    .IsRequired()
+                                    .HasMaxLength(20);
 
-                                id.HasIndex(p => p.Value)
-                                .IsUnique();
-                        });
+                                    id.HasIndex(p => p.Value)
+                                    .IsUnique();
+                            });
 
                         entity.Property(e => e.Gender)
                 .IsRequired()
@@ -536,14 +586,14 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
 
                        entity.OwnsOne(e => e.IdentityNumber, id =>
                          {
-                                 id.Property(p => p.Value)
-                                 .HasColumnName("IdentityNumber")
-                                 .IsRequired()
-                                 .HasMaxLength(20);
+                                     id.Property(p => p.Value)
+                                     .HasColumnName("IdentityNumber")
+                                     .IsRequired()
+                                     .HasMaxLength(20);
 
-                                 id.HasIndex(p => p.Value)
-                                 .IsUnique();
-                         });
+                                     id.HasIndex(p => p.Value)
+                                     .IsUnique();
+                             });
 
 
                        entity.Property(e => e.ReporterRelationship)
@@ -660,6 +710,9 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
                     .IsRequired(false)
                     .HasMaxLength(300);
 
+                        entity.Property(a => a.RowVersion)
+                    .IsRowVersion();
+
 
                         entity.HasOne(a => a.SectionResponsible)
                     .WithMany(sr => sr.ManagedReviews)
@@ -758,17 +811,17 @@ public class FinlayDbContext : IdentityDbContext<User, Role, Guid>
              });
 
                 builder.Entity<AuditLog>(entity =>
-           {
-                   entity.HasKey(e => e.Id);
+                {
+                        entity.HasKey(e => e.Id);
 
-                   entity.Property(e => e.EntityName)
+                        entity.Property(e => e.EntityName)
                 .IsRequired();
 
-                   entity.Property(e => e.Action)
+                        entity.Property(e => e.Action)
                 .IsRequired();
 
 
-           });
+                });
 
                 builder.Entity<ReportDuplicate>(entity =>
                 {

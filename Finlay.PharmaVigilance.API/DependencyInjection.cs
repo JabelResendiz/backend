@@ -29,17 +29,6 @@ public static class DependencyInjection
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
 
-        // Configure CORS to allow any origin, method, and headers
-        // services.AddCors(options =>
-        // {
-        //     options.AddDefaultPolicy(builder =>
-        //     {
-        //         builder.AllowAnyOrigin() // allows requests from any origin
-        //                .AllowAnyHeader() // allows HTTP headers
-        //                .AllowAnyMethod(); // allows any HTTP method (GET,POST,PUT,DELETE)
-        //     });
-        // });
-
         services.AddCors(options =>
         {
             options.AddPolicy("Frontend", builder =>

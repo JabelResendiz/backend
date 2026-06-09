@@ -6,11 +6,9 @@ public class AdminReportDashboardDto
     public int Submitted { get; set; }
 
     public int UnderReview { get; set; }
-
+    public int Reopened { get; set; }
     public int Approved { get; set; }
-
     public int Rejected { get; set; }
-
     public int Closed { get; set; }
 
     public IEnumerable<ProvinceReportStatusDto> Provinces { get; set; }

@@ -51,5 +51,24 @@ public class MedicalReviewAssignmentController : ControllerBase
         });
     }
 
+    [HttpPost("reassigned")]
+    [Authorize(Roles = "SectionResponsible")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status409Conflict)]
+    [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+    public async Task<IActionResult> Reassignment([FromBody] MedicalReviewAssignmentDTO reportDto)
+    {
+        if (reportDto == null)
+            throw new ArgumentNullException(nameof(reportDto), "Medical Review Assignment data is required.");
+
+        await _medicalReviewAssignmentCommandService.ReassignedAsync(reportDto);
+
+        return StatusCode(StatusCodes.Status201Created, new
+        {
+            message = "Medical Review Reassignment successfully created"
+        });
+    }
+
 
 }

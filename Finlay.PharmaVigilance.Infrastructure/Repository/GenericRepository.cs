@@ -10,7 +10,7 @@ namespace Finlay.PharmaVigilance.Infrastructure.Repository;
 public class GenericRepository<T> : IGenericRepository<T> where T : BasicEntity
 {
     protected readonly DbSet<T> _entity; // Represents the database set for the entity type T.
-    private FinlayDbContext _context; // Holds the database context for interacting with the database.
+    protected readonly FinlayDbContext _context; // Holds the database context for interacting with the database.
 
     public GenericRepository(FinlayDbContext context)
     {
@@ -70,11 +70,6 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BasicEntity
         return query.Skip(skip).Take(take);
     }
 
-    public virtual void Update(T element)
-    {
-        _entity.Update(element); // Update the provided entity in the DbSet.
-
-    }
 
     public async Task<T?> FirstOrDefaultAsync(
                     Expression<Func<T, bool>> predicate,
@@ -108,6 +103,7 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BasicEntity
                 query = query.Include(include);
             }
         }
+
         var result = await query.FirstOrDefaultAsync(e => EF.Property<TId>(e, "Id")!.Equals(elementId), cancellationToken);
 
         if (result == null) // Check if the entity was not found.
@@ -124,10 +120,6 @@ public class GenericRepository<T> : IGenericRepository<T> where T : BasicEntity
         // Remove the retrieved entity from the DbSet.
         _entity.Remove(result);
 
-    }
-    public virtual T GetById<TId>(TId elementId)
-    {
-        return _entity.Find(elementId)!; // Synchronously find and return the entity by its ID.
     }
 
 

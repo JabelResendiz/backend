@@ -108,8 +108,18 @@ public class MedicalReviewCommandService : IMedicalReviewCommandService
 
         report.Status = ReportStatus.Approved;
 
-        await _unitOfWork.GetRepository<MedicalReview>().CreateAsync(medicalReview);
-        await _unitOfWork.CompleteAsync();
+        try
+        {
+            await _unitOfWork.GetRepository<MedicalReview>().CreateAsync(medicalReview);
+            await _unitOfWork.CompleteAsync();
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            throw new InvalidOperationException(
+            "The assignment was modified by the section responsible while completing the review. " +
+            "Your assignment may have been reassigned. Please refresh and verify.");
+        }
+
 
         return dto;
     }

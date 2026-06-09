@@ -1,12 +1,14 @@
+using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Domain.Entities;
-using Finlay.PharmaVigilance.Domain.Enum;
 
 namespace Finlay.PharmaVigilance.Application.IServices;
 
 
 public interface IReportDuplicateService
 {
-    Task<AefiReport?> ValidateDuplicate(AefiReport report);
-    Task CreateAsync(ReportDuplicate report);
+    Task<ReportDuplicate?> ValidateAndRegisterAsync(AefiReport report);
 
+    Task ResolveAsync(Guid duplicateId, ResolveDuplicateDto dto);
+    Task<ReportDuplicateDetailDto> GetByIdAsync(Guid id);
+    Task<PagedResultDto<ReportDuplicateDto>> GetPendingAsync(PagedRequestDto request);
 }

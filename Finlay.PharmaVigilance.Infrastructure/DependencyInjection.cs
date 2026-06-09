@@ -41,18 +41,14 @@ public static class DependencyInjection
         // Database Configuration - Build connection string from environment variables or appsettings
         var connectionString = GetConnectionString(configuration);
 
-        var db = services.AddDbContext<FinlayDbContext>(options =>
+        services.AddDbContext<FinlayDbContext>((serviceProvider, options) =>
         {
-            try
-            {
-                options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
-            }
-            catch (Exception ex)
-            {
-                // Log connection string issues for debugging
-                Console.WriteLine($"Database connection error: {ex.Message}");
-                throw;
-            }
+            options.UseMySql(
+                connectionString,
+                ServerVersion.AutoDetect(connectionString));
+
+            options.AddInterceptors(
+                serviceProvider.GetRequiredService<AuditInterceptor>());
         });
 
         // Add HttpContextAccessor for accessing the current HTTP context
@@ -139,6 +135,7 @@ public static class DependencyInjection
         services.AddScoped<ILotRepository, LotRepository>();
         services.AddScoped<IRefreshTokenRepository, RefreshTokenRepository>();
         services.AddScoped<IMedicalAssignmentRepository, MedicalAssignmentRepository>();
+        services.AddScoped<IReportDuplicateRepository, ReportDuplicateRepository>();
 
 
         return services;

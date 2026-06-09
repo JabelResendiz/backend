@@ -1,4 +1,5 @@
 using Finlay.PharmaVigilance.Application.Common.EventBus;
+using Finlay.PharmaVigilance.Application.Helpers;
 using Finlay.PharmaVigilance.Application.IServices;
 using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
 using Finlay.PharmaVigilance.Domain.Entities;
@@ -27,7 +28,7 @@ public class AssignmentExpirationService
     public async Task ProcessExpiredAssignmentsAsync(
         CancellationToken cancellationToken = default)
     {
-        var now = DateTime.UtcNow;
+        var now = TimeZoneHelper.GetEasternNow();
 
         var allPending = await _unitOfWork
             .GetRepository<MedicalReviewAssignment>()
@@ -53,16 +54,15 @@ public class AssignmentExpirationService
         })
         .ToList();
 
+        // foreach (var item in expired)
+        // {
+        //     item.Assignment.Status = ReviewAssignmentStatus.Expired;
 
-        foreach (var item in expired)
-        {
-            item.Assignment.Status = ReviewAssignmentStatus.Expired;
-
-            if (item.Report != null)
-            {
-                item.Report.Status = ReportStatus.Reopened;
-            }
-        }
+        //     if (item.Report != null)
+        //     {
+        //         item.Report.Status = ReportStatus.Reopened;
+        //     }
+        // }
 
         await _unitOfWork.CompleteAsync(cancellationToken);
 
@@ -80,43 +80,4 @@ public class AssignmentExpirationService
         }
     }
 
-
-    // public async Task ProcessExpiredAssignmentsAsync(CancellationToken cancellationToken = default)
-    // {
-    //     var now = DateTime.UtcNow;
-
-    //     // 1. Ejecutar actualización masiva directamente en la BD (ExecuteUpdateAsync)
-    //     // Esto no trae filas a memoria, se ejecuta como un solo query SQL UPDATE instantáneo.
-    //     var affectedRows = await _unitOfWork.GetRepository<MedicalReviewAssignment>()
-    //         .GetAll() // Necesitas el IQueryable directo del repositorio
-    //         .Where(a => a.Status == ReviewAssignmentStatus.Pending &&
-    //             (
-    //                 (a.AefiReport.Priority == ReportPriority.High && a.AssignedAt.AddHours(24) < now) ||
-    //                 (a.AefiReport.Priority == ReportPriority.Medium && a.AssignedAt.AddDays(5) < now) ||
-    //                 (a.AefiReport.Priority != ReportPriority.High && a.AefiReport.Priority != ReportPriority.Medium && a.AssignedAt.AddDays(7) < now)
-    //             ))
-    //         .ExecuteUpdateAsync(setters => setters
-    //             .SetProperty(a => a.Status, ReviewAssignmentStatus.Expired)
-    //             .SetProperty(a => a.AefiReport.Status, ReportStatus.Reopened),
-    //             cancellationToken);
-
-    //     // Si no hubo expirados, terminamos inmediatamente sin consultar nada más
-    //     if (affectedRows == 0) return;
-
-    //     // 2. Obtener SOLO los datos necesarios para los eventos de los registros ya expirados
-    //     var expiredEventsData = await _unitOfWork.GetRepository<MedicalReviewAssignment>()
-    //         .GetAll()
-    //         .Where(a => a.Status == ReviewAssignmentStatus.Expired && a.AefiReport.Status == ReportStatus.Reopened)
-    //         .Select(a => new AssignmentExpiredEvent
-    //         {
-    //             AssignmentId = a.Id,
-    //             ReportId = a.AefiReport.Id,
-    //             SectionResponsibleEmail = a.SectionResponsible.User.Email!
-    //         })
-    //         .ToListAsync(cancellationToken);
-
-    //     // 3. Publicar los eventos en paralelo
-    //     var publishTasks = expiredEventsData.Select(ev => _eventBus.PublishAsync(ev, cancellationToken));
-    //     await Task.WhenAll(publishTasks);
-    // }
 }
