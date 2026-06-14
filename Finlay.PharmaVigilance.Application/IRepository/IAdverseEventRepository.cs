@@ -10,4 +10,6 @@ public interface IAdverseEventRepository : IGenericRepository<AdverseEvent>
     Task<IEnumerable<SeverityDistributionDto>> GetSeverityDistribution(int municipalityId);
 
     Task<SeriousDataDto> GetSeriousDataAsync(int municipalityId);
+
+    Task<IEnumerable<SymptomDistributionDto>> GetSymptomDistributionAsync();
 }

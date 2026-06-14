@@ -3,7 +3,7 @@ using System.Text.Json.Serialization;
 namespace Finlay.PharmaVigilance.Application.DTO;
 
 
-public class ActivateAccountTemplate
+public class ActivateAccountTemplate : IBasicTemplate
 {
     [JsonPropertyName("reviewer_name")]
     public string FullName { get; set; } = null!;

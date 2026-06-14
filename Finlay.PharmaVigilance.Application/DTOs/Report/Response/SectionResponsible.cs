@@ -6,6 +6,7 @@ namespace Finlay.PharmaVigilance.Application.DTO;
 public class ReportSectionResponsibleDto
 {
     public required Guid Id { get; set; }
+    public required string NotificationNumber { get; set; }
     public required DateTime ReportDate { get; set; }
     public required ReportStatus Status { get; set; }
     public required SeverityLevel GlobalSeverityLevel { get; set; }

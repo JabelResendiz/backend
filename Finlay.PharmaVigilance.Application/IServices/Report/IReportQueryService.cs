@@ -16,7 +16,9 @@ public interface IReportQueryService : IGenericQueryService<AefiReport, PublicAe
         PagedRequestDto pagedRequestDto,
         ReportSectionResponsibleFilter filter);
 
-    //Task<byte[]> GetReportPdfByNotificationNumber(string notificationNumber, ReportPdfTemplateType templateType);
+    // Task<byte[]> GetReportPdfByNotificationNumber(string notificationNumber, ReportPdfTemplateType templateType);
+
+    // Task<byte[]> GetReportDetailsPdfAsync(string notificationNumber);
 
     Task<PagedResultDto<ReportSummaryAdminDto>> GetFilter(
         PagedRequestDto paged,

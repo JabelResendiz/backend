@@ -24,4 +24,17 @@ public interface IReportRepository : IGenericRepository<AefiReport>
 
     Task<ReportStatusDto?> GetReportStatus(params Expression<Func<AefiReport, bool>>[] expressions);
 
+    Task<IEnumerable<ProvinceReportStatusDto>> GetReportStatusByProvinces();
+
+    Task<IEnumerable<CausalityDistributionDto>> GetCausalityDistributionAsync();
+
+    Task<IEnumerable<SignificanceDistributionDto>> GetSignificanceDistributionAsync();
+
+    Task<IEnumerable<SeverityLevelDistributionDto>> GetSeverityLevelDistributionAsync();
+
+    Task<IEnumerable<MonthlyReportTrendDto>> GetMonthlyReportTrendAsync();
+
+    Task<PerformanceDto> GetPerformanceMetrics();
+
+    Task<IEnumerable<ProvinceMedicalActivityDto>> GetProvinceMedicalActivityAsync();
 }

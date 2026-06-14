@@ -6,9 +6,7 @@ using Finlay.PharmaVigilance.Application.DTO;
 using Finlay.PharmaVigilance.Application.IRepository;
 using Finlay.PharmaVigilance.Application.IServices;
 using Finlay.PharmaVigilance.Application.IServices.Common;
-using Finlay.PharmaVigilance.Application.IServices.Pdf;
 using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
-using Finlay.PharmaVigilance.Application.Enum;
 using Finlay.PharmaVigilance.Domain.Entities;
 using Finlay.PharmaVigilance.Domain.Enum;
 using Microsoft.EntityFrameworkCore;
@@ -27,19 +25,17 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
                         };
 
     private readonly IUserContextService _userContextService;
-    private readonly IPdfService _pdfService;
+    // private readonly IPdfService _pdfService;
     private readonly IReportRepository _reportRepository;
 
     public ReportQueryService(IUnitOfWork unitOfWork,
         IMapper mapper,
         IUserContextService userContextService,
-        IReportRepository reportRepository,
-        IPdfService pdfService)
+        IReportRepository reportRepository)
         : base(unitOfWork, mapper)
     {
         _userContextService = userContextService;
         _reportRepository = reportRepository;
-        _pdfService = pdfService;
     }
 
     public override Expression<Func<AefiReport, object>>[] GetIncludes() => includes;
@@ -74,19 +70,19 @@ public class ReportQueryService : GenericQueryService<AefiReport, PublicAefiRepo
         return report;
     }
 
-    public async Task<byte[]> GetReportPdfByNotificationNumber(string notificationNumber, ReportPdfTemplateType templateType)
-    {
-        if (string.IsNullOrWhiteSpace(notificationNumber))
-            throw new ArgumentNullException(nameof(notificationNumber), "Notification number is required.");
+    // public async Task<byte[]> GetReportPdfByNotificationNumber(string notificationNumber, ReportPdfTemplateType templateType)
+    // {
+    //     if (string.IsNullOrWhiteSpace(notificationNumber))
+    //         throw new ArgumentNullException(nameof(notificationNumber), "Notification number is required.");
 
-        var report = await _unitOfWork.GetRepository<AefiReport>()
-                        .GetAllByItems(ar => ar.NotificationNumber == notificationNumber)
-                        .AsNoTracking()
-                        .ProjectTo<ReportPdfDto>(_mapper.ConfigurationProvider)
-                        .FirstOrDefaultAsync() ?? throw new ArgumentNullException("Report not found");
+    //     var report = await _unitOfWork.GetRepository<AefiReport>()
+    //                     .GetAllByItems(ar => ar.NotificationNumber == notificationNumber)
+    //                     .AsNoTracking()
+    //                     .ProjectTo<ReportPdfDto>(_mapper.ConfigurationProvider)
+    //                     .FirstOrDefaultAsync() ?? throw new ArgumentNullException("Report not found");
 
-        return _pdfService.GenerateReportPdf(report, templateType);
-    }
+    //     return _pdfService.GenerateReportPdf(report, templateType);
+    // }
 
 
     public async Task<PagedResultDto<ReportMedicalReviewerDto>> GetReportAssigment(

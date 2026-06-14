@@ -15,6 +15,14 @@ public class AdminPerformanceDashboardDto
 }
 
 
+public class PerformanceDto
+{
+    public int ActiveDoctors { get; set; }
+    public double AvgReportsPerDoctor { get; set; }
+    public double AvgReviewTimeHours { get; set; }
+    public double AvgAssignmentHours { get; set; }
+}
+
 
 
 public class ProvinceMedicalActivityDto

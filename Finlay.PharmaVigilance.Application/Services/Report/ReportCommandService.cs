@@ -8,6 +8,7 @@ using Finlay.PharmaVigilance.Application.IUnitOfWorkPattern;
 using Finlay.PharmaVigilance.Application.Validators;
 using Finlay.PharmaVigilance.Domain.Entities;
 using Finlay.PharmaVigilance.Domain.Enum;
+using Finlay.PharmaVigilance.Domain.Events;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
@@ -148,15 +149,14 @@ public class ReportCommandService : IReportCommandService
             report.IdempotencyKey = idempotencyKey;
 
             var sectionResponsible = await _unitOfWork.GetRepository<SectionResponsible>()
-                .FirstOrDefaultAsync(sr => sr.MunicipalityId == reportDto.VaccinatedSubject.MunicipalityId);
+                .FirstOrDefaultAsync(sr => sr.MunicipalityId == reportDto.VaccinatedSubject.MunicipalityId,
+                                    includes: s => s.User);
 
             if (sectionResponsible == null)
             {
                 _logger.LogWarning("No SectionResponsible found for MunicipalityId {MunicipalityId}", reportDto.VaccinatedSubject.MunicipalityId);
                 throw new InvalidOperationException("No SectionResponsible found.");
             }
-            // throw new InvalidOperationException("No SectionResponsible found.");
-
             var alert = new Alert
             {
                 Description = "New AEFI report submitted",
@@ -175,8 +175,6 @@ public class ReportCommandService : IReportCommandService
             {
                 await _unitOfWork.GetRepository<AefiReport>().CreateAsync(report);
 
-                Console.WriteLine($"Report and related entities created successfully, Id: {report.Id}");
-
                 var duplicate = await _reportDuplicate.ValidateAndRegisterAsync(report);
 
                 await _unitOfWork.CompleteAsync();
@@ -192,32 +190,14 @@ public class ReportCommandService : IReportCommandService
                 };
             }
 
-
-
-
             // send email
+            _logger.LogDebug("Preparing to send notification emails for report");
 
-            // _logger.LogDebug("Preparing to send notification emails for report");
-
-            // if (reporter.Email == null)
-            //     throw new InvalidOperationException("Reporter email is null.");
-
-            // var sectionResponsibleUser = await _unitOfWork.UserRepository
-            //             .GetByIdAsync(sectionResponsible.UserId);
-
-            // if (sectionResponsibleUser == null)
-            //     throw new InvalidOperationException("Section responsible user is null.");
-
-            // _logger.LogDebug($"📧 Queremos enviar email a: {reporter.Email} y {sectionResponsibleUser.Email}");
-
-
-            // await _eventBus.PublishAsync(new ReportConfirmationEvent
+            // await _eventBus.PublishAsync(new SectionReportAlertEvent
             // {
             //     ReportNumber = report.NotificationNumber,
-            //     Email = reporter.Email,
-            //     SymptomIds = reportDto.AdverseEvents.Select(ad => ad.SymptomId).Distinct().ToList(),
-            //     VaccineIds = reportDto.Vaccinations.Select(v => v.VaccineId).Distinct().ToList(),
-            //     ReportDate = report.ReportDate
+            //     EmailSectionResponsible = sectionResponsible.User.Email!,
+            //     PhoneNumber = sectionResponsible.User.PhoneNumber!
             // });
 
 

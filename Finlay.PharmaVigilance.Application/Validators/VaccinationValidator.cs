@@ -55,13 +55,10 @@ public class VaccinationValidator : IReportValidator<ReportDto>
 
 
             // Validate vaccine exists
-            Console.WriteLine($"La vacuna es {vaccination.VaccineId}");
 
             var vaccine = await vaccineRepository.GetByIdAsync(vaccination.VaccineId)
                 ?? throw new KeyNotFoundException(
                     $"Vaccine with ID {vaccination.VaccineId} not found in the database.");
-
-            Console.WriteLine($"El lote es {vaccination.LotId}");
 
             var lot = await _unitOfWork.GetRepository<Lot>()
                         .GetByIdAsync(vaccination.LotId)

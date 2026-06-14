@@ -2,7 +2,7 @@ namespace Finlay.PharmaVigilance.Application.DTO;
 
 public class AdminVaccineDashboardDto
 {
-    public IEnumerable<VaccineStatusDto> Vaccines { get; set; }
+    public IEnumerable<VaccineStatusDto> VaccinesDistribution { get; set; }
         = new List<VaccineStatusDto>();
 
     public IEnumerable<SymptomDistributionDto> SymptomDistribution { get; set; }

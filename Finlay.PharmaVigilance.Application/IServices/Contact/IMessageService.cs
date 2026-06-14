@@ -4,10 +4,15 @@ using Finlay.PharmaVigilance.Domain.Events;
 
 namespace Finlay.PharmaVigilance.Application.IServices;
 
-public interface IEmailService
+public interface IMessageService
 {
     Task SendEmailAsync<T>(
-        string toEmail,
+        string phoneNumber,
         EmailTemplateType template,
         T templateData) where T : IBasicTemplate;
+}
+
+public interface IWhatsAppMessage
+{
+    string ToWhatsAppMessage();
 }

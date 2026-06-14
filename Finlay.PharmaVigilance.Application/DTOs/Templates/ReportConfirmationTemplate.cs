@@ -4,7 +4,7 @@ using System.Text.Json.Serialization;
 namespace Finlay.PharmaVigilance.Application.DTO;
 
 
-public class ReportConfirmationTemplate
+public class ReportConfirmationTemplate : IBasicTemplate
 {
     [JsonPropertyName("vaccines")]
     public string Vaccines { get; set; } = default!;

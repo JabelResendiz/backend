@@ -510,7 +510,7 @@ public class MockAdminDashboardService : IAdminDashboardService
     {
         return new AdminVaccineDashboardDto
         {
-            Vaccines = new List<VaccineStatusDto>
+            VaccinesDistribution = new List<VaccineStatusDto>
         {
             new VaccineStatusDto
             {
