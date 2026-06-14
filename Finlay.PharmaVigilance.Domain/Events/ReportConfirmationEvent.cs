@@ -1,6 +1,6 @@
-namespace Finlay.PharmaVigilance.Domain.Enum;
+namespace Finlay.PharmaVigilance.Domain.Events;
 
-public class ReportConfirmationEvent
+public class ReportConfirmationEvent : BasicEvent
 {
     public string Email { get; set; } = default!;
     public string ReportNumber { get; set; } = null!;

@@ -1,6 +1,6 @@
 namespace Finlay.PharmaVigilance.Domain.Events;
 
-public class AssignmentExpiredEvent
+public class AssignmentExpiredEvent : BasicEvent
 {
     public Guid AssignmentId { get; set; }
     public Guid ReportId { get; set; }
