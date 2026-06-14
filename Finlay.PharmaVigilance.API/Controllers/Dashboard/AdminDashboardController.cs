@@ -26,7 +26,7 @@ public class AdminDashboardController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetAdminReport()
     {
-        var result = _adminDashboardService.GetReportAsync();
+        var result = await _adminDashboardService.GetReportAsync();
 
         return Ok(result);
 
@@ -40,7 +40,7 @@ public class AdminDashboardController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetPerformance()
     {
-        var result = _adminDashboardService.GetPerformanceAsync();
+        var result = await _adminDashboardService.GetPerformanceAsync();
 
         return Ok(result);
 
@@ -55,7 +55,7 @@ public class AdminDashboardController : ControllerBase
     [ProducesResponseType(StatusCodes.Status500InternalServerError)]
     public async Task<IActionResult> GetVaccine()
     {
-        var result = _adminDashboardService.GetVaccinesAsync();
+        var result = await _adminDashboardService.GetVaccinesAsync();
 
         return Ok(result);
 

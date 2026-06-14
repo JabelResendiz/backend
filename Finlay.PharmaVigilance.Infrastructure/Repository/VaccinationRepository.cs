@@ -36,4 +36,41 @@ public class VaccinationRepository : GenericRepository<Vaccination>, IVaccinatio
         return result;
 
     }
+
+    public async Task<IEnumerable<VaccineStatusDto>> GetVaccineDistributionAsync()
+    {
+        var result = await _context.AefiReport
+    .SelectMany(r => r.Vaccinations)
+    .GroupBy(v => new
+    {
+        v.Lot.Vaccine.Id,
+        v.Lot.Vaccine.Name
+    })
+    .Select(vaccineGroup => new VaccineStatusDto
+    {
+        VaccineName = vaccineGroup.Key.Name,
+
+        TotalReports = vaccineGroup
+            .Select(v => v.AefiReportId)
+            .Distinct()
+            .Count(),
+
+        Lots = vaccineGroup
+            .GroupBy(v => new { v.Lot.Id, v.Lot.LotNumber })
+            .Select(lotGroup => new LotsStatusDto
+            {
+                LotNumber = lotGroup.Key.LotNumber,
+
+                TotalReports = lotGroup
+                    .Select(v => v.AefiReportId)
+                    .Distinct()
+                    .Count()
+            })
+            .ToList()
+    })
+    .ToListAsync();
+        return result;
+    }
+
+
 }

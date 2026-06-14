@@ -66,6 +66,11 @@ public static class DependencyInjection
                .AddEntityFrameworkStores<FinlayDbContext>() // Configures EF for Identity
                .AddDefaultTokenProviders(); // Adds default token providers for things like password reset
 
+        services.Configure<PasswordHasherOptions>(options =>
+        {
+            options.IterationCount = 600000;
+        });
+
         // Authentication and Authorization
         services.AddAuth(configuration);
 
@@ -88,6 +93,10 @@ public static class DependencyInjection
             configuration.GetSection("Email:EmailJS")
         );
 
+        services.Configure<WhatsAppSettings>(
+            configuration.GetSection("WhatsApp")
+        );
+
         // Add custom repositories and services       
         services.AddScoped<IUnitOfWork, UnitOfWork>();
         services.AddScoped<IUserRepository, UserRepository>();
@@ -95,14 +104,17 @@ public static class DependencyInjection
 
         //services.AddSingleton<IEmailService, SmtpEmailService>();
         services.AddHttpClient<IEmailService, EmailJsService>();
+        services.AddHttpClient<IMessageService, WhatsAppService>();
+
 
         // MassTransit with RabbitMQ Configuration
         var rabbitMqUrl = configuration["RABBITMQ_URL"] ?? "amqp://guest:guest@localhost:5672";
         services.AddMassTransit(x =>
         {
-            x.AddConsumer<MedicalReviewerConsumer>();
-            x.AddConsumer<AssignmentExpiredConsumer>();
-            x.AddConsumer<ReportConfirmationConsumer>();
+            // x.AddConsumer<MedicalReviewerConsumer>();
+            //x.AddConsumer<AssignmentExpiredConsumer>();
+            //   x.AddConsumer<ReportConfirmationConsumer>();
+            x.AddConsumer<SectionReportAlertConsumer>();
 
             x.UsingRabbitMq((context, cfg) =>
             {

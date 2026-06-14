@@ -79,4 +79,37 @@ public class AdverseEventRepository : GenericRepository<AdverseEvent>, IAdverseE
 
         return result;
     }
+
+
+
+
+
+
+    public async Task<IEnumerable<SymptomDistributionDto>> GetSymptomDistributionAsync()
+    {
+        var data = await _entity
+            .GroupBy(e => e.Symptom.Name)
+            .Select(g => new
+            {
+                SymptomName = g.Key,
+                Count = g.Count()
+            })
+            .ToListAsync();
+
+        var total = data.Sum(x => x.Count);
+
+        var result = data
+            .Select(x => new SymptomDistributionDto
+            {
+                SymptomName = x.SymptomName,
+                Count = x.Count,
+                Percentage = total > 0
+                    ? Math.Round((double)x.Count * 100 / total, 2)
+                    : 0
+            })
+            .ToList();
+
+        return result;
+    }
 }
+

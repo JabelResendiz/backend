@@ -9,8 +9,8 @@ namespace Finlay.PharmaVigilance.Infrastructure.Consumers;
 public class AssignmentExpiredConsumer : IConsumer<AssignmentExpiredEvent>
 {
     private readonly IEmailService _emailService;
-
-    public AssignmentExpiredConsumer(IEmailService emailService)
+    public AssignmentExpiredConsumer(
+        IEmailService emailService)
     {
         _emailService = emailService;
     }
@@ -19,7 +19,7 @@ public class AssignmentExpiredConsumer : IConsumer<AssignmentExpiredEvent>
     {
         var data = context.Message;
 
-        await _emailService.SendEmailAsync(
+        await _emailService.SendEmailAsync<AssignmentExpiredTemplate>(
             data.SectionResponsibleEmail,
             EmailTemplateType.AssignmentExpired,
             new AssignmentExpiredTemplate
