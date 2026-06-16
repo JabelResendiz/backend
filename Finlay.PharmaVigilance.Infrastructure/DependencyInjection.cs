@@ -41,6 +41,8 @@ public static class DependencyInjection
         // Database Configuration - Build connection string from environment variables or appsettings
         var connectionString = GetConnectionString(configuration);
 
+        services.AddScoped<AuditInterceptor>();
+
         services.AddDbContext<FinlayDbContext>((serviceProvider, options) =>
         {
             options.UseMySql(
