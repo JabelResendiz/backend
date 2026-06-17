@@ -98,10 +98,15 @@ public class AuthenticationController : ControllerBase
 
         if (string.IsNullOrEmpty(refreshToken))
         {
-            return Unauthorized(new
+            // return Unauthorized(new
+            // {
+            //     success = false,
+            //     message = "Refresh token missing."
+            // });
+            return Ok(new
             {
                 success = false,
-                message = "Refresh token missing."
+                message = "Refresh token missing"
             });
         }
 
